@@ -34,25 +34,28 @@ export function ChangePasswordScreen({ onNavigate }: Props) {
   };
 
   return (
-    <div className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-background">
+    <div className="relative w-full h-screen flex items-center justify-center overflow-hidden">
       <AnimatedBackground />
 
-      <div className="relative z-10 w-full max-w-[400px] animate-scale-in">
-        <div className="sys-panel p-8 space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-border">
-            <button onClick={() => onNavigate("login")} className="w-7 h-7 rounded-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-100">
+      <div className="relative z-10 w-full max-w-[420px] animate-scale-in">
+        <div className="glass-panel-glow p-8 space-y-6">
+          <div className="flex items-center gap-3 pb-4 border-b border-border/30">
+            <button onClick={() => onNavigate("login")} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
-              <h2 className="text-base font-semibold tracking-[0.1em] uppercase">Change Password</h2>
-              <p className="text-[11px] text-muted-foreground tracking-[0.08em] uppercase">Update credentials</p>
+              <h2 className="text-base font-semibold tracking-wide">Change Password</h2>
+              <p className="text-[12px] text-muted-foreground">Update credentials</p>
             </div>
           </div>
 
           {success ? (
             <div className="flex flex-col items-center gap-3 py-8 animate-fade-in">
-              <div className="w-12 h-12 rounded-sm bg-success/15 border border-success/30 flex items-center justify-center">
-                <Check className="w-6 h-6 text-success" />
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{
+                background: "linear-gradient(135deg, hsl(152 69% 41%), hsl(152 69% 51%))",
+                boxShadow: "0 0 20px hsl(152 69% 41% / 0.3)",
+              }}>
+                <Check className="w-7 h-7 text-white" />
               </div>
               <p className="text-sm font-medium">Password updated</p>
               <p className="text-xs text-muted-foreground">Redirecting to login...</p>
@@ -60,7 +63,7 @@ export function ChangePasswordScreen({ onNavigate }: Props) {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="px-3 py-2.5 rounded-sm bg-destructive/10 border border-destructive/30 text-destructive text-sm">{error}</div>
+                <div className="px-3 py-2.5 rounded-lg bg-destructive/10 border border-destructive/25 text-destructive text-sm">{error}</div>
               )}
 
               {[
@@ -70,7 +73,7 @@ export function ChangePasswordScreen({ onNavigate }: Props) {
                 { label: "Confirm New Password", value: confirm, onChange: setConfirm, type: "password" },
               ].map((f) => (
                 <div key={f.label} className="space-y-1.5">
-                  <label className="text-[11px] uppercase tracking-[0.1em] text-muted-foreground font-medium">{f.label}</label>
+                  <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{f.label}</label>
                   <input type={f.type} value={f.value} onChange={(e) => f.onChange(e.target.value)} required className="sys-input" />
                 </div>
               ))}

@@ -8,7 +8,9 @@ export function Dashboard() {
   const { user } = useAuth();
 
   return (
-    <div className="w-full h-screen flex flex-col overflow-hidden bg-background">
+    <div className="w-full h-screen flex flex-col overflow-hidden" style={{
+      background: "linear-gradient(180deg, hsl(228 30% 10%) 0%, hsl(228 28% 8%) 100%)",
+    }}>
       <HeaderBar />
       <main className="flex-1 overflow-hidden animate-fade-in">
         {user?.role === "instructor" && <InstructorDashboard />}

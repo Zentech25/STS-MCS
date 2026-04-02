@@ -19,16 +19,23 @@ export function EngineerDashboard() {
     { time: "14:15:33", level: "INFO", msg: "Display array sync verified" },
   ];
 
+  const healthMetrics = [
+    { label: "CPU", value: 38, color: "hsl(152 69% 41%)" },
+    { label: "Memory", value: 64, color: "hsl(38 92% 50%)" },
+    { label: "Disk I/O", value: 22, color: "hsl(199 89% 48%)" },
+    { label: "Network", value: 15, color: "hsl(270 60% 58%)" },
+  ];
+
   return (
-    <div className="grid grid-cols-12 gap-3 p-3 h-full auto-rows-fr">
-      <DashboardPanel title="Hardware Diagnostics" className="col-span-5">
-        <div className="space-y-1">
+    <div className="grid grid-cols-12 gap-4 p-4 h-full auto-rows-fr">
+      <DashboardPanel title="Hardware Diagnostics" className="col-span-5" glow>
+        <div className="space-y-1.5">
           {hardware.map((h) => (
-            <div key={h.name} className={`flex items-center justify-between p-3 rounded-sm border transition-colors duration-100 ${
-              h.status === "error" ? "bg-destructive/5 border-destructive/25" :
-              h.status === "warning" ? "bg-warning/5 border-warning/25" :
-              "bg-muted/50 border-border/50"
-            }`}>
+            <div key={h.name} className={`flex items-center justify-between p-3 rounded-lg border transition-all duration-200 ${
+              h.status === "error" ? "bg-destructive/5 border-destructive/20" :
+              h.status === "warning" ? "bg-warning/5 border-warning/20" :
+              "bg-secondary/30 border-border/20"
+            } hover:bg-secondary/40`}>
               <div className="flex items-center gap-2.5">
                 {h.status === "ok" ? <CheckCircle className="w-4 h-4 text-success" /> :
                  h.status === "warning" ? <AlertTriangle className="w-4 h-4 text-warning" /> :
@@ -41,7 +48,9 @@ export function EngineerDashboard() {
                   <span className="flex items-center gap-1"><Cpu className="w-3 h-3" /> {h.load}%</span>
                 </div>
               ) : (
-                <span className="text-[10px] font-mono text-destructive font-medium">OFFLINE</span>
+                <span className="text-[10px] font-mono text-destructive font-medium" style={{
+                  textShadow: "0 0 8px hsl(0 72% 51% / 0.4)",
+                }}>OFFLINE</span>
               )}
             </div>
           ))}
@@ -50,23 +59,21 @@ export function EngineerDashboard() {
 
       <DashboardPanel title="System Health" className="col-span-3">
         <div className="space-y-4">
-          {[
-            { label: "CPU", value: 38, icon: <Cpu className="w-3.5 h-3.5" /> },
-            { label: "Memory", value: 64, icon: <HardDrive className="w-3.5 h-3.5" /> },
-            { label: "Disk I/O", value: 22, icon: <HardDrive className="w-3.5 h-3.5" /> },
-            { label: "Network", value: 15, icon: <HardDrive className="w-3.5 h-3.5" /> },
-          ].map((m) => (
+          {healthMetrics.map((m) => (
             <div key={m.label} className="space-y-1.5">
               <div className="flex items-center justify-between text-[11px]">
-                <span className="flex items-center gap-2 text-muted-foreground">{m.icon} {m.label}</span>
+                <span className="flex items-center gap-2 text-muted-foreground">
+                  <Cpu className="w-3.5 h-3.5" /> {m.label}
+                </span>
                 <span className="font-mono text-foreground">{m.value}%</span>
               </div>
-              <div className="h-1.5 rounded-sm bg-muted overflow-hidden">
+              <div className="h-2 rounded-full bg-secondary/60 overflow-hidden">
                 <div
-                  className="h-full rounded-sm transition-all duration-500"
+                  className="h-full rounded-full transition-all duration-500"
                   style={{
                     width: `${m.value}%`,
-                    backgroundColor: m.value > 80 ? "hsl(0 60% 50%)" : m.value > 60 ? "hsl(38 75% 52%)" : "hsl(145 45% 42%)",
+                    background: `linear-gradient(90deg, ${m.color}, ${m.color}cc)`,
+                    boxShadow: `0 0 8px ${m.color}40`,
                   }}
                 />
               </div>
@@ -78,19 +85,18 @@ export function EngineerDashboard() {
       <DashboardPanel title="Event Log" className="col-span-4">
         <div className="space-y-0.5">
           {logs.map((l, i) => (
-            <div key={i} className="flex items-start gap-2 p-2 rounded-sm hover:bg-muted/50 transition-colors duration-100">
+            <div key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-secondary/30 transition-all duration-200">
               <span className="font-mono text-[9px] text-muted-foreground shrink-0 mt-0.5">{l.time}</span>
               <span className={`text-[9px] font-mono font-bold shrink-0 w-10 mt-0.5 ${
                 l.level === "ERROR" ? "text-destructive" :
                 l.level === "WARN" ? "text-warning" :
                 "text-muted-foreground"
-              }`}>{l.level}</span>
+              }`} style={l.level === "ERROR" ? { textShadow: "0 0 6px hsl(0 72% 51% / 0.3)" } : undefined}>{l.level}</span>
               <span className="text-[11px] text-foreground/70 leading-tight">{l.msg}</span>
             </div>
           ))}
         </div>
       </DashboardPanel>
-
     </div>
   );
 }
