@@ -20,23 +20,23 @@ export function EngineerDashboard() {
   ];
 
   return (
-    <div className="grid grid-cols-12 gap-3 p-4 h-full auto-rows-fr">
+    <div className="grid grid-cols-12 gap-3 p-3 h-full auto-rows-fr">
       <DashboardPanel title="Hardware Diagnostics" className="col-span-5">
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {hardware.map((h) => (
-            <div key={h.name} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
-              h.status === "error" ? "bg-destructive/5 border-destructive/20" :
-              h.status === "warning" ? "bg-sim-amber/5 border-sim-amber/20" :
-              "bg-secondary/20 border-border/15"
+            <div key={h.name} className={`flex items-center justify-between p-3 rounded-sm border transition-colors duration-100 ${
+              h.status === "error" ? "bg-destructive/5 border-destructive/25" :
+              h.status === "warning" ? "bg-warning/5 border-warning/25" :
+              "bg-muted/50 border-border/50"
             }`}>
               <div className="flex items-center gap-2.5">
-                {h.status === "ok" ? <CheckCircle className="w-4 h-4 text-sim-green/80" /> :
-                 h.status === "warning" ? <AlertTriangle className="w-4 h-4 text-sim-amber/80" /> :
-                 <XCircle className="w-4 h-4 text-destructive/80" />}
-                <span className="text-[11px] font-medium text-foreground/80">{h.name}</span>
+                {h.status === "ok" ? <CheckCircle className="w-4 h-4 text-success" /> :
+                 h.status === "warning" ? <AlertTriangle className="w-4 h-4 text-warning" /> :
+                 <XCircle className="w-4 h-4 text-destructive" />}
+                <span className="text-[11px] font-medium text-foreground">{h.name}</span>
               </div>
               {h.status !== "error" ? (
-                <div className="flex items-center gap-4 text-[10px] font-mono text-muted-foreground/60">
+                <div className="flex items-center gap-4 text-[10px] font-mono text-muted-foreground">
                   <span className="flex items-center gap-1"><Thermometer className="w-3 h-3" /> {h.temp}°C</span>
                   <span className="flex items-center gap-1"><Cpu className="w-3 h-3" /> {h.load}%</span>
                 </div>
@@ -59,15 +59,14 @@ export function EngineerDashboard() {
             <div key={m.label} className="space-y-1.5">
               <div className="flex items-center justify-between text-[11px]">
                 <span className="flex items-center gap-2 text-muted-foreground">{m.icon} {m.label}</span>
-                <span className="font-mono text-foreground/70">{m.value}%</span>
+                <span className="font-mono text-foreground">{m.value}%</span>
               </div>
-              <div className="h-1.5 rounded-full bg-secondary/50 overflow-hidden">
+              <div className="h-1.5 rounded-sm bg-muted overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-1000`}
+                  className="h-full rounded-sm transition-all duration-500"
                   style={{
                     width: `${m.value}%`,
-                    background: m.value > 80 ? "hsl(0 85% 55%)" : m.value > 60 ? "hsl(42 100% 60%)" : "hsl(155 80% 48%)",
-                    boxShadow: `0 0 8px ${m.value > 80 ? "hsl(0 85% 55% / 0.3)" : m.value > 60 ? "hsl(42 100% 60% / 0.3)" : "hsl(155 80% 48% / 0.3)"}`,
+                    backgroundColor: m.value > 80 ? "hsl(0 60% 50%)" : m.value > 60 ? "hsl(38 75% 52%)" : "hsl(145 45% 42%)",
                   }}
                 />
               </div>
@@ -79,24 +78,24 @@ export function EngineerDashboard() {
       <DashboardPanel title="Event Log" className="col-span-4">
         <div className="space-y-0.5">
           {logs.map((l, i) => (
-            <div key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-secondary/15 transition-colors">
-              <span className="font-mono text-[9px] text-muted-foreground/50 shrink-0 mt-0.5">{l.time}</span>
+            <div key={i} className="flex items-start gap-2 p-2 rounded-sm hover:bg-muted/50 transition-colors duration-100">
+              <span className="font-mono text-[9px] text-muted-foreground shrink-0 mt-0.5">{l.time}</span>
               <span className={`text-[9px] font-mono font-bold shrink-0 w-10 mt-0.5 ${
                 l.level === "ERROR" ? "text-destructive" :
-                l.level === "WARN" ? "text-sim-amber" :
-                "text-muted-foreground/50"
+                l.level === "WARN" ? "text-warning" :
+                "text-muted-foreground"
               }`}>{l.level}</span>
-              <span className="text-[11px] text-foreground/60 leading-tight">{l.msg}</span>
+              <span className="text-[11px] text-foreground/70 leading-tight">{l.msg}</span>
             </div>
           ))}
         </div>
       </DashboardPanel>
 
       <DashboardPanel title="Simulation Control" locked className="col-span-6">
-        <p className="text-xs text-muted-foreground/40">Instructor access required</p>
+        <p className="text-xs text-muted-foreground">Instructor access required</p>
       </DashboardPanel>
       <DashboardPanel title="User Management" locked className="col-span-6">
-        <p className="text-xs text-muted-foreground/40">Administrator access required</p>
+        <p className="text-xs text-muted-foreground">Administrator access required</p>
       </DashboardPanel>
     </div>
   );
