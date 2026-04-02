@@ -39,8 +39,8 @@ export function ChangePasswordScreen({ onNavigate }: Props) {
 
       <div className="relative z-10 w-full max-w-[420px] animate-scale-in">
         <div className="glass-panel-glow p-8 space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-border/30">
-            <button onClick={() => onNavigate("login")} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200">
+          <div className="flex items-center gap-3 pb-4 border-b border-border">
+            <button onClick={() => onNavigate("login")} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
@@ -51,11 +51,8 @@ export function ChangePasswordScreen({ onNavigate }: Props) {
 
           {success ? (
             <div className="flex flex-col items-center gap-3 py-8 animate-fade-in">
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{
-                background: "linear-gradient(135deg, hsl(152 69% 41%), hsl(152 69% 51%))",
-                boxShadow: "0 0 20px hsl(152 69% 41% / 0.3)",
-              }}>
-                <Check className="w-7 h-7 text-white" />
+              <div className="w-14 h-14 rounded-xl bg-success flex items-center justify-center shadow-sm">
+                <Check className="w-7 h-7 text-success-foreground" />
               </div>
               <p className="text-sm font-medium">Password updated</p>
               <p className="text-xs text-muted-foreground">Redirecting to login...</p>
@@ -63,7 +60,7 @@ export function ChangePasswordScreen({ onNavigate }: Props) {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="px-3 py-2.5 rounded-lg bg-destructive/10 border border-destructive/25 text-destructive text-sm">{error}</div>
+                <div className="px-3 py-2.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">{error}</div>
               )}
 
               {[
