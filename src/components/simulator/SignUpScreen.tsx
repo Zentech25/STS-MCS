@@ -45,8 +45,8 @@ export function SignUpScreen({ onNavigate }: SignUpScreenProps) {
 
       <div className="relative z-10 w-full max-w-[440px] animate-scale-in">
         <div className="glass-panel-glow p-8 space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-border">
-            <button onClick={() => onNavigate("login")} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
+          <div className="flex items-center gap-3 pb-4" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+            <button onClick={() => onNavigate("login")} className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground glass-btn">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
@@ -56,8 +56,10 @@ export function SignUpScreen({ onNavigate }: SignUpScreenProps) {
           </div>
 
           {success ? (
-            <div className="flex flex-col items-center gap-3 py-8 animate-fade-in">
-              <div className="w-14 h-14 rounded-xl bg-success flex items-center justify-center shadow-sm">
+            <div className="flex flex-col items-center gap-3 py-8 animate-scale-in">
+              <div className="w-14 h-14 rounded-2xl bg-success flex items-center justify-center" style={{
+                boxShadow: "0 4px 16px hsl(152 69% 41% / 0.3)",
+              }}>
                 <Check className="w-7 h-7 text-success-foreground" />
               </div>
               <p className="text-sm font-medium">Account created</p>
@@ -66,7 +68,7 @@ export function SignUpScreen({ onNavigate }: SignUpScreenProps) {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="px-3 py-2.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">{error}</div>
+                <div className="px-3 py-2.5 rounded-xl bg-destructive/8 border border-destructive/15 text-destructive text-sm animate-fade-in">{error}</div>
               )}
 
               {[
@@ -88,16 +90,25 @@ export function SignUpScreen({ onNavigate }: SignUpScreenProps) {
                       key={r.id}
                       type="button"
                       onClick={() => setRole(r.id)}
-                      className={`relative flex flex-col items-center gap-2 p-3.5 rounded-lg border transition-all duration-200 ${
+                      className={`relative flex flex-col items-center gap-2 p-3.5 rounded-xl border transition-all duration-300 ${
                         role === r.id
-                          ? "border-primary bg-primary/5 text-primary"
-                          : "border-border bg-secondary text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                          ? "border-primary/40 text-primary scale-[1.02]"
+                          : "border-transparent text-muted-foreground hover:text-foreground hover:scale-[1.02]"
                       }`}
+                      style={{
+                        background: role === r.id ? "rgba(59, 130, 246, 0.08)" : "rgba(255, 255, 255, 0.4)",
+                        backdropFilter: "blur(8px)",
+                        boxShadow: role === r.id
+                          ? "0 4px 16px rgba(59, 130, 246, 0.12), inset 0 1px 0 rgba(255,255,255,0.4)"
+                          : "0 1px 4px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.4)",
+                      }}
                     >
                       {r.icon}
                       <p className="text-[10px] font-semibold uppercase tracking-wider">{r.label}</p>
                       {role === r.id && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                        <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center" style={{
+                          boxShadow: "0 2px 8px hsl(217 91% 60% / 0.4)",
+                        }}>
                           <Check className="w-2.5 h-2.5 text-primary-foreground" />
                         </div>
                       )}

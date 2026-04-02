@@ -30,21 +30,20 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
 
       <div className={`relative z-10 w-full max-w-[420px] animate-scale-in ${error ? "animate-shake" : ""}`}>
         <div className="glass-panel-glow p-8 space-y-6">
-          {/* Header */}
-          <div className="text-center space-y-2 pb-5 border-b border-border">
-            <div className="w-12 h-12 mx-auto rounded-xl bg-primary flex items-center justify-center mb-3 shadow-sm">
-              <span className="text-primary-foreground text-lg font-bold">TS</span>
+          <div className="text-center space-y-2 pb-5" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-primary flex items-center justify-center mb-3" style={{
+              boxShadow: "0 4px 20px hsl(217 91% 60% / 0.35)",
+            }}>
+              <span className="text-primary-foreground text-xl font-bold">TS</span>
             </div>
             <h1 className="text-lg font-semibold tracking-wide text-foreground">
               Tactical Training Simulator
             </h1>
-            <p className="text-[12px] text-muted-foreground">
-              System Login
-            </p>
+            <p className="text-[12px] text-muted-foreground">System Login</p>
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-destructive/8 border border-destructive/15 text-destructive text-sm animate-fade-in">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>Invalid credentials. Default: <span className="font-mono text-xs">instructor / demo</span></span>
             </div>
@@ -52,37 +51,15 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
-                Username
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="sys-input"
-                placeholder="Enter username"
-                required
-              />
+              <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Username</label>
+              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="sys-input" placeholder="Enter username" required />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
-                Password
-              </label>
+              <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Password</label>
               <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="sys-input pr-10"
-                  placeholder="Enter password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200"
-                >
+                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="sys-input pr-10" placeholder="Enter password" required />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -93,23 +70,17 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
             </button>
           </form>
 
-          <div className="flex items-center justify-between text-[12px] pt-3 border-t border-border">
-            <button
-              onClick={() => onNavigate("signup")}
-              className="text-primary hover:text-primary/80 transition-colors duration-200 font-medium"
-            >
+          <div className="flex items-center justify-between text-[12px] pt-3" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+            <button onClick={() => onNavigate("signup")} className="text-primary hover:text-primary/80 transition-all duration-200 font-medium hover:scale-105 active:scale-95">
               Create Account
             </button>
-            <button
-              onClick={() => onNavigate("changePassword")}
-              className="text-muted-foreground hover:text-foreground transition-colors duration-200"
-            >
+            <button onClick={() => onNavigate("changePassword")} className="text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-105 active:scale-95">
               Change Password
             </button>
           </div>
         </div>
 
-        <p className="text-center text-[10px] text-muted-foreground/60 mt-5 tracking-widest uppercase">
+        <p className="text-center text-[10px] text-muted-foreground/50 mt-5 tracking-widest uppercase">
           Authorized Personnel Only
         </p>
       </div>

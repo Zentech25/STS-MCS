@@ -49,7 +49,6 @@ function HumanoidTarget({ targetType }: { targetType: string }) {
       default: return "hsl(217 91% 60%)";
     }
   };
-
   const color = getTargetColor();
 
   return (
@@ -80,7 +79,7 @@ function HumanoidTarget({ targetType }: { targetType: string }) {
 function ConnectionIndicator({ label, connected }: { label: string; connected: boolean }) {
   return (
     <div className="flex items-center gap-1.5">
-      <div className={`w-2 h-2 rounded-full ${connected ? "bg-success status-dot-online" : "bg-muted-foreground/30"}`} />
+      <div className={`w-2 h-2 rounded-full ${connected ? "status-dot-online" : "bg-muted-foreground/25"}`} />
       <span className="text-[10px] font-mono text-muted-foreground">{label}</span>
     </div>
   );
@@ -90,22 +89,27 @@ function LanePanel({ lane, onTargetChange }: { lane: LaneData; onTargetChange: (
   const isActive = lane.name !== "—";
 
   return (
-    <div className="glass-panel flex flex-col min-w-[280px] w-[280px] shrink-0 overflow-hidden">
-      <div className="px-3 py-2 border-b border-border flex items-center justify-between bg-secondary/50">
+    <div className="glass-panel flex flex-col min-w-[280px] w-[280px] shrink-0 overflow-hidden hover-lift">
+      <div className="px-3 py-2 flex items-center justify-between" style={{
+        background: "rgba(255,255,255,0.5)",
+        borderBottom: "1px solid rgba(0,0,0,0.04)",
+      }}>
         <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
           Lane {lane.id}
         </span>
-        <span className={`text-[9px] font-mono px-2 py-0.5 rounded border ${
-          isActive
-            ? "bg-success/10 text-success border-success/20"
-            : "bg-secondary text-muted-foreground border-border"
+        <span className={`text-[9px] font-mono px-2 py-0.5 rounded-lg font-medium ${
+          isActive ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
         }`}>
           {isActive ? "ASSIGNED" : "EMPTY"}
         </span>
       </div>
 
       <div className="flex-1 p-3 flex flex-col gap-3 overflow-y-auto">
-        <div className="rounded-lg border border-border p-2 flex items-center justify-center bg-secondary/30" style={{ minHeight: "180px" }}>
+        <div className="rounded-xl p-2 flex items-center justify-center" style={{
+          background: "rgba(255,255,255,0.3)",
+          border: "1px solid rgba(0,0,0,0.04)",
+          minHeight: "180px",
+        }}>
           <HumanoidTarget targetType={lane.targetType} />
         </div>
 
@@ -117,11 +121,7 @@ function LanePanel({ lane, onTargetChange }: { lane: LaneData; onTargetChange: (
 
         <div>
           <label className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1 block">Target Type</label>
-          <select
-            value={lane.targetType}
-            onChange={(e) => onTargetChange(e.target.value)}
-            className="sys-input h-8 text-[11px]"
-          >
+          <select value={lane.targetType} onChange={(e) => onTargetChange(e.target.value)} className="sys-input h-8 text-[11px]">
             {TARGET_TYPES.map((t) => (
               <option key={t.id} value={t.id}>{t.label}</option>
             ))}
@@ -146,19 +146,22 @@ function LanePanel({ lane, onTargetChange }: { lane: LaneData; onTargetChange: (
           ))}
         </div>
 
-        <div className="mt-auto rounded-lg border border-border p-2.5 bg-secondary/30">
+        <div className="mt-auto rounded-xl p-2.5" style={{
+          background: "rgba(255,255,255,0.35)",
+          border: "1px solid rgba(0,0,0,0.04)",
+        }}>
           <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-2">Shot Summary</p>
           <div className="flex items-center justify-between">
             <div className="text-center flex-1">
               <p className="text-lg font-mono font-semibold text-success">{lane.shotsFired}</p>
               <p className="text-[8px] uppercase tracking-wider text-muted-foreground">Hits</p>
             </div>
-            <div className="w-px h-8 bg-border" />
+            <div className="w-px h-8" style={{ background: "rgba(0,0,0,0.08)" }} />
             <div className="text-center flex-1">
               <p className="text-lg font-mono font-semibold text-destructive">{lane.shotsMissed}</p>
               <p className="text-[8px] uppercase tracking-wider text-muted-foreground">Missed</p>
             </div>
-            <div className="w-px h-8 bg-border" />
+            <div className="w-px h-8" style={{ background: "rgba(0,0,0,0.08)" }} />
             <div className="text-center flex-1">
               <p className="text-lg font-mono font-semibold text-foreground">{lane.shotsFired + lane.shotsMissed}</p>
               <p className="text-[8px] uppercase tracking-wider text-muted-foreground">Total</p>
@@ -173,10 +176,7 @@ function LanePanel({ lane, onTargetChange }: { lane: LaneData; onTargetChange: (
 export function SessionPage() {
   const [sessionState, setSessionState] = useState<"idle" | "running" | "paused">("idle");
   const [lanes, setLanes] = useState<LaneData[]>([
-    createEmptyLane(1),
-    createEmptyLane(2),
-    createEmptyLane(3),
-    createEmptyLane(4),
+    createEmptyLane(1), createEmptyLane(2), createEmptyLane(3), createEmptyLane(4),
   ]);
 
   const handleTargetChange = (laneId: number, type: string) => {
@@ -187,22 +187,21 @@ export function SessionPage() {
   const handlePause = () => setSessionState("paused");
   const handleStop = () => setSessionState("idle");
 
-  const btnBase =
-    "h-10 px-5 rounded-lg font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 border transition-all duration-150 disabled:opacity-25 disabled:pointer-events-none";
+  const btnBase = "h-10 px-5 rounded-xl font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-25 disabled:pointer-events-none";
 
   return (
     <div className="flex flex-col h-full p-5 gap-4">
       <div className="flex items-center gap-3 shrink-0">
-        <button className={`${btnBase} bg-primary/10 border-primary/20 text-primary hover:bg-primary/15`}>
+        <button className={`${btnBase} glass-btn text-primary hover:scale-[1.02] active:scale-[0.98]`}>
           <Settings className="w-3.5 h-3.5" /> Setup
         </button>
 
         {sessionState === "running" ? (
-          <button onClick={handlePause} className={`${btnBase} bg-warning/10 border-warning/20 text-warning hover:bg-warning/15`}>
+          <button onClick={handlePause} className={`${btnBase} glass-btn text-warning hover:scale-[1.02] active:scale-[0.98]`}>
             <Pause className="w-3.5 h-3.5" /> Pause
           </button>
         ) : (
-          <button onClick={handleStart} className={`${btnBase} bg-success/10 border-success/20 text-success hover:bg-success/15`}>
+          <button onClick={handleStart} className={`${btnBase} glass-btn text-success hover:scale-[1.02] active:scale-[0.98]`}>
             <Play className="w-3.5 h-3.5" /> Start
           </button>
         )}
@@ -210,7 +209,7 @@ export function SessionPage() {
         <button
           onClick={handleStop}
           disabled={sessionState === "idle"}
-          className={`${btnBase} bg-destructive/10 border-destructive/20 text-destructive hover:bg-destructive/15`}
+          className={`${btnBase} glass-btn text-destructive hover:scale-[1.02] active:scale-[0.98]`}
         >
           <Square className="w-3.5 h-3.5" /> Stop
         </button>
@@ -230,11 +229,7 @@ export function SessionPage() {
       <div className="flex-1 overflow-x-auto overflow-y-hidden">
         <div className="flex gap-4 h-full pb-2">
           {lanes.map((lane) => (
-            <LanePanel
-              key={lane.id}
-              lane={lane}
-              onTargetChange={(type) => handleTargetChange(lane.id, type)}
-            />
+            <LanePanel key={lane.id} lane={lane} onTargetChange={(type) => handleTargetChange(lane.id, type)} />
           ))}
         </div>
       </div>
