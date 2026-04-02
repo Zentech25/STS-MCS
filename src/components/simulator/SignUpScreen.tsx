@@ -28,7 +28,7 @@ export function SignUpScreen({ onNavigate }: SignUpScreenProps) {
     setError("");
     if (password !== confirmPassword) { setError("Passwords do not match"); return; }
     if (!role) { setError("Select a role"); return; }
-    if (password.length < 3) { setError("Password too short"); return; }
+    
     setLoading(true);
     const ok = await signup(username, password, role);
     setLoading(false);
