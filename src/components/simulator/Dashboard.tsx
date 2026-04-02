@@ -16,16 +16,16 @@ export function Dashboard() {
 
   return (
     <div className="w-full h-screen flex flex-col overflow-hidden" style={{
-      background: "linear-gradient(135deg, hsl(220 30% 96%) 0%, hsl(225 20% 94%) 50%, hsl(230 25% 95%) 100%)",
+      background: "var(--gradient-mesh)",
     }}>
       <HeaderBar />
 
       {isInstructor && (
         <div className="shrink-0 flex items-center gap-1 px-6 pt-1" style={{
-          background: "rgba(255, 255, 255, 0.5)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(0, 0, 0, 0.04)",
+          background: "var(--surface-glass)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderBottom: `1px solid var(--divider)`,
         }}>
           {(["dashboard", "session"] as Tab[]).map((tab) => (
             <button
@@ -36,6 +36,9 @@ export function Dashboard() {
                   ? "text-primary border-primary"
                   : "text-muted-foreground border-transparent hover:text-foreground"
               }`}
+              style={activeTab === tab ? {
+                textShadow: "0 0 20px hsl(230 80% 60% / 0.3)",
+              } : undefined}
             >
               {tab}
             </button>
@@ -43,7 +46,7 @@ export function Dashboard() {
         </div>
       )}
 
-      <main className="flex-1 overflow-hidden animate-fade-in">
+      <main className="flex-1 overflow-hidden animate-fade-in" key={activeTab}>
         {isInstructor && activeTab === "session" ? (
           <SessionPage />
         ) : (
