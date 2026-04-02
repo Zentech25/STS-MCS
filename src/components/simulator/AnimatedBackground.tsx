@@ -9,65 +9,66 @@ export function AnimatedBackground() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    canvas.width = 1920;
-    canvas.height = 1080;
+    let w = (canvas.width = window.innerWidth);
+    let h = (canvas.height = window.innerHeight);
 
-    const particles: { x: number; y: number; vx: number; vy: number; size: number; alpha: number }[] = [];
-    for (let i = 0; i < 80; i++) {
+    const particles: { x: number; y: number; vx: number; vy: number; size: number; alpha: number; hue: number }[] = [];
+    for (let i = 0; i < 60; i++) {
       particles.push({
-        x: Math.random() * 1920,
-        y: Math.random() * 1080,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size: Math.random() * 2 + 0.5,
-        alpha: Math.random() * 0.5 + 0.1,
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 1.5 + 0.5,
+        alpha: Math.random() * 0.4 + 0.1,
+        hue: 170 + Math.random() * 20,
       });
     }
 
     let animId: number;
+    let t = 0;
     const draw = () => {
-      ctx.fillStyle = "rgba(10, 14, 26, 0.15)";
-      ctx.fillRect(0, 0, 1920, 1080);
+      t += 0.002;
+      ctx.fillStyle = "rgba(8, 12, 21, 0.12)";
+      ctx.fillRect(0, 0, w, h);
 
-      // Grid
-      ctx.strokeStyle = "rgba(0, 212, 255, 0.03)";
-      ctx.lineWidth = 0.5;
-      for (let x = 0; x < 1920; x += 60) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, 1080);
-        ctx.stroke();
-      }
-      for (let y = 0; y < 1080; y += 60) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(1920, y);
-        ctx.stroke();
-      }
+      // Subtle gradient orbs
+      const gradient1 = ctx.createRadialGradient(w * 0.3, h * 0.4, 0, w * 0.3, h * 0.4, w * 0.4);
+      gradient1.addColorStop(0, `hsla(170, 80%, 50%, ${0.015 + Math.sin(t) * 0.005})`);
+      gradient1.addColorStop(1, "transparent");
+      ctx.fillStyle = gradient1;
+      ctx.fillRect(0, 0, w, h);
+
+      const gradient2 = ctx.createRadialGradient(w * 0.7, h * 0.6, 0, w * 0.7, h * 0.6, w * 0.35);
+      gradient2.addColorStop(0, `hsla(260, 60%, 50%, ${0.01 + Math.cos(t * 0.7) * 0.004})`);
+      gradient2.addColorStop(1, "transparent");
+      ctx.fillStyle = gradient2;
+      ctx.fillRect(0, 0, w, h);
 
       // Particles
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
-        if (p.x < 0) p.x = 1920;
-        if (p.x > 1920) p.x = 0;
-        if (p.y < 0) p.y = 1080;
-        if (p.y > 1080) p.y = 0;
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h;
+        if (p.y > h) p.y = 0;
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 212, 255, ${p.alpha})`;
+        ctx.fillStyle = `hsla(${p.hue}, 80%, 60%, ${p.alpha})`;
         ctx.fill();
       });
 
-      // Connect nearby particles
+      // Connect nearby
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 150) {
-            ctx.strokeStyle = `rgba(0, 212, 255, ${0.08 * (1 - dist / 150)})`;
+          if (dist < 120) {
+            ctx.strokeStyle = `hsla(170, 70%, 50%, ${0.06 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -79,19 +80,21 @@ export function AnimatedBackground() {
       animId = requestAnimationFrame(draw);
     };
 
-    // Initial clear
-    ctx.fillStyle = "#0a0e1a";
-    ctx.fillRect(0, 0, 1920, 1080);
+    ctx.fillStyle = "#080c15";
+    ctx.fillRect(0, 0, w, h);
     draw();
 
-    return () => cancelAnimationFrame(animId);
+    const handleResize = () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full"
-      style={{ width: "100%", height: "100%" }}
-    />
-  );
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;
 }
