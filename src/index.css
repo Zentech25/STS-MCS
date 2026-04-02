@@ -137,10 +137,6 @@
     @apply opacity-40 pointer-events-none;
   }
 
-  /* ── Locked feature ── */
-  .locked-feature {
-    @apply opacity-30 pointer-events-none select-none;
-  }
 
   /* ── Animations (minimal) ── */
   @keyframes fade-in {
