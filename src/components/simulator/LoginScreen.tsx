@@ -31,12 +31,9 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
       <div className={`relative z-10 w-full max-w-[420px] animate-scale-in ${error ? "animate-shake" : ""}`}>
         <div className="glass-panel-glow p-8 space-y-6">
           {/* Header */}
-          <div className="text-center space-y-2 pb-5 border-b border-border/30">
-            <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-3" style={{
-              background: "var(--gradient-primary)",
-              boxShadow: "0 0 24px hsl(199 89% 48% / 0.3)",
-            }}>
-              <span className="text-white text-lg font-bold">TS</span>
+          <div className="text-center space-y-2 pb-5 border-b border-border">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-primary flex items-center justify-center mb-3 shadow-sm">
+              <span className="text-primary-foreground text-lg font-bold">TS</span>
             </div>
             <h1 className="text-lg font-semibold tracking-wide text-foreground">
               Tactical Training Simulator
@@ -47,7 +44,7 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-destructive/10 border border-destructive/25 text-destructive text-sm">
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>Invalid credentials. Default: <span className="font-mono text-xs">instructor / demo</span></span>
             </div>
@@ -96,10 +93,10 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
             </button>
           </form>
 
-          <div className="flex items-center justify-between text-[12px] pt-3 border-t border-border/30">
+          <div className="flex items-center justify-between text-[12px] pt-3 border-t border-border">
             <button
               onClick={() => onNavigate("signup")}
-              className="text-primary hover:text-foreground transition-colors duration-200 font-medium"
+              className="text-primary hover:text-primary/80 transition-colors duration-200 font-medium"
             >
               Create Account
             </button>
@@ -112,7 +109,7 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
           </div>
         </div>
 
-        <p className="text-center text-[10px] text-muted-foreground/40 mt-5 tracking-widest uppercase">
+        <p className="text-center text-[10px] text-muted-foreground/60 mt-5 tracking-widest uppercase">
           Authorized Personnel Only
         </p>
       </div>

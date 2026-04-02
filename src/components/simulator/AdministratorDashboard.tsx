@@ -15,24 +15,20 @@ export function AdministratorDashboard() {
   ];
 
   const stats = [
-    { label: "Active Sessions", value: "3", gradient: "linear-gradient(135deg, hsl(152 69% 41%), hsl(152 69% 51%))" },
-    { label: "Total Users", value: "24", gradient: "linear-gradient(135deg, hsl(199 89% 48%), hsl(199 89% 58%))" },
-    { label: "CPU Usage", value: "42%", gradient: "linear-gradient(135deg, hsl(38 92% 50%), hsl(38 92% 60%))" },
-    { label: "Uptime", value: "14d 6h", gradient: "linear-gradient(135deg, hsl(270 60% 58%), hsl(330 65% 55%))" },
+    { label: "Active Sessions", value: "3", color: "text-success" },
+    { label: "Total Users", value: "24", color: "text-primary" },
+    { label: "CPU Usage", value: "42%", color: "text-warning" },
+    { label: "Uptime", value: "14d 6h", color: "text-foreground" },
   ];
 
   return (
-    <div className="grid grid-cols-12 gap-4 p-4 h-full auto-rows-fr">
+    <div className="grid grid-cols-12 gap-5 p-5 h-full auto-rows-fr">
       <DashboardPanel title="System Overview" className="col-span-4" glow>
         <div className="grid grid-cols-2 gap-3">
           {stats.map((s) => (
-            <div key={s.label} className="p-3 rounded-lg bg-secondary/30 border border-border/20 text-center">
+            <div key={s.label} className="p-3 rounded-lg bg-secondary border border-border text-center">
               <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
-              <p className="font-mono text-xl font-bold mt-1" style={{
-                background: s.gradient,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}>{s.value}</p>
+              <p className={`font-mono text-xl font-bold mt-1 ${s.color}`}>{s.value}</p>
             </div>
           ))}
         </div>
@@ -41,7 +37,7 @@ export function AdministratorDashboard() {
       <DashboardPanel title="Simulation Control" className="col-span-4">
         <div className="flex items-center gap-2 mb-3">
           <span className={`status-dot ${simState === "running" ? "status-dot-online" : simState === "paused" ? "status-dot-warning" : "bg-muted-foreground/30"}`} />
-          <span className="text-sm font-mono uppercase tracking-wider text-foreground/70">{simState === "idle" ? "Standby" : simState}</span>
+          <span className="text-sm font-mono uppercase tracking-wider text-muted-foreground">{simState === "idle" ? "Standby" : simState}</span>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setSimState("running")} disabled={simState === "running"} className={`${btnBase} bg-success/10 border-success/30 text-success hover:bg-success/20`}><Play className="w-3.5 h-3.5" /> Start</button>
@@ -58,7 +54,7 @@ export function AdministratorDashboard() {
             { label: "Network Mode", value: "LAN" },
             { label: "Logging Level", value: "Verbose" },
           ].map((c) => (
-            <div key={c.label} className="flex items-center justify-between p-2.5 rounded-lg bg-secondary/30 border border-border/20 hover:bg-secondary/50 transition-all duration-200">
+            <div key={c.label} className="flex items-center justify-between p-2.5 rounded-lg bg-secondary border border-border hover:bg-accent transition-all duration-200">
               <span className="text-[11px] text-muted-foreground flex items-center gap-2"><Settings className="w-3 h-3" /> {c.label}</span>
               <span className="text-[11px] font-mono text-primary">{c.value}</span>
             </div>
@@ -69,7 +65,7 @@ export function AdministratorDashboard() {
       <DashboardPanel title="User Management" className="col-span-12">
         <table className="w-full text-[11px]">
           <thead>
-            <tr className="border-b border-border/30 text-muted-foreground uppercase tracking-wider">
+            <tr className="border-b border-border text-muted-foreground uppercase tracking-wider">
               <th className="text-left py-2 font-medium">Name</th>
               <th className="text-left py-2 font-medium">Role</th>
               <th className="text-left py-2 font-medium">Status</th>
@@ -78,13 +74,13 @@ export function AdministratorDashboard() {
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.name} className="border-b border-border/15 hover:bg-secondary/20 transition-all duration-200">
+              <tr key={u.name} className="border-b border-border/50 hover:bg-secondary/50 transition-all duration-200">
                 <td className="py-2.5 text-foreground flex items-center gap-2"><Users className="w-3 h-3 text-muted-foreground" /> {u.name}</td>
                 <td className="py-2.5">
                   <span className={`px-2 py-0.5 rounded-md text-[9px] font-mono font-medium border ${
-                    u.role === "Administrator" ? "bg-primary/10 text-primary border-primary/25" :
-                    u.role === "Engineer" ? "bg-warning/10 text-warning border-warning/25" :
-                    "bg-secondary/50 text-secondary-foreground border-border/30"
+                    u.role === "Administrator" ? "bg-primary/10 text-primary border-primary/20" :
+                    u.role === "Engineer" ? "bg-warning/10 text-warning border-warning/20" :
+                    "bg-secondary text-muted-foreground border-border"
                   }`}>{u.role}</span>
                 </td>
                 <td className="py-2.5">
