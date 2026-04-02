@@ -1,87 +1,142 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState } from "react";
-import { LogOut, Wifi, Bell, Search } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useEffect, useState, useRef } from "react";
+import { LogOut, Wifi, Bell, Search, Sun, Moon, User, ChevronDown } from "lucide-react";
 
 export function HeaderBar() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [time, setTime] = useState(new Date());
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
 
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   return (
     <header className="h-14 flex items-center justify-between px-6 shrink-0" style={{
-      background: "rgba(255, 255, 255, 0.72)",
-      backdropFilter: "blur(20px) saturate(180%)",
-      WebkitBackdropFilter: "blur(20px) saturate(180%)",
-      borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
-      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+      background: "var(--surface-glass)",
+      backdropFilter: "blur(24px) saturate(180%)",
+      WebkitBackdropFilter: "blur(24px) saturate(180%)",
+      borderBottom: `1px solid var(--divider)`,
+      boxShadow: "var(--shadow-soft)",
     }}>
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center" style={{
-            boxShadow: "0 2px 10px hsl(217 91% 60% / 0.3)",
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{
+            background: "var(--gradient-primary)",
+            boxShadow: "0 4px 14px hsl(230 80% 60% / 0.3)",
           }}>
-            <span className="text-primary-foreground text-xs font-bold">TS</span>
+            <span className="text-white text-sm font-bold">TS</span>
           </div>
-          <h1 className="text-[14px] font-semibold tracking-wide text-foreground">
-            Tactical Simulator
-          </h1>
+          <div>
+            <h1 className="text-[14px] font-bold tracking-wide text-foreground leading-none">
+              Tactical Simulator
+            </h1>
+            <span className="text-[9px] text-muted-foreground font-mono">v2.4.1</span>
+          </div>
         </div>
-        <span className="text-[10px] text-muted-foreground font-mono px-2 py-0.5 rounded-lg glass-btn">
-          v2.4.1
-        </span>
       </div>
 
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-4">
         {/* Search */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl glass-btn text-muted-foreground cursor-pointer">
+        <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl glass-btn text-muted-foreground cursor-pointer min-w-[180px]">
           <Search className="w-3.5 h-3.5" />
           <span className="text-[11px]">Search...</span>
+          <span className="ml-auto text-[9px] font-mono px-1.5 py-0.5 rounded-md" style={{
+            background: "var(--surface-inset)",
+          }}>⌘K</span>
         </div>
 
         {/* Status */}
-        <div className="flex items-center gap-4 text-[11px]">
-          <div className="flex items-center gap-1.5">
-            <Wifi className="w-3 h-3 text-success" />
-            <span className="status-dot status-dot-online" />
-            <span className="text-muted-foreground">Connected</span>
-          </div>
+        <div className="flex items-center gap-1.5 text-[11px]">
+          <Wifi className="w-3.5 h-3.5 text-success" />
+          <span className="status-dot status-dot-online" />
+          <span className="text-muted-foreground">Online</span>
         </div>
 
         {/* Notification */}
-        <button className="relative w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground glass-btn">
+        <button className="relative w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground glass-btn">
           <Bell className="w-4 h-4" />
-          <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-primary border-2 border-white" style={{
-            boxShadow: "0 0 6px hsl(217 91% 60% / 0.4)",
-          }} />
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white" style={{
+            background: "var(--gradient-warm)",
+            boxShadow: "0 2px 8px hsl(340 75% 58% / 0.4)",
+          }}>3</span>
         </button>
 
         {/* Clock */}
-        <div className="font-mono text-[12px] text-muted-foreground tabular-nums">
+        <div className="font-mono text-[12px] text-muted-foreground tabular-nums px-3 py-1.5 rounded-lg" style={{
+          background: "var(--surface-inset)",
+        }}>
           {time.toLocaleTimeString("en-US", { hour12: false })}
         </div>
 
-        {/* User */}
-        <div className="flex items-center gap-3 pl-4" style={{ borderLeft: "1px solid rgba(0, 0, 0, 0.06)" }}>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center text-[11px] font-bold text-primary-foreground" style={{
-            boxShadow: "0 2px 8px hsl(217 91% 60% / 0.25)",
-          }}>
-            {user?.username?.charAt(0).toUpperCase()}
-          </div>
-          <div className="text-right">
-            <p className="text-[11px] font-medium text-foreground">{user?.username}</p>
-            <p className="text-[10px] text-primary font-mono capitalize">{user?.role}</p>
-          </div>
+        {/* Profile dropdown */}
+        <div ref={profileRef} className="relative">
           <button
-            onClick={logout}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-destructive glass-btn"
-            title="Logout"
+            onClick={() => setProfileOpen(!profileOpen)}
+            className="flex items-center gap-2.5 pl-4 py-1 pr-2 rounded-xl glass-btn"
+            style={{ borderLeft: "none" }}
           >
-            <LogOut className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white" style={{
+              background: "var(--gradient-primary)",
+              boxShadow: "0 2px 10px hsl(230 80% 60% / 0.3)",
+            }}>
+              {user?.username?.charAt(0).toUpperCase()}
+            </div>
+            <div className="text-left">
+              <p className="text-[11px] font-semibold text-foreground leading-none">{user?.username}</p>
+              <p className="text-[9px] text-muted-foreground font-mono capitalize mt-0.5">{user?.role}</p>
+            </div>
+            <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-300 ${profileOpen ? "rotate-180" : ""}`} />
           </button>
+
+          {/* Dropdown */}
+          {profileOpen && (
+            <div className="absolute right-0 top-[calc(100%+8px)] w-56 glass-panel-glow p-2 z-50 animate-scale-in" style={{
+              transformOrigin: "top right",
+            }}>
+              <div className="px-3 py-2.5 mb-1">
+                <p className="text-[12px] font-semibold text-foreground">{user?.username}</p>
+                <p className="text-[10px] text-muted-foreground capitalize">{user?.role}</p>
+              </div>
+              <div style={{ borderTop: `1px solid var(--divider)` }} className="pt-1 mb-1" />
+
+              {/* Theme toggle */}
+              <div className="flex items-center justify-between px-3 py-2 rounded-lg interactive-row">
+                <div className="flex items-center gap-2 text-[11px] text-foreground">
+                  {theme === "dark" ? <Moon className="w-3.5 h-3.5 text-accent" /> : <Sun className="w-3.5 h-3.5 text-warning" />}
+                  <span className="font-medium">{theme === "dark" ? "Dark Mode" : "Light Mode"}</span>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
+                  className={`theme-toggle ${theme === "dark" ? "active" : ""}`}
+                />
+              </div>
+
+              <div style={{ borderTop: `1px solid var(--divider)` }} className="pt-1 mt-1" />
+
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg w-full text-left text-[11px] text-destructive font-medium interactive-row"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

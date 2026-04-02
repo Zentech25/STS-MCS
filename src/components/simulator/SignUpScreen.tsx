@@ -7,10 +7,10 @@ interface SignUpScreenProps {
   onNavigate: (screen: "login") => void;
 }
 
-const ROLES: { id: UserRole; label: string; icon: React.ReactNode }[] = [
-  { id: "instructor", label: "Instructor", icon: <GraduationCap className="w-5 h-5" /> },
-  { id: "administrator", label: "Administrator", icon: <Shield className="w-5 h-5" /> },
-  { id: "engineer", label: "Engineer", icon: <Wrench className="w-5 h-5" /> },
+const ROLES: { id: UserRole; label: string; icon: React.ReactNode; gradient: string }[] = [
+  { id: "instructor", label: "Instructor", icon: <GraduationCap className="w-6 h-6" />, gradient: "var(--gradient-primary)" },
+  { id: "administrator", label: "Admin", icon: <Shield className="w-6 h-6" />, gradient: "var(--gradient-warm)" },
+  { id: "engineer", label: "Engineer", icon: <Wrench className="w-6 h-6" />, gradient: "var(--gradient-cool)" },
 ];
 
 export function SignUpScreen({ onNavigate }: SignUpScreenProps) {
@@ -43,32 +43,32 @@ export function SignUpScreen({ onNavigate }: SignUpScreenProps) {
     <div className="relative w-full h-screen flex items-center justify-center overflow-hidden">
       <AnimatedBackground />
 
-      <div className="relative z-10 w-full max-w-[440px] animate-scale-in">
-        <div className="glass-panel-glow p-8 space-y-6">
-          <div className="flex items-center gap-3 pb-4" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-            <button onClick={() => onNavigate("login")} className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground glass-btn">
+      <div className="relative z-10 w-full max-w-[460px] animate-scale-in">
+        <div className="glass-panel-glow p-9 space-y-6">
+          <div className="flex items-center gap-3 pb-4" style={{ borderBottom: "1px solid var(--divider)" }}>
+            <button onClick={() => onNavigate("login")} className="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground glass-btn">
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
-              <h2 className="text-base font-semibold tracking-wide">Create Account</h2>
+              <h2 className="text-lg font-bold tracking-wide">Create Account</h2>
               <p className="text-[12px] text-muted-foreground">New operator registration</p>
             </div>
           </div>
 
           {success ? (
-            <div className="flex flex-col items-center gap-3 py-8 animate-scale-in">
-              <div className="w-14 h-14 rounded-2xl bg-success flex items-center justify-center" style={{
-                boxShadow: "0 4px 16px hsl(152 69% 41% / 0.3)",
+            <div className="flex flex-col items-center gap-4 py-10 animate-scale-in">
+              <div className="w-16 h-16 rounded-2xl bg-success flex items-center justify-center" style={{
+                boxShadow: "0 8px 24px hsl(160 72% 42% / 0.3)",
               }}>
-                <Check className="w-7 h-7 text-success-foreground" />
+                <Check className="w-8 h-8 text-success-foreground" />
               </div>
-              <p className="text-sm font-medium">Account created</p>
-              <p className="text-xs text-muted-foreground">Redirecting to login...</p>
+              <p className="text-base font-semibold">Account created!</p>
+              <p className="text-sm text-muted-foreground">Redirecting to login...</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="px-3 py-2.5 rounded-xl bg-destructive/8 border border-destructive/15 text-destructive text-sm animate-fade-in">{error}</div>
+                <div className="px-4 py-3 rounded-xl bg-destructive/8 border border-destructive/15 text-destructive text-[13px] animate-fade-in">{error}</div>
               )}
 
               {[
@@ -77,39 +77,42 @@ export function SignUpScreen({ onNavigate }: SignUpScreenProps) {
                 { label: "Confirm Password", value: confirmPassword, onChange: setConfirmPassword, type: "password" },
               ].map((f) => (
                 <div key={f.label} className="space-y-1.5">
-                  <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{f.label}</label>
-                  <input type={f.type} value={f.value} onChange={(e) => f.onChange(e.target.value)} required className="sys-input" />
+                  <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{f.label}</label>
+                  <input type={f.type} value={f.value} onChange={(e) => f.onChange(e.target.value)} required className="sys-input h-11" />
                 </div>
               ))}
 
-              <div className="space-y-1.5">
-                <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Role</label>
-                <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-2">
+                <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Role</label>
+                <div className="grid grid-cols-3 gap-2.5">
                   {ROLES.map((r) => (
                     <button
                       key={r.id}
                       type="button"
                       onClick={() => setRole(r.id)}
-                      className={`relative flex flex-col items-center gap-2 p-3.5 rounded-xl border transition-all duration-300 ${
-                        role === r.id
-                          ? "border-primary/40 text-primary scale-[1.02]"
-                          : "border-transparent text-muted-foreground hover:text-foreground hover:scale-[1.02]"
+                      className={`relative flex flex-col items-center gap-2.5 p-4 rounded-xl border transition-all duration-300 ${
+                        role === r.id ? "scale-[1.03] border-primary/30" : "border-transparent hover:scale-[1.02]"
                       }`}
                       style={{
-                        background: role === r.id ? "rgba(59, 130, 246, 0.08)" : "rgba(255, 255, 255, 0.4)",
-                        backdropFilter: "blur(8px)",
-                        boxShadow: role === r.id
-                          ? "0 4px 16px rgba(59, 130, 246, 0.12), inset 0 1px 0 rgba(255,255,255,0.4)"
-                          : "0 1px 4px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.4)",
+                        background: role === r.id ? "var(--surface-glass-hover)" : "var(--surface-elevated)",
+                        boxShadow: role === r.id ? "var(--shadow-glow)" : "var(--shadow-soft)",
                       }}
                     >
-                      {r.icon}
-                      <p className="text-[10px] font-semibold uppercase tracking-wider">{r.label}</p>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{
+                        background: role === r.id ? r.gradient : "var(--surface-inset)",
+                        color: role === r.id ? "white" : "hsl(var(--muted-foreground))",
+                        boxShadow: role === r.id ? "0 4px 14px hsl(230 80% 60% / 0.25)" : "none",
+                        transition: "all 0.3s ease",
+                      }}>
+                        {r.icon}
+                      </div>
+                      <p className={`text-[10px] font-bold uppercase tracking-wider ${role === r.id ? "text-primary" : "text-muted-foreground"}`}>{r.label}</p>
                       {role === r.id && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center" style={{
-                          boxShadow: "0 2px 8px hsl(217 91% 60% / 0.4)",
+                        <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white animate-scale-in" style={{
+                          background: "var(--gradient-primary)",
+                          boxShadow: "0 2px 10px hsl(230 80% 60% / 0.4)",
                         }}>
-                          <Check className="w-2.5 h-2.5 text-primary-foreground" />
+                          <Check className="w-3 h-3" />
                         </div>
                       )}
                     </button>
@@ -117,8 +120,8 @@ export function SignUpScreen({ onNavigate }: SignUpScreenProps) {
                 </div>
               </div>
 
-              <button type="submit" disabled={loading} className="sys-btn-primary mt-2">
-                {loading ? "Creating..." : "Register"}
+              <button type="submit" disabled={loading} className="sys-btn-primary mt-3">
+                {loading ? "Creating..." : "Create Account"}
               </button>
             </form>
           )}

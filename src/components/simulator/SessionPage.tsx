@@ -43,10 +43,10 @@ const createEmptyLane = (id: number): LaneData => ({
 function HumanoidTarget({ targetType }: { targetType: string }) {
   const getTargetColor = () => {
     switch (targetType) {
-      case "humanoid-b": return "hsl(38 92% 50%)";
-      case "humanoid-c": return "hsl(152 69% 41%)";
-      case "humanoid-d": return "hsl(270 60% 58%)";
-      default: return "hsl(217 91% 60%)";
+      case "humanoid-b": return "hsl(40 96% 53%)";
+      case "humanoid-c": return "hsl(160 72% 42%)";
+      case "humanoid-d": return "hsl(280 65% 60%)";
+      default: return "hsl(230 80% 60%)";
     }
   };
   const color = getTargetColor();
@@ -89,25 +89,25 @@ function LanePanel({ lane, onTargetChange }: { lane: LaneData; onTargetChange: (
   const isActive = lane.name !== "—";
 
   return (
-    <div className="glass-panel flex flex-col min-w-[280px] w-[280px] shrink-0 overflow-hidden hover-lift">
-      <div className="px-3 py-2 flex items-center justify-between" style={{
-        background: "rgba(255,255,255,0.5)",
-        borderBottom: "1px solid rgba(0,0,0,0.04)",
+    <div className="glass-panel flex flex-col min-w-[280px] w-[280px] shrink-0 overflow-hidden">
+      <div className="px-3.5 py-2.5 flex items-center justify-between" style={{
+        background: "var(--surface-glass-hover)",
+        borderBottom: "1px solid var(--divider)",
       }}>
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-foreground">
           Lane {lane.id}
         </span>
-        <span className={`text-[9px] font-mono px-2 py-0.5 rounded-lg font-medium ${
-          isActive ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-        }`}>
+        <span className={`text-[9px] font-mono px-2.5 py-1 rounded-lg font-bold ${
+          isActive ? "bg-success/10 text-success" : "text-muted-foreground"
+        }`} style={!isActive ? { background: "var(--surface-inset)" } : undefined}>
           {isActive ? "ASSIGNED" : "EMPTY"}
         </span>
       </div>
 
-      <div className="flex-1 p-3 flex flex-col gap-3 overflow-y-auto">
+      <div className="flex-1 p-3.5 flex flex-col gap-3 overflow-y-auto">
         <div className="rounded-xl p-2 flex items-center justify-center" style={{
-          background: "rgba(255,255,255,0.3)",
-          border: "1px solid rgba(0,0,0,0.04)",
+          background: "var(--surface-inset)",
+          border: "1px solid var(--divider)",
           minHeight: "180px",
         }}>
           <HumanoidTarget targetType={lane.targetType} />
@@ -120,15 +120,15 @@ function LanePanel({ lane, onTargetChange }: { lane: LaneData; onTargetChange: (
         </div>
 
         <div>
-          <label className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1 block">Target Type</label>
-          <select value={lane.targetType} onChange={(e) => onTargetChange(e.target.value)} className="sys-input h-8 text-[11px]">
+          <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Target Type</label>
+          <select value={lane.targetType} onChange={(e) => onTargetChange(e.target.value)} className="sys-input h-9 text-[11px]">
             {TARGET_TYPES.map((t) => (
               <option key={t.id} value={t.id}>{t.label}</option>
             ))}
           </select>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2">
           {[
             { label: "Trainee ID", value: lane.traineeId },
             { label: "Name", value: lane.name },
@@ -140,31 +140,31 @@ function LanePanel({ lane, onTargetChange }: { lane: LaneData; onTargetChange: (
             { label: "Timer (Sec)", value: lane.timer },
           ].map((d) => (
             <div key={d.label}>
-              <p className="text-[8px] uppercase tracking-wider text-muted-foreground">{d.label}</p>
-              <p className="text-[11px] font-mono text-foreground truncate">{d.value}</p>
+              <p className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">{d.label}</p>
+              <p className="text-[11px] font-mono text-foreground truncate font-medium">{d.value}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-auto rounded-xl p-2.5" style={{
-          background: "rgba(255,255,255,0.35)",
-          border: "1px solid rgba(0,0,0,0.04)",
+        <div className="mt-auto rounded-xl p-3" style={{
+          background: "var(--surface-elevated)",
+          border: "1px solid var(--divider)",
         }}>
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-2">Shot Summary</p>
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Shot Summary</p>
           <div className="flex items-center justify-between">
             <div className="text-center flex-1">
-              <p className="text-lg font-mono font-semibold text-success">{lane.shotsFired}</p>
-              <p className="text-[8px] uppercase tracking-wider text-muted-foreground">Hits</p>
+              <p className="text-lg font-mono font-bold text-success">{lane.shotsFired}</p>
+              <p className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">Hits</p>
             </div>
-            <div className="w-px h-8" style={{ background: "rgba(0,0,0,0.08)" }} />
+            <div className="w-px h-8" style={{ background: "var(--divider)" }} />
             <div className="text-center flex-1">
-              <p className="text-lg font-mono font-semibold text-destructive">{lane.shotsMissed}</p>
-              <p className="text-[8px] uppercase tracking-wider text-muted-foreground">Missed</p>
+              <p className="text-lg font-mono font-bold text-destructive">{lane.shotsMissed}</p>
+              <p className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">Missed</p>
             </div>
-            <div className="w-px h-8" style={{ background: "rgba(0,0,0,0.08)" }} />
+            <div className="w-px h-8" style={{ background: "var(--divider)" }} />
             <div className="text-center flex-1">
-              <p className="text-lg font-mono font-semibold text-foreground">{lane.shotsFired + lane.shotsMissed}</p>
-              <p className="text-[8px] uppercase tracking-wider text-muted-foreground">Total</p>
+              <p className="text-lg font-mono font-bold text-foreground">{lane.shotsFired + lane.shotsMissed}</p>
+              <p className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">Total</p>
             </div>
           </div>
         </div>
@@ -192,25 +192,21 @@ export function SessionPage() {
   return (
     <div className="flex flex-col h-full p-5 gap-4">
       <div className="flex items-center gap-3 shrink-0">
-        <button className={`${btnBase} glass-btn text-primary hover:scale-[1.02] active:scale-[0.98]`}>
+        <button className={`${btnBase} glass-btn text-primary hover:scale-[1.03] active:scale-[0.97]`}>
           <Settings className="w-3.5 h-3.5" /> Setup
         </button>
 
         {sessionState === "running" ? (
-          <button onClick={handlePause} className={`${btnBase} glass-btn text-warning hover:scale-[1.02] active:scale-[0.98]`}>
+          <button onClick={handlePause} className={`${btnBase} glass-btn text-warning hover:scale-[1.03] active:scale-[0.97]`}>
             <Pause className="w-3.5 h-3.5" /> Pause
           </button>
         ) : (
-          <button onClick={handleStart} className={`${btnBase} glass-btn text-success hover:scale-[1.02] active:scale-[0.98]`}>
+          <button onClick={handleStart} className={`${btnBase} glass-btn text-success hover:scale-[1.03] active:scale-[0.97]`}>
             <Play className="w-3.5 h-3.5" /> Start
           </button>
         )}
 
-        <button
-          onClick={handleStop}
-          disabled={sessionState === "idle"}
-          className={`${btnBase} glass-btn text-destructive hover:scale-[1.02] active:scale-[0.98]`}
-        >
+        <button onClick={handleStop} disabled={sessionState === "idle"} className={`${btnBase} glass-btn text-destructive hover:scale-[1.03] active:scale-[0.97]`}>
           <Square className="w-3.5 h-3.5" /> Stop
         </button>
 
@@ -227,7 +223,7 @@ export function SessionPage() {
       </div>
 
       <div className="flex-1 overflow-x-auto overflow-y-hidden">
-        <div className="flex gap-4 h-full pb-2">
+        <div className="flex gap-4 h-full pb-2 stagger-children">
           {lanes.map((lane) => (
             <LanePanel key={lane.id} lane={lane} onTargetChange={(type) => handleTargetChange(lane.id, type)} />
           ))}
