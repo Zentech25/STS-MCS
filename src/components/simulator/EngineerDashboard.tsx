@@ -31,11 +31,17 @@ export function EngineerDashboard() {
       <DashboardPanel title="Hardware Diagnostics" className="col-span-5" glow>
         <div className="space-y-1.5">
           {hardware.map((h) => (
-            <div key={h.name} className={`flex items-center justify-between p-3 rounded-lg border transition-all duration-200 ${
-              h.status === "error" ? "bg-destructive/5 border-destructive/20" :
-              h.status === "warning" ? "bg-warning/5 border-warning/20" :
-              "bg-secondary border-border"
-            } hover:bg-accent`}>
+            <div key={h.name} className={`flex items-center justify-between p-3 rounded-xl interactive-row ${
+              h.status === "error" ? "bg-destructive/5" :
+              h.status === "warning" ? "bg-warning/5" : ""
+            }`} style={{
+              background: h.status === "error" ? "rgba(239,68,68,0.06)" :
+                          h.status === "warning" ? "rgba(245,158,11,0.06)" :
+                          "rgba(255,255,255,0.35)",
+              border: `1px solid ${h.status === "error" ? "rgba(239,68,68,0.12)" :
+                                    h.status === "warning" ? "rgba(245,158,11,0.12)" :
+                                    "rgba(0,0,0,0.04)"}`,
+            }}>
               <div className="flex items-center gap-2.5">
                 {h.status === "ok" ? <CheckCircle className="w-4 h-4 text-success" /> :
                  h.status === "warning" ? <AlertTriangle className="w-4 h-4 text-warning" /> :
@@ -63,14 +69,15 @@ export function EngineerDashboard() {
                 <span className="flex items-center gap-2 text-muted-foreground">
                   <Cpu className="w-3.5 h-3.5" /> {m.label}
                 </span>
-                <span className="font-mono text-foreground">{m.value}%</span>
+                <span className="font-mono text-foreground font-medium">{m.value}%</span>
               </div>
-              <div className="h-2 rounded-full bg-secondary overflow-hidden">
+              <div className="h-2.5 rounded-full overflow-hidden" style={{ background: "rgba(0,0,0,0.06)" }}>
                 <div
-                  className="h-full rounded-full transition-all duration-500"
+                  className="h-full rounded-full progress-bar transition-all duration-700"
                   style={{
                     width: `${m.value}%`,
                     background: m.color,
+                    boxShadow: `0 1px 6px ${m.color}40`,
                   }}
                 />
               </div>
@@ -82,7 +89,7 @@ export function EngineerDashboard() {
       <DashboardPanel title="Event Log" className="col-span-4">
         <div className="space-y-0.5">
           {logs.map((l, i) => (
-            <div key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-secondary transition-all duration-200">
+            <div key={i} className="flex items-start gap-2 p-2 rounded-xl interactive-row">
               <span className="font-mono text-[9px] text-muted-foreground shrink-0 mt-0.5">{l.time}</span>
               <span className={`text-[9px] font-mono font-bold shrink-0 w-10 mt-0.5 ${
                 l.level === "ERROR" ? "text-destructive" :

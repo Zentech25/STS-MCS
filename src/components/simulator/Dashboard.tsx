@@ -15,16 +15,23 @@ export function Dashboard() {
   const isInstructor = user?.role === "instructor";
 
   return (
-    <div className="w-full h-screen flex flex-col overflow-hidden bg-background">
+    <div className="w-full h-screen flex flex-col overflow-hidden" style={{
+      background: "linear-gradient(135deg, hsl(220 30% 96%) 0%, hsl(225 20% 94%) 50%, hsl(230 25% 95%) 100%)",
+    }}>
       <HeaderBar />
 
       {isInstructor && (
-        <div className="shrink-0 flex items-center gap-1 px-6 bg-card border-b border-border">
+        <div className="shrink-0 flex items-center gap-1 px-6 pt-1" style={{
+          background: "rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(0, 0, 0, 0.04)",
+        }}>
           {(["dashboard", "session"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2.5 text-[12px] font-semibold capitalize tracking-wide transition-all duration-150 border-b-2 ${
+              className={`px-5 py-2.5 text-[12px] font-semibold capitalize tracking-wide transition-all duration-300 border-b-2 ${
                 activeTab === tab
                   ? "text-primary border-primary"
                   : "text-muted-foreground border-transparent hover:text-foreground"

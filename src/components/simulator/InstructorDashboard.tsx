@@ -12,7 +12,7 @@ export function InstructorDashboard() {
     { name: "PVT. Okafor", status: "Standby", score: 0, scenario: "—" },
   ];
 
-  const btnBase = "flex-1 h-9 rounded-lg font-medium text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all duration-200 disabled:opacity-25 disabled:pointer-events-none";
+  const btnBase = "flex-1 h-9 rounded-xl font-medium text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-200 disabled:opacity-25 disabled:pointer-events-none";
 
   return (
     <div className="grid grid-cols-12 gap-5 p-5 h-full auto-rows-fr">
@@ -25,22 +25,30 @@ export function InstructorDashboard() {
             </span>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => setSimState("running")} disabled={simState === "running"} className={`${btnBase} bg-success/10 border-success/30 text-success hover:bg-success/20`}>
+            <button onClick={() => setSimState("running")} disabled={simState === "running"} className={`${btnBase} glass-btn text-success hover:scale-[1.02] active:scale-[0.98]`}>
               <Play className="w-3.5 h-3.5" /> Start
             </button>
-            <button onClick={() => setSimState("paused")} disabled={simState !== "running"} className={`${btnBase} bg-warning/10 border-warning/30 text-warning hover:bg-warning/20`}>
+            <button onClick={() => setSimState("paused")} disabled={simState !== "running"} className={`${btnBase} glass-btn text-warning hover:scale-[1.02] active:scale-[0.98]`}>
               <Pause className="w-3.5 h-3.5" /> Pause
             </button>
-            <button onClick={() => setSimState("idle")} disabled={simState === "idle"} className={`${btnBase} bg-destructive/10 border-destructive/30 text-destructive hover:bg-destructive/20`}>
+            <button onClick={() => setSimState("idle")} disabled={simState === "idle"} className={`${btnBase} glass-btn text-destructive hover:scale-[1.02] active:scale-[0.98]`}>
               <Square className="w-3.5 h-3.5" /> End
             </button>
           </div>
           <div className="grid grid-cols-2 gap-2 mt-1">
-            <div className="p-3 rounded-lg bg-secondary border border-border">
+            <div className="p-3 rounded-xl" style={{
+              background: "rgba(255,255,255,0.4)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(0,0,0,0.04)",
+            }}>
               <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Duration</p>
               <p className="font-mono text-sm text-foreground mt-0.5">00:42:18</p>
             </div>
-            <div className="p-3 rounded-lg bg-secondary border border-border">
+            <div className="p-3 rounded-xl" style={{
+              background: "rgba(255,255,255,0.4)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(0,0,0,0.04)",
+            }}>
               <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Scenario</p>
               <p className="font-mono text-sm text-foreground mt-0.5">Urban Ops</p>
             </div>
@@ -58,14 +66,17 @@ export function InstructorDashboard() {
             <div key={m.label} className="space-y-1.5">
               <div className="flex items-center justify-between text-[11px]">
                 <span className="flex items-center gap-2 text-muted-foreground">{m.icon} {m.label}</span>
-                <span className="font-mono text-foreground">{m.value}%</span>
+                <span className="font-mono text-foreground font-medium">{m.value}%</span>
               </div>
-              <div className="h-2 rounded-full bg-secondary overflow-hidden">
+              <div className="h-2.5 rounded-full overflow-hidden" style={{
+                background: "rgba(0,0,0,0.06)",
+              }}>
                 <div
-                  className="h-full rounded-full transition-all duration-500"
+                  className="h-full rounded-full progress-bar transition-all duration-700"
                   style={{
                     width: `${m.value}%`,
                     background: m.color,
+                    boxShadow: `0 1px 6px ${m.color}40`,
                   }}
                 />
               </div>
@@ -77,19 +88,22 @@ export function InstructorDashboard() {
       <DashboardPanel title="Trainee Status" className="col-span-4">
         <div className="space-y-1.5">
           {trainees.map((t) => (
-            <div key={t.name} className="flex items-center justify-between p-2.5 rounded-lg bg-secondary border border-border hover:bg-accent transition-all duration-200">
+            <div key={t.name} className="flex items-center justify-between p-2.5 rounded-xl interactive-row" style={{
+              background: "rgba(255,255,255,0.35)",
+              border: "1px solid rgba(0,0,0,0.04)",
+            }}>
               <div className="flex items-center gap-2">
                 <Users className="w-3.5 h-3.5 text-muted-foreground" />
                 <span className="text-[11px] font-medium text-foreground">{t.name}</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-[10px] text-muted-foreground font-mono">{t.scenario}</span>
-                <span className={`text-[9px] font-mono px-2 py-0.5 rounded-md font-medium border ${
-                  t.status === "Active" ? "bg-success/10 text-success border-success/20" :
-                  t.status === "Paused" ? "bg-warning/10 text-warning border-warning/20" :
-                  "bg-secondary text-muted-foreground border-border"
+                <span className={`text-[9px] font-mono px-2 py-0.5 rounded-lg font-medium ${
+                  t.status === "Active" ? "bg-success/10 text-success" :
+                  t.status === "Paused" ? "bg-warning/10 text-warning" :
+                  "bg-muted text-muted-foreground"
                 }`}>{t.status}</span>
-                {t.score > 0 && <span className="font-mono text-[11px] text-primary w-6 text-right">{t.score}</span>}
+                {t.score > 0 && <span className="font-mono text-[11px] text-primary w-6 text-right font-semibold">{t.score}</span>}
               </div>
             </div>
           ))}
