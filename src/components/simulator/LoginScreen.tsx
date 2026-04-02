@@ -25,23 +25,29 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
   };
 
   return (
-    <div className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-background">
+    <div className="relative w-full h-screen flex items-center justify-center overflow-hidden">
       <AnimatedBackground />
 
-      <div className={`relative z-10 w-full max-w-[400px] animate-scale-in ${error ? "animate-shake" : ""}`}>
-        <div className="sys-panel p-8 space-y-6">
+      <div className={`relative z-10 w-full max-w-[420px] animate-scale-in ${error ? "animate-shake" : ""}`}>
+        <div className="glass-panel-glow p-8 space-y-6">
           {/* Header */}
-          <div className="text-center space-y-1.5 pb-4 border-b border-border">
-            <h1 className="text-base font-semibold tracking-[0.12em] uppercase text-foreground">
+          <div className="text-center space-y-2 pb-5 border-b border-border/30">
+            <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-3" style={{
+              background: "var(--gradient-primary)",
+              boxShadow: "0 0 24px hsl(199 89% 48% / 0.3)",
+            }}>
+              <span className="text-white text-lg font-bold">TS</span>
+            </div>
+            <h1 className="text-lg font-semibold tracking-wide text-foreground">
               Tactical Training Simulator
             </h1>
-            <p className="text-[11px] text-muted-foreground tracking-[0.1em] uppercase">
+            <p className="text-[12px] text-muted-foreground">
               System Login
             </p>
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-sm bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-destructive/10 border border-destructive/25 text-destructive text-sm">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>Invalid credentials. Default: <span className="font-mono text-xs">instructor / demo</span></span>
             </div>
@@ -49,7 +55,7 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-[11px] uppercase tracking-[0.1em] text-muted-foreground font-medium">
+              <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
                 Username
               </label>
               <input
@@ -63,7 +69,7 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] uppercase tracking-[0.1em] text-muted-foreground font-medium">
+              <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
                 Password
               </label>
               <div className="relative">
@@ -78,7 +84,7 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-100"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -90,23 +96,23 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
             </button>
           </form>
 
-          <div className="flex items-center justify-between text-[11px] pt-2 border-t border-border">
+          <div className="flex items-center justify-between text-[12px] pt-3 border-t border-border/30">
             <button
               onClick={() => onNavigate("signup")}
-              className="text-primary hover:text-foreground transition-colors duration-100 uppercase tracking-[0.08em] font-medium"
+              className="text-primary hover:text-foreground transition-colors duration-200 font-medium"
             >
               Create Account
             </button>
             <button
               onClick={() => onNavigate("changePassword")}
-              className="text-muted-foreground hover:text-foreground transition-colors duration-100 uppercase tracking-[0.08em]"
+              className="text-muted-foreground hover:text-foreground transition-colors duration-200"
             >
               Change Password
             </button>
           </div>
         </div>
 
-        <p className="text-center text-[10px] text-muted-foreground/50 mt-4 tracking-[0.15em] uppercase">
+        <p className="text-center text-[10px] text-muted-foreground/40 mt-5 tracking-widest uppercase">
           Authorized Personnel Only
         </p>
       </div>
