@@ -20,54 +20,55 @@ export function EngineerDashboard() {
   ];
 
   return (
-    <div className="grid grid-cols-12 gap-4 p-4 h-full auto-rows-fr">
-      {/* Hardware Status */}
+    <div className="grid grid-cols-12 gap-3 p-4 h-full auto-rows-fr">
       <DashboardPanel title="Hardware Diagnostics" className="col-span-5">
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {hardware.map((h) => (
-            <div key={h.name} className={`flex items-center justify-between p-2.5 rounded border transition-colors ${
-              h.status === "error" ? "bg-destructive/5 border-destructive/30" :
-              h.status === "warning" ? "bg-sim-amber/5 border-sim-amber/30" :
-              "bg-secondary/20 border-border/20"
+            <div key={h.name} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
+              h.status === "error" ? "bg-destructive/5 border-destructive/20" :
+              h.status === "warning" ? "bg-sim-amber/5 border-sim-amber/20" :
+              "bg-secondary/20 border-border/15"
             }`}>
               <div className="flex items-center gap-2.5">
-                {h.status === "ok" ? <CheckCircle className="w-4 h-4 text-sim-green" /> :
-                 h.status === "warning" ? <AlertTriangle className="w-4 h-4 text-sim-amber" /> :
-                 <XCircle className="w-4 h-4 text-destructive" />}
-                <span className="text-xs font-medium text-foreground">{h.name}</span>
+                {h.status === "ok" ? <CheckCircle className="w-4 h-4 text-sim-green/80" /> :
+                 h.status === "warning" ? <AlertTriangle className="w-4 h-4 text-sim-amber/80" /> :
+                 <XCircle className="w-4 h-4 text-destructive/80" />}
+                <span className="text-[11px] font-medium text-foreground/80">{h.name}</span>
               </div>
-              {h.status !== "error" && (
-                <div className="flex items-center gap-4 text-[10px] font-mono text-muted-foreground">
+              {h.status !== "error" ? (
+                <div className="flex items-center gap-4 text-[10px] font-mono text-muted-foreground/60">
                   <span className="flex items-center gap-1"><Thermometer className="w-3 h-3" /> {h.temp}°C</span>
                   <span className="flex items-center gap-1"><Cpu className="w-3 h-3" /> {h.load}%</span>
                 </div>
+              ) : (
+                <span className="text-[10px] font-mono text-destructive font-medium">OFFLINE</span>
               )}
-              {h.status === "error" && <span className="text-[10px] font-mono text-destructive">OFFLINE</span>}
             </div>
           ))}
         </div>
       </DashboardPanel>
 
-      {/* System Health */}
       <DashboardPanel title="System Health" className="col-span-3">
-        <div className="space-y-3">
+        <div className="space-y-4">
           {[
-            { label: "CPU", value: 38, icon: <Cpu className="w-4 h-4" /> },
-            { label: "Memory", value: 64, icon: <HardDrive className="w-4 h-4" /> },
-            { label: "Disk I/O", value: 22, icon: <HardDrive className="w-4 h-4" /> },
-            { label: "Network", value: 15, icon: <HardDrive className="w-4 h-4" /> },
+            { label: "CPU", value: 38, icon: <Cpu className="w-3.5 h-3.5" /> },
+            { label: "Memory", value: 64, icon: <HardDrive className="w-3.5 h-3.5" /> },
+            { label: "Disk I/O", value: 22, icon: <HardDrive className="w-3.5 h-3.5" /> },
+            { label: "Network", value: 15, icon: <HardDrive className="w-3.5 h-3.5" /> },
           ].map((m) => (
-            <div key={m.label} className="space-y-1">
-              <div className="flex items-center justify-between text-xs">
+            <div key={m.label} className="space-y-1.5">
+              <div className="flex items-center justify-between text-[11px]">
                 <span className="flex items-center gap-2 text-muted-foreground">{m.icon} {m.label}</span>
-                <span className="font-mono text-foreground">{m.value}%</span>
+                <span className="font-mono text-foreground/70">{m.value}%</span>
               </div>
-              <div className="h-1.5 rounded-full bg-secondary/50">
+              <div className="h-1.5 rounded-full bg-secondary/50 overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${
-                    m.value > 80 ? "bg-destructive" : m.value > 60 ? "bg-sim-amber" : "bg-sim-green"
-                  }`}
-                  style={{ width: `${m.value}%` }}
+                  className={`h-full rounded-full transition-all duration-1000`}
+                  style={{
+                    width: `${m.value}%`,
+                    background: m.value > 80 ? "hsl(0 85% 55%)" : m.value > 60 ? "hsl(42 100% 60%)" : "hsl(155 80% 48%)",
+                    boxShadow: `0 0 8px ${m.value > 80 ? "hsl(0 85% 55% / 0.3)" : m.value > 60 ? "hsl(42 100% 60% / 0.3)" : "hsl(155 80% 48% / 0.3)"}`,
+                  }}
                 />
               </div>
             </div>
@@ -75,31 +76,27 @@ export function EngineerDashboard() {
         </div>
       </DashboardPanel>
 
-      {/* Error Logs */}
       <DashboardPanel title="Event Log" className="col-span-4">
-        <div className="space-y-1 max-h-full overflow-y-auto">
+        <div className="space-y-0.5">
           {logs.map((l, i) => (
-            <div key={i} className="flex items-start gap-2 p-1.5 rounded hover:bg-secondary/20 transition-colors">
-              <span className="font-mono text-[10px] text-muted-foreground shrink-0">{l.time}</span>
-              <span className={`text-[10px] font-mono font-bold shrink-0 w-10 ${
+            <div key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-secondary/15 transition-colors">
+              <span className="font-mono text-[9px] text-muted-foreground/50 shrink-0 mt-0.5">{l.time}</span>
+              <span className={`text-[9px] font-mono font-bold shrink-0 w-10 mt-0.5 ${
                 l.level === "ERROR" ? "text-destructive" :
                 l.level === "WARN" ? "text-sim-amber" :
-                "text-muted-foreground"
-              }`}>
-                {l.level}
-              </span>
-              <span className="text-[11px] text-foreground/80">{l.msg}</span>
+                "text-muted-foreground/50"
+              }`}>{l.level}</span>
+              <span className="text-[11px] text-foreground/60 leading-tight">{l.msg}</span>
             </div>
           ))}
         </div>
       </DashboardPanel>
 
-      {/* Locked panels */}
       <DashboardPanel title="Simulation Control" locked className="col-span-6">
-        <p className="text-xs text-muted-foreground">Instructor access required</p>
+        <p className="text-xs text-muted-foreground/40">Instructor access required</p>
       </DashboardPanel>
       <DashboardPanel title="User Management" locked className="col-span-6">
-        <p className="text-xs text-muted-foreground">Administrator access required</p>
+        <p className="text-xs text-muted-foreground/40">Administrator access required</p>
       </DashboardPanel>
     </div>
   );
