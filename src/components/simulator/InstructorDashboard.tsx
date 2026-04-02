@@ -90,12 +90,6 @@ export function InstructorDashboard() {
         </div>
       </DashboardPanel>
 
-      <DashboardPanel title="User Management" locked className="col-span-6">
-        <p className="text-xs text-muted-foreground">Administrator access required</p>
-      </DashboardPanel>
-      <DashboardPanel title="Hardware Diagnostics" locked className="col-span-6">
-        <p className="text-xs text-muted-foreground">Service Engineer access required</p>
-      </DashboardPanel>
     </div>
   );
 }

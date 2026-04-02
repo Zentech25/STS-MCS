@@ -91,12 +91,6 @@ export function EngineerDashboard() {
         </div>
       </DashboardPanel>
 
-      <DashboardPanel title="Simulation Control" locked className="col-span-6">
-        <p className="text-xs text-muted-foreground">Instructor access required</p>
-      </DashboardPanel>
-      <DashboardPanel title="User Management" locked className="col-span-6">
-        <p className="text-xs text-muted-foreground">Administrator access required</p>
-      </DashboardPanel>
     </div>
   );
 }
