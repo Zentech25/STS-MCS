@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { OrbatPage } from "./OrbatPage";
 import { TraineePage } from "./TraineePage";
 import { FiringWeaponPage } from "./FiringWeaponPage";
+import { TargetRegionScoresPage } from "./TargetRegionScoresPage";
 
 interface ConfigOption {
   id: string;
@@ -38,6 +39,9 @@ function ConfigContent({ option }: { option: ConfigOption }) {
   }
   if (option.id === "firing-weapon") {
     return <FiringWeaponPage />;
+  }
+  if (option.id === "target-region-scores") {
+    return <TargetRegionScoresPage />;
   }
 
   return (
