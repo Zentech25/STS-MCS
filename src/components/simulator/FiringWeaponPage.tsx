@@ -219,9 +219,11 @@ function TagBoard({
 export function FiringWeaponPage() {
   const [positions, setPositions] = useState<TagItem[]>(DEFAULT_POSITIONS);
   const [weapons, setWeapons] = useState<TagItem[]>(DEFAULT_WEAPONS);
+  const [ranks, setRanks] = useState<TagItem[]>(DEFAULT_RANKS);
 
   const [posSnapshot, setPosSnapshot] = useState<TagItem[]>(positions);
   const [weapSnapshot, setWeapSnapshot] = useState<TagItem[]>(weapons);
+  const [rankSnapshot, setRankSnapshot] = useState<TagItem[]>(ranks);
 
   const toggleItem = (setter: React.Dispatch<React.SetStateAction<TagItem[]>>) => (id: string) => {
     setter((prev) => prev.map((i) => i.id === id ? { ...i, selected: !i.selected } : i));
@@ -265,6 +267,21 @@ export function FiringWeaponPage() {
         snapshot={weapSnapshot}
         onEnterEdit={() => setWeapSnapshot([...weapons])}
         onCancelEdit={() => setWeapons([...weapSnapshot])}
+      />
+
+      <div className="h-px w-full" style={{ background: "var(--divider)" }} />
+
+      <TagBoard
+        title="Ranks"
+        icon={<Award className="w-5 h-5" />}
+        accentColor="30 90% 55%"
+        items={ranks}
+        onAdd={addItem(setRanks, "Rank")}
+        onDelete={deleteItem(setRanks, "Rank")}
+        onToggle={toggleItem(setRanks)}
+        snapshot={rankSnapshot}
+        onEnterEdit={() => setRankSnapshot([...ranks])}
+        onCancelEdit={() => setRanks([...rankSnapshot])}
       />
     </div>
   );
