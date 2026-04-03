@@ -267,7 +267,7 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
                   <PopoverContent className="w-auto p-0" align="start">
                     <div className="flex items-center justify-between gap-1 px-3 pt-3 pb-1">
                       <Select
-                        value={String((joinDate ?? new Date()).getMonth())}
+                        value={String(calendarMonth.getMonth())}
                         onValueChange={(v) => {
                           const d = new Date(calendarMonth);
                           d.setMonth(Number(v));
