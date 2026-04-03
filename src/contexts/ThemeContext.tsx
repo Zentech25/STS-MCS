@@ -1,8 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 
-type Theme = "light" | "dark" | "zen";
-
-const THEME_ORDER: Theme[] = ["light", "dark", "zen"];
+type Theme = "light" | "dark";
 
 interface ThemeContextType {
   theme: Theme;
@@ -15,22 +13,16 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     const saved = localStorage.getItem("sim_theme");
-    if (saved === "dark" || saved === "light" || saved === "zen") return saved;
-    return "light";
+    return (saved === "dark" || saved === "light") ? saved : "light";
   });
 
   useEffect(() => {
     localStorage.setItem("sim_theme", theme);
-    const cl = document.documentElement.classList;
-    cl.remove("dark", "zen");
-    if (theme !== "light") cl.add(theme);
+    document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
-    setThemeState((prev) => {
-      const i = THEME_ORDER.indexOf(prev);
-      return THEME_ORDER[(i + 1) % THEME_ORDER.length];
-    });
+    setThemeState((prev) => (prev === "light" ? "dark" : "light"));
   }, []);
 
   const setTheme = useCallback((t: Theme) => setThemeState(t), []);

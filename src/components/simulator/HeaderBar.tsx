@@ -1,11 +1,11 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useEffect, useState, useRef } from "react";
-import { LogOut, Wifi, Bell, Search, Sun, Moon, Leaf, User, ChevronDown } from "lucide-react";
+import { LogOut, Wifi, Bell, Search, Sun, Moon, User, ChevronDown } from "lucide-react";
 
 export function HeaderBar() {
   const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [time, setTime] = useState(new Date());
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -114,29 +114,16 @@ export function HeaderBar() {
               </div>
               <div style={{ borderTop: `1px solid var(--divider)` }} className="pt-1 mb-1" />
 
-              {/* Theme selector */}
-              <div className="px-3 py-2">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Theme</p>
-                <div className="flex gap-1.5">
-                  {([
-                    { key: "light" as const, icon: Sun, label: "Light", color: "text-warning" },
-                    { key: "dark" as const, icon: Moon, label: "Dark", color: "text-accent" },
-                    { key: "zen" as const, icon: Leaf, label: "Zen", color: "text-success" },
-                  ]).map(({ key, icon: Icon, label, color }) => (
-                    <button
-                      key={key}
-                      onClick={(e) => { e.stopPropagation(); setTheme(key); }}
-                      className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-lg text-[10px] font-medium transition-all ${
-                        theme === key
-                          ? "bg-primary/15 text-primary ring-1 ring-primary/30"
-                          : "text-muted-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <Icon className={`w-3.5 h-3.5 ${theme === key ? color : ""}`} />
-                      {label}
-                    </button>
-                  ))}
+              {/* Theme toggle */}
+              <div className="flex items-center justify-between px-3 py-2 rounded-lg interactive-row">
+                <div className="flex items-center gap-2 text-[11px] text-foreground">
+                  {theme === "dark" ? <Moon className="w-3.5 h-3.5 text-accent" /> : <Sun className="w-3.5 h-3.5 text-warning" />}
+                  <span className="font-medium">{theme === "dark" ? "Dark Mode" : "Light Mode"}</span>
                 </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
+                  className={`theme-toggle ${theme === "dark" ? "active" : ""}`}
+                />
               </div>
 
               <div style={{ borderTop: `1px solid var(--divider)` }} className="pt-1 mt-1" />
