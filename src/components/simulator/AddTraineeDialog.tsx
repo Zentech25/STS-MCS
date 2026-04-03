@@ -105,6 +105,7 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
   const [designation, setDesignation] = useState("");
   const [joinDate, setJoinDate] = useState<Date>();
   const [photo, setPhoto] = useState<string | null>(null);
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
 
   const toggleNode = useCallback((id: string) => {
     setTree((prev) => mapTree(prev, id, (n) => ({ ...n, expanded: !n.expanded })));
