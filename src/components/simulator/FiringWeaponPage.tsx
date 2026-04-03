@@ -33,6 +33,9 @@ function TagBoard({
   onAdd,
   onDelete,
   onToggle,
+  snapshot,
+  onEnterEdit,
+  onCancelEdit,
 }: {
   title: string;
   icon: React.ReactNode;
@@ -41,6 +44,9 @@ function TagBoard({
   onAdd: (label: string) => void;
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
+  snapshot: TagItem[];
+  onEnterEdit: () => void;
+  onCancelEdit: () => void;
 }) {
   const [newValue, setNewValue] = useState("");
   const [isAdding, setIsAdding] = useState(false);
@@ -75,15 +81,36 @@ function TagBoard({
           {selectedCount} of {items.length} active
         </span>
         <div className="ml-auto flex items-center gap-2">
-          <Button
-            size="sm"
-            variant={editMode ? "secondary" : "ghost"}
-            className="h-7 text-xs rounded-lg gap-1.5"
-            onClick={() => setEditMode(!editMode)}
-          >
-            <Settings className="w-3.5 h-3.5" />
-            {editMode ? "Done" : "Manage"}
-          </Button>
+          {editMode ? (
+            <>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 text-xs rounded-lg gap-1.5"
+                onClick={() => { onCancelEdit(); setEditMode(false); setIsAdding(false); setNewValue(""); }}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                className="h-7 text-xs rounded-lg gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => { setEditMode(false); setIsAdding(false); setNewValue(""); }}
+              >
+                <Check className="w-3.5 h-3.5" />
+                Done
+              </Button>
+            </>
+          ) : (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-xs rounded-lg gap-1.5"
+              onClick={() => { onEnterEdit(); setEditMode(true); }}
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Manage
+            </Button>
+          )}
         </div>
       </div>
 
@@ -182,6 +209,9 @@ export function FiringWeaponPage() {
   const [positions, setPositions] = useState<TagItem[]>(DEFAULT_POSITIONS);
   const [weapons, setWeapons] = useState<TagItem[]>(DEFAULT_WEAPONS);
 
+  const [posSnapshot, setPosSnapshot] = useState<TagItem[]>(positions);
+  const [weapSnapshot, setWeapSnapshot] = useState<TagItem[]>(weapons);
+
   const toggleItem = (setter: React.Dispatch<React.SetStateAction<TagItem[]>>) => (id: string) => {
     setter((prev) => prev.map((i) => i.id === id ? { ...i, selected: !i.selected } : i));
   };
@@ -206,6 +236,9 @@ export function FiringWeaponPage() {
         onAdd={addItem(setPositions, "Position")}
         onDelete={deleteItem(setPositions, "Position")}
         onToggle={toggleItem(setPositions)}
+        snapshot={posSnapshot}
+        onEnterEdit={() => setPosSnapshot([...positions])}
+        onCancelEdit={() => setPositions([...posSnapshot])}
       />
 
       <div className="h-px w-full" style={{ background: "var(--divider)" }} />
@@ -218,6 +251,9 @@ export function FiringWeaponPage() {
         onAdd={addItem(setWeapons, "Weapon")}
         onDelete={deleteItem(setWeapons, "Weapon")}
         onToggle={toggleItem(setWeapons)}
+        snapshot={weapSnapshot}
+        onEnterEdit={() => setWeapSnapshot([...weapons])}
+        onCancelEdit={() => setWeapons([...weapSnapshot])}
       />
     </div>
   );
