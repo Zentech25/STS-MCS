@@ -178,6 +178,7 @@ export function TraineePage() {
           </Button>
         </div>
       </div>
+      <AddTraineeDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
     </div>
   );
 }
