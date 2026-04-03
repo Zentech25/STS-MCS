@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 // ── Types ──────────────────────────────────────────────────
@@ -103,6 +106,7 @@ function TreeNode({
 }) {
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(node.name);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const meta = TYPE_META[node.type];
   const Icon = meta.icon;
@@ -177,35 +181,63 @@ function TreeNode({
           {meta.label}
         </span>
 
-        {/* Actions */}
-        <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="w-6 h-6">
-                <MoreHorizontal className="w-3.5 h-3.5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-[140px]">
-              <DropdownMenuItem onClick={() => { setEditing(true); setEditValue(node.name); }}>
-                <Edit2 className="w-3.5 h-3.5 mr-2" /> Rename
-              </DropdownMenuItem>
-              {canAddChild && (
-                <DropdownMenuItem onClick={() => onAdd(node.id)}>
-                  <Plus className="w-3.5 h-3.5 mr-2" /> Add {TYPE_META[meta.childType!].label}
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={() => onDelete(node.id)} className="text-destructive focus:text-destructive">
-                <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {/* Actions - inline buttons right next to the node */}
+        <div className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 shrink-0">
+          {canAddChild && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-6 h-6"
+              onClick={() => onAdd(node.id)}
+              title={`Add ${TYPE_META[meta.childType!].label}`}
+            >
+              <Plus className="w-3.5 h-3.5" style={{ color: `hsl(${meta.color})` }} />
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-6 h-6"
+            onClick={() => { setEditing(true); setEditValue(node.name); }}
+            title="Rename"
+          >
+            <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-6 h-6"
+            onClick={() => setConfirmDelete(true)}
+            title="Delete"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+          </Button>
         </div>
       </div>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Delete {meta.label}</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete <strong>"{node.name}"</strong>?
+              {hasChildren && ` This will also remove all ${node.children.length} child node(s).`}
+              {" "}This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setConfirmDelete(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={() => { setConfirmDelete(false); onDelete(node.id); }}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Children */}
       {node.expanded && hasChildren && (
         <div className="relative">
-          {/* Vertical guide line */}
           <span
             className="absolute top-0 bottom-0 w-px"
             style={{
