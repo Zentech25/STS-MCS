@@ -30,6 +30,10 @@ const CONFIG_OPTIONS: ConfigOption[] = [
 ];
 
 function ConfigContent({ option }: { option: ConfigOption }) {
+  if (option.id === "orbat") {
+    return <OrbatPage />;
+  }
+
   return (
     <div className="flex-1 flex items-center justify-center p-8 animate-fade-in" key={option.id}>
       <div className="glass-panel p-10 text-center max-w-md">
