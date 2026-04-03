@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Crosshair, Swords, Plus, X, Check, Settings, Award } from "lucide-react";
+import { Crosshair, Swords, Plus, X, Check, Settings, Award, Layers } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
