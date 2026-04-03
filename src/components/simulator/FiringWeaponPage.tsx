@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Crosshair, Swords, Plus, X, Check, Settings } from "lucide-react";
+import { Crosshair, Swords, Plus, X, Check, Settings, Award } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -23,6 +23,17 @@ const DEFAULT_WEAPONS: TagItem[] = [
   { id: "desert-eagle", label: "Desert Eagle", selected: false },
   { id: "scar", label: "SCAR", selected: false },
   { id: "m4a4", label: "M4A4", selected: false },
+];
+
+const DEFAULT_RANKS: TagItem[] = [
+  { id: "pvt", label: "Private", selected: true },
+  { id: "cpl", label: "Corporal", selected: true },
+  { id: "sgt", label: "Sergeant", selected: true },
+  { id: "lt", label: "Lieutenant", selected: true },
+  { id: "capt", label: "Captain", selected: true },
+  { id: "maj", label: "Major", selected: false },
+  { id: "col", label: "Colonel", selected: false },
+  { id: "brig", label: "Brigadier", selected: false },
 ];
 
 function TagBoard({
@@ -208,9 +219,11 @@ function TagBoard({
 export function FiringWeaponPage() {
   const [positions, setPositions] = useState<TagItem[]>(DEFAULT_POSITIONS);
   const [weapons, setWeapons] = useState<TagItem[]>(DEFAULT_WEAPONS);
+  const [ranks, setRanks] = useState<TagItem[]>(DEFAULT_RANKS);
 
   const [posSnapshot, setPosSnapshot] = useState<TagItem[]>(positions);
   const [weapSnapshot, setWeapSnapshot] = useState<TagItem[]>(weapons);
+  const [rankSnapshot, setRankSnapshot] = useState<TagItem[]>(ranks);
 
   const toggleItem = (setter: React.Dispatch<React.SetStateAction<TagItem[]>>) => (id: string) => {
     setter((prev) => prev.map((i) => i.id === id ? { ...i, selected: !i.selected } : i));
@@ -254,6 +267,21 @@ export function FiringWeaponPage() {
         snapshot={weapSnapshot}
         onEnterEdit={() => setWeapSnapshot([...weapons])}
         onCancelEdit={() => setWeapons([...weapSnapshot])}
+      />
+
+      <div className="h-px w-full" style={{ background: "var(--divider)" }} />
+
+      <TagBoard
+        title="Ranks"
+        icon={<Award className="w-5 h-5" />}
+        accentColor="30 90% 55%"
+        items={ranks}
+        onAdd={addItem(setRanks, "Rank")}
+        onDelete={deleteItem(setRanks, "Rank")}
+        onToggle={toggleItem(setRanks)}
+        snapshot={rankSnapshot}
+        onEnterEdit={() => setRankSnapshot([...ranks])}
+        onCancelEdit={() => setRanks([...rankSnapshot])}
       />
     </div>
   );
