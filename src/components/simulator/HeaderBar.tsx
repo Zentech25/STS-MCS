@@ -60,13 +60,6 @@ export function HeaderBar() {
           }}>⌘K</span>
         </div>
 
-        {/* Status */}
-        <div className="flex items-center gap-1.5 text-[11px]">
-          <Wifi className="w-3.5 h-3.5 text-success" />
-          <span className="status-dot status-dot-online" />
-          <span className="text-muted-foreground">Online</span>
-        </div>
-
         {/* Notification */}
         <button className="relative w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground glass-btn">
           <Bell className="w-4 h-4" />
