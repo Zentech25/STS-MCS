@@ -180,7 +180,7 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
           {/* Section 2: Basic Details */}
           <div className="flex-1 flex flex-col border-r border-border/40 min-w-0">
             <div className="px-4 py-2 shrink-0" style={{ borderBottom: "1px solid hsl(var(--border) / 0.4)" }}>
-              <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Basic Details</h3>
+              <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Step 2 - Enter Details</h3>
             </div>
             <div className="flex-1 p-4 flex flex-col gap-3 overflow-y-auto">
               <div className="flex gap-3">
