@@ -34,6 +34,9 @@ function ConfigContent({ option }: { option: ConfigOption }) {
   if (option.id === "orbat") {
     return <OrbatPage />;
   }
+  if (option.id === "trainee") {
+    return <TraineePage />;
+  }
 
   return (
     <div className="flex-1 flex items-center justify-center p-8 animate-fade-in" key={option.id}>
