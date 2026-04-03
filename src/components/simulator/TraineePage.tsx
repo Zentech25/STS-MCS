@@ -56,9 +56,9 @@ export function TraineePage() {
   const pageData = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   return (
-    <div className="flex-1 flex flex-col p-5 gap-4 overflow-hidden animate-fade-in">
+    <div className="h-full flex flex-col p-5 gap-4 overflow-hidden animate-fade-in">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="shrink-0 flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
@@ -87,18 +87,18 @@ export function TraineePage() {
 
       {/* Table */}
       <div
-        className="flex-1 rounded-xl overflow-auto border border-border/40"
+        className="flex-1 min-h-0 rounded-xl overflow-auto border border-border/40"
         style={{ background: "var(--surface-glass)", backdropFilter: "blur(12px)" }}
       >
-        <Table>
+        <Table className="table-fixed w-full">
           <TableHeader>
             <TableRow className="border-border/30 hover:bg-transparent">
-              <TableHead className="text-xs font-semibold text-muted-foreground w-[110px]">Trainee ID</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground">Name</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground w-[80px]">Rank</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground w-[120px]">Designation</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground w-[110px]">Join Date</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground">Organization Path</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[10%]">Trainee ID</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[18%]">Name</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[8%]">Rank</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[14%]">Designation</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[12%]">Join Date</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[38%]">Organization Path</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -111,16 +111,16 @@ export function TraineePage() {
             ) : (
               pageData.map((t) => (
                 <TableRow key={t.id} className="border-border/20 cursor-pointer hover:bg-muted/40 transition-colors">
-                  <TableCell className="text-xs font-mono text-primary/80">{t.id}</TableCell>
-                  <TableCell className="text-sm font-medium text-foreground">{t.name}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-xs font-mono text-primary/80 py-2.5">{t.id}</TableCell>
+                  <TableCell className="text-sm font-medium text-foreground py-2.5">{t.name}</TableCell>
+                  <TableCell className="py-2.5">
                     <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                       {t.rank}
                     </span>
                   </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">{t.designation}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground tabular-nums">{t.joinDate}</TableCell>
-                  <TableCell className="text-[11px] text-muted-foreground/80 font-mono truncate max-w-[260px]" title={t.orgPath}>
+                  <TableCell className="text-xs text-muted-foreground py-2.5">{t.designation}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground tabular-nums py-2.5">{t.joinDate}</TableCell>
+                  <TableCell className="text-[11px] text-muted-foreground/80 font-mono truncate py-2.5" title={t.orgPath}>
                     {t.orgPath}
                   </TableCell>
                 </TableRow>
@@ -131,7 +131,7 @@ export function TraineePage() {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
+      <div className="shrink-0 flex items-center justify-between text-xs text-muted-foreground">
         <span>
           Showing {filtered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length} trainees
         </span>
