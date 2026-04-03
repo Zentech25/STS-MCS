@@ -310,7 +310,6 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
                       className={cn("p-3 pt-1 pointer-events-auto")}
                     />
                   </PopoverContent>
-                  </PopoverContent>
                 </Popover>
               </div>
             </div>
