@@ -156,7 +156,7 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
           <DialogDescription className="text-xs">Fill in the details and select an ORBAT node to assign the trainee.</DialogDescription>
         </DialogHeader>
 
-        <div className="flex gap-0 flex-1 min-h-0" style={{ height: "calc(85vh - 120px)" }}>
+        <div className="flex gap-0 flex-1 min-h-0 overflow-hidden">
           {/* Section 1: ORBAT Tree */}
           <div className="w-[280px] shrink-0 flex flex-col border-r border-border/40">
             <div className="px-3 py-2 shrink-0" style={{ borderBottom: "1px solid hsl(var(--border) / 0.4)" }}>
