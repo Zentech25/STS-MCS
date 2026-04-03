@@ -43,6 +43,7 @@ const PAGE_SIZE = 15;
 export function TraineePage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return SAMPLE_TRAINEES;
