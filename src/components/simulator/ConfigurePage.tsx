@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OrbatPage } from "./OrbatPage";
+import { TraineePage } from "./TraineePage";
 
 interface ConfigOption {
   id: string;
@@ -32,6 +33,9 @@ const CONFIG_OPTIONS: ConfigOption[] = [
 function ConfigContent({ option }: { option: ConfigOption }) {
   if (option.id === "orbat") {
     return <OrbatPage />;
+  }
+  if (option.id === "trainee") {
+    return <TraineePage />;
   }
 
   return (
