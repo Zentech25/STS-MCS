@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
 } from "@/components/ui/table";
+import { AddTraineeDialog } from "./AddTraineeDialog";
 
 interface Trainee {
   id: string;
@@ -42,6 +43,7 @@ const PAGE_SIZE = 15;
 export function TraineePage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return SAMPLE_TRAINEES;
@@ -74,7 +76,7 @@ export function TraineePage() {
             <Building2 className="w-3.5 h-3.5" />
             Modify Organization
           </Button>
-          <Button size="sm" className="gap-1.5 text-xs">
+          <Button size="sm" className="gap-1.5 text-xs" onClick={() => setAddDialogOpen(true)}>
             <UserPlus className="w-3.5 h-3.5" />
             Add New Trainee
           </Button>
@@ -176,6 +178,7 @@ export function TraineePage() {
           </Button>
         </div>
       </div>
+      <AddTraineeDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
     </div>
   );
 }
