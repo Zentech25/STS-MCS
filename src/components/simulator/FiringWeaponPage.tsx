@@ -41,6 +41,9 @@ function TagBoard({
   onAdd: (label: string) => void;
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
+  snapshot: TagItem[];
+  onEnterEdit: () => void;
+  onCancelEdit: () => void;
 }) {
   const [newValue, setNewValue] = useState("");
   const [isAdding, setIsAdding] = useState(false);
