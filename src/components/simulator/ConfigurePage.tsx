@@ -1,13 +1,14 @@
 import { useState } from "react";
 import {
   Users, Shield, Crosshair, Wrench,
-  Target, Power, DatabaseBackup, RotateCcw, RefreshCw,
+  Target, Power, RefreshCw,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OrbatPage } from "./OrbatPage";
 import { TraineePage } from "./TraineePage";
 import { FiringWeaponPage } from "./FiringWeaponPage";
 import { TargetRegionScoresPage } from "./TargetRegionScoresPage";
+import { SystemActionsPage } from "./SystemActionsPage";
 
 interface ConfigOption {
   id: string;
@@ -23,25 +24,16 @@ const CONFIG_OPTIONS: ConfigOption[] = [
   { id: "firing-weapon", label: "Training Assets", icon: <Crosshair className="w-5 h-5" />, color: "40 96% 53%", description: "Manage positions, weapons, ranks & batches" },
   { id: "arc-tool", label: "ARC Tool", icon: <Wrench className="w-5 h-5" />, color: "340 75% 55%", description: "ARC calibration & tools" },
   { id: "target-region-scores", label: "Target Region Scores", icon: <Target className="w-5 h-5" />, color: "4 80% 58%", description: "Scoring zones and point values" },
-  { id: "remote-fpe-shutdown", label: "Remote FPE Shutdown", icon: <Power className="w-5 h-5" />, color: "0 70% 50%", description: "Remote shutdown of FPE units" },
-  { id: "backup-db", label: "Backup DB", icon: <DatabaseBackup className="w-5 h-5" />, color: "180 60% 45%", description: "Create database backups" },
-  { id: "restore-db", label: "Restore DB", icon: <RotateCcw className="w-5 h-5" />, color: "260 60% 55%", description: "Restore from backup" },
+  { id: "system-actions", label: "System Actions", icon: <Power className="w-5 h-5" />, color: "0 70% 50%", description: "Shutdown, backup & restore operations" },
   { id: "restart-fpe", label: "Restart FPE", icon: <RefreshCw className="w-5 h-5" />, color: "120 60% 40%", description: "Restart FPE service" },
 ];
 
 function ConfigContent({ option }: { option: ConfigOption }) {
-  if (option.id === "orbat") {
-    return <OrbatPage />;
-  }
-  if (option.id === "trainee") {
-    return <TraineePage />;
-  }
-  if (option.id === "firing-weapon") {
-    return <FiringWeaponPage />;
-  }
-  if (option.id === "target-region-scores") {
-    return <TargetRegionScoresPage />;
-  }
+  if (option.id === "orbat") return <OrbatPage />;
+  if (option.id === "trainee") return <TraineePage />;
+  if (option.id === "firing-weapon") return <FiringWeaponPage />;
+  if (option.id === "target-region-scores") return <TargetRegionScoresPage />;
+  if (option.id === "system-actions") return <SystemActionsPage />;
 
   return (
     <div className="flex-1 flex items-center justify-center p-8 animate-fade-in" key={option.id}>
@@ -65,7 +57,6 @@ export function ConfigurePage() {
 
   return (
     <div className="h-full flex overflow-hidden">
-      {/* Side rail */}
       <div
         className="shrink-0 flex flex-col gap-1 py-3 px-2 overflow-y-auto"
         style={{
@@ -110,7 +101,6 @@ export function ConfigurePage() {
         })}
       </div>
 
-      {/* Header + Content */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="shrink-0 flex items-center gap-3 px-6 py-3" style={{ borderBottom: "1px solid var(--divider)" }}>
           <div
