@@ -51,20 +51,32 @@ function TargetSVG({ totalZones, highlightedZone }: { totalZones: number; highli
       {Array.from({ length: totalZones }, (_, i) => {
         const zoneNum = totalZones - i;
         const r = zoneWidth * zoneNum;
-        const isHighlighted = highlightedZone === zoneNum;
         return (
           <circle
-            key={zoneNum}
+            key={`outline-${zoneNum}`}
             cx={cx}
             cy={cy}
             r={r}
-            fill={isHighlighted ? `hsl(${ACCENT} / 0.25)` : "transparent"}
-            stroke={isHighlighted ? `hsl(${ACCENT})` : "hsl(var(--border))"}
-            strokeWidth={isHighlighted ? 2.5 : 1}
+            fill="transparent"
+            stroke="hsl(var(--border))"
+            strokeWidth={1}
             className="transition-all duration-300"
           />
         );
       })}
+
+      {highlightedZone !== null && (
+        <circle
+          cx={cx}
+          cy={cy}
+          r={zoneWidth * highlightedZone - zoneWidth / 2}
+          fill="transparent"
+          stroke={`hsl(${ACCENT})`}
+          strokeWidth={Math.max(zoneWidth - 6, 6)}
+          className="transition-all duration-300"
+          opacity={0.95}
+        />
+      )}
 
       {Array.from({ length: totalZones }, (_, i) => {
         const zoneNum = i + 1;
@@ -89,8 +101,11 @@ function TargetSVG({ totalZones, highlightedZone }: { totalZones: number; highli
       <circle
         cx={cx}
         cy={cy}
-        r={3}
-        fill={highlightedZone === 1 ? `hsl(${ACCENT})` : "hsl(var(--muted-foreground))"}
+        r={highlightedZone === 1 ? zoneWidth / 2 - 2 : 3}
+        fill={highlightedZone === 1 ? `hsl(${ACCENT} / 0.3)` : "hsl(var(--muted-foreground))"}
+        stroke={highlightedZone === 1 ? `hsl(${ACCENT})` : "transparent"}
+        strokeWidth={highlightedZone === 1 ? 2 : 0}
+        className="transition-all duration-300"
       />
     </svg>
   );
@@ -154,9 +169,7 @@ export function TargetRegionScoresPage() {
 
   return (
     <div className="flex-1 flex flex-col lg:flex-row gap-6 p-6 overflow-y-auto animate-fade-in">
-      {/* Left: Controls + Table */}
       <div className="flex-1 flex flex-col gap-5 min-w-0">
-        {/* Top fields row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Target</label>
@@ -219,7 +232,6 @@ export function TargetRegionScoresPage() {
           </div>
         </div>
 
-        {/* Zone Score Table */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground tracking-wide uppercase flex items-center gap-2">
@@ -320,10 +332,10 @@ export function TargetRegionScoresPage() {
             })}
           </div>
 
-          {/* Save button */}
           <div className="flex justify-end mt-2">
             <Button
-              className="h-9 rounded-xl gap-2 bg-green-600 hover:bg-green-700 text-white"
+              className="h-9 rounded-xl gap-2 hover:opacity-90"
+              style={{ background: "hsl(var(--success))", color: "hsl(var(--success-foreground))" }}
               onClick={handleSave}
             >
               <Save className="w-4 h-4" />
@@ -333,7 +345,6 @@ export function TargetRegionScoresPage() {
         </div>
       </div>
 
-      {/* Right: Target Visualization */}
       <div className="lg:w-[320px] shrink-0 flex flex-col items-center gap-3">
         <div
           className="w-full rounded-2xl p-4 flex flex-col items-center"
