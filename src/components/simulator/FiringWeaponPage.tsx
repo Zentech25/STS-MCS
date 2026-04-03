@@ -291,6 +291,21 @@ export function FiringWeaponPage() {
         onEnterEdit={() => setRankSnapshot([...ranks])}
         onCancelEdit={() => setRanks([...rankSnapshot])}
       />
+
+      <div className="h-px w-full" style={{ background: "var(--divider)" }} />
+
+      <TagBoard
+        title="Batches"
+        icon={<Layers className="w-5 h-5" />}
+        accentColor="160 72% 42%"
+        items={batches}
+        onAdd={addItem(setBatches, "Batch")}
+        onDelete={deleteItem(setBatches, "Batch")}
+        onToggle={toggleItem(setBatches)}
+        snapshot={batchSnapshot}
+        onEnterEdit={() => setBatchSnapshot([...batches])}
+        onCancelEdit={() => setBatches([...batchSnapshot])}
+      />
     </div>
   );
 }
