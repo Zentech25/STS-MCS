@@ -37,6 +37,9 @@ function ConfigContent({ option }: { option: ConfigOption }) {
   if (option.id === "trainee") {
     return <TraineePage />;
   }
+  if (option.id === "firing-weapon") {
+    return <FiringWeaponPage />;
+  }
 
   return (
     <div className="flex-1 flex items-center justify-center p-8 animate-fade-in" key={option.id}>
