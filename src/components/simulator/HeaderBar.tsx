@@ -26,7 +26,7 @@ export function HeaderBar() {
   }, []);
 
   return (
-    <header className="h-14 flex items-center justify-between px-6 shrink-0" style={{
+    <header className="h-14 flex items-center justify-between px-6 shrink-0 relative z-50" style={{
       background: "var(--surface-glass)",
       backdropFilter: "blur(24px) saturate(180%)",
       WebkitBackdropFilter: "blur(24px) saturate(180%)",

@@ -16,7 +16,7 @@ export function Dashboard() {
   const isInstructor = user?.role === "instructor";
 
   return (
-    <div className="w-full h-screen flex flex-col overflow-hidden" style={{
+    <div className="w-full h-screen flex flex-col" style={{
       background: "var(--gradient-mesh)",
     }}>
       <HeaderBar />
