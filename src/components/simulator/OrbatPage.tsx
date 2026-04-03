@@ -194,7 +194,7 @@ function TreeNode({
 
 // ── Main ORBAT Page ───────────────────────────────────────
 export function OrbatPage() {
-  const [tree, setTree] = useState<OrbatNode[]>(INITIAL_DATA);
+  const [tree, setTree] = useState<OrbatNode[]>(INITIAL_ORBAT);
 
   const toggle = useCallback((id: string) => {
     setTree((prev) => mapTree(prev, id, (n) => ({ ...n, expanded: !n.expanded })));
