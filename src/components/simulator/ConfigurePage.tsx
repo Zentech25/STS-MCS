@@ -4,6 +4,7 @@ import {
   Award, Target, Power, DatabaseBackup, RotateCcw, RefreshCw,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { OrbatPage } from "./OrbatPage";
 
 interface ConfigOption {
   id: string;
