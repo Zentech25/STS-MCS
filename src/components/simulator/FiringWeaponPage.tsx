@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Crosshair, Swords, Plus, X, Check, Settings, Award } from "lucide-react";
+import { Crosshair, Swords, Plus, X, Check, Settings, Award, Layers } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -34,6 +34,12 @@ const DEFAULT_RANKS: TagItem[] = [
   { id: "maj", label: "Major", selected: false },
   { id: "col", label: "Colonel", selected: false },
   { id: "brig", label: "Brigadier", selected: false },
+];
+
+const DEFAULT_BATCHES: TagItem[] = [
+  { id: "batch-1", label: "Batch 1", selected: true },
+  { id: "batch-2", label: "Batch 2", selected: false },
+  { id: "batch-3", label: "Batch 3", selected: false },
 ];
 
 function TagBoard({
@@ -220,10 +226,12 @@ export function FiringWeaponPage() {
   const [positions, setPositions] = useState<TagItem[]>(DEFAULT_POSITIONS);
   const [weapons, setWeapons] = useState<TagItem[]>(DEFAULT_WEAPONS);
   const [ranks, setRanks] = useState<TagItem[]>(DEFAULT_RANKS);
+  const [batches, setBatches] = useState<TagItem[]>(DEFAULT_BATCHES);
 
   const [posSnapshot, setPosSnapshot] = useState<TagItem[]>(positions);
   const [weapSnapshot, setWeapSnapshot] = useState<TagItem[]>(weapons);
   const [rankSnapshot, setRankSnapshot] = useState<TagItem[]>(ranks);
+  const [batchSnapshot, setBatchSnapshot] = useState<TagItem[]>(batches);
 
   const toggleItem = (setter: React.Dispatch<React.SetStateAction<TagItem[]>>) => (id: string) => {
     setter((prev) => prev.map((i) => i.id === id ? { ...i, selected: !i.selected } : i));
@@ -282,6 +290,21 @@ export function FiringWeaponPage() {
         snapshot={rankSnapshot}
         onEnterEdit={() => setRankSnapshot([...ranks])}
         onCancelEdit={() => setRanks([...rankSnapshot])}
+      />
+
+      <div className="h-px w-full" style={{ background: "var(--divider)" }} />
+
+      <TagBoard
+        title="Batches"
+        icon={<Layers className="w-5 h-5" />}
+        accentColor="160 72% 42%"
+        items={batches}
+        onAdd={addItem(setBatches, "Batch")}
+        onDelete={deleteItem(setBatches, "Batch")}
+        onToggle={toggleItem(setBatches)}
+        snapshot={batchSnapshot}
+        onEnterEdit={() => setBatchSnapshot([...batches])}
+        onCancelEdit={() => setBatches([...batchSnapshot])}
       />
     </div>
   );

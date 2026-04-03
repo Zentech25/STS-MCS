@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
-  Users, Shield, Layers, Crosshair, Wrench, Swords,
-  Award, Target, Power, DatabaseBackup, RotateCcw, RefreshCw,
+  Users, Shield, Crosshair, Wrench,
+  Target, Power, DatabaseBackup, RotateCcw, RefreshCw,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OrbatPage } from "./OrbatPage";
@@ -20,8 +20,7 @@ interface ConfigOption {
 const CONFIG_OPTIONS: ConfigOption[] = [
   { id: "trainee", label: "Trainee", icon: <Users className="w-5 h-5" />, color: "217 91% 60%", description: "Manage trainee profiles and assignments" },
   { id: "orbat", label: "ORBAT", icon: <Shield className="w-5 h-5" />, color: "280 65% 60%", description: "Order of Battle configuration" },
-  { id: "batch", label: "Batch", icon: <Layers className="w-5 h-5" />, color: "160 72% 42%", description: "Batch training session setup" },
-  { id: "firing-weapon", label: "Training Assets", icon: <Crosshair className="w-5 h-5" />, color: "40 96% 53%", description: "Manage positions, weapons & ranks for training" },
+  { id: "firing-weapon", label: "Training Assets", icon: <Crosshair className="w-5 h-5" />, color: "40 96% 53%", description: "Manage positions, weapons, ranks & batches" },
   { id: "arc-tool", label: "ARC Tool", icon: <Wrench className="w-5 h-5" />, color: "340 75% 55%", description: "ARC calibration & tools" },
   { id: "target-region-scores", label: "Target Region Scores", icon: <Target className="w-5 h-5" />, color: "4 80% 58%", description: "Scoring zones and point values" },
   { id: "remote-fpe-shutdown", label: "Remote FPE Shutdown", icon: <Power className="w-5 h-5" />, color: "0 70% 50%", description: "Remote shutdown of FPE units" },
