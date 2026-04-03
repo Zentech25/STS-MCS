@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
 } from "@/components/ui/table";
+import { AddTraineeDialog } from "./AddTraineeDialog";
 
 interface Trainee {
   id: string;
