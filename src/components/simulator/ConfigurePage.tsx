@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
-  Users, Shield, Layers, Crosshair, Wrench, Swords,
-  Award, Target, Power, DatabaseBackup, RotateCcw, RefreshCw,
+  Users, Shield, Crosshair, Wrench,
+  Target, Power, DatabaseBackup, RotateCcw, RefreshCw,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OrbatPage } from "./OrbatPage";
