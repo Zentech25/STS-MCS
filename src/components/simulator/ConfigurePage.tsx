@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OrbatPage } from "./OrbatPage";
+import { TraineePage } from "./TraineePage";
 
 interface ConfigOption {
   id: string;
