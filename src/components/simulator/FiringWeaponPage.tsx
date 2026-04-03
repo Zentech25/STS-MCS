@@ -36,6 +36,12 @@ const DEFAULT_RANKS: TagItem[] = [
   { id: "brig", label: "Brigadier", selected: false },
 ];
 
+const DEFAULT_BATCHES: TagItem[] = [
+  { id: "batch-1", label: "Batch 1", selected: true },
+  { id: "batch-2", label: "Batch 2", selected: false },
+  { id: "batch-3", label: "Batch 3", selected: false },
+];
+
 function TagBoard({
   title,
   icon,
