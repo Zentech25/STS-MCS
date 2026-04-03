@@ -5,7 +5,7 @@ import { LogOut, Wifi, Bell, Search, Sun, Moon, Leaf, User, ChevronDown } from "
 
 export function HeaderBar() {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [time, setTime] = useState(new Date());
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
