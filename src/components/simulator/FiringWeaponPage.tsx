@@ -25,6 +25,17 @@ const DEFAULT_WEAPONS: TagItem[] = [
   { id: "m4a4", label: "M4A4", selected: false },
 ];
 
+const DEFAULT_RANKS: TagItem[] = [
+  { id: "pvt", label: "Private", selected: true },
+  { id: "cpl", label: "Corporal", selected: true },
+  { id: "sgt", label: "Sergeant", selected: true },
+  { id: "lt", label: "Lieutenant", selected: true },
+  { id: "capt", label: "Captain", selected: true },
+  { id: "maj", label: "Major", selected: false },
+  { id: "col", label: "Colonel", selected: false },
+  { id: "brig", label: "Brigadier", selected: false },
+];
+
 function TagBoard({
   title,
   icon,
