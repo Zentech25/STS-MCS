@@ -105,6 +105,7 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
   const [designation, setDesignation] = useState("");
   const [joinDate, setJoinDate] = useState<Date>();
   const [photo, setPhoto] = useState<string | null>(null);
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
 
   const toggleNode = useCallback((id: string) => {
     setTree((prev) => mapTree(prev, id, (n) => ({ ...n, expanded: !n.expanded })));
@@ -264,12 +265,50 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
+                    <div className="flex items-center justify-between gap-1 px-3 pt-3 pb-1">
+                      <Select
+                        value={String(calendarMonth.getMonth())}
+                        onValueChange={(v) => {
+                          const d = new Date(calendarMonth);
+                          d.setMonth(Number(v));
+                          setCalendarMonth(d);
+                        }}
+                      >
+                        <SelectTrigger className="h-7 text-xs w-[100px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => (
+                            <SelectItem key={i} value={String(i)} className="text-xs">{m}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={String((calendarMonth ?? new Date()).getFullYear())}
+                        onValueChange={(v) => {
+                          const d = new Date(calendarMonth);
+                          d.setFullYear(Number(v));
+                          setCalendarMonth(d);
+                        }}
+                      >
+                        <SelectTrigger className="h-7 text-xs w-[80px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 31 }, (_, i) => 2000 + i).map((y) => (
+                            <SelectItem key={y} value={String(y)} className="text-xs">{y}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Calendar
                       mode="single"
+                      month={calendarMonth}
+                      onMonthChange={setCalendarMonth}
                       selected={joinDate}
                       onSelect={setJoinDate}
                       initialFocus
-                      className={cn("p-3 pointer-events-auto")}
+                      className={cn("p-3 pt-1 pointer-events-auto")}
                     />
                   </PopoverContent>
                 </Popover>
