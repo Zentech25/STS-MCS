@@ -23,19 +23,6 @@ const ICON_MAP: Record<OrbatNode["type"], typeof Building2> = {
   section: Users,
 };
 
-// ── Immutable tree helpers ─────────────────────────────────
-function mapTree(nodes: OrbatNode[], id: string, fn: (n: OrbatNode) => OrbatNode | null): OrbatNode[] {
-  return nodes.reduce<OrbatNode[]>((acc, node) => {
-    if (node.id === id) {
-      const result = fn(node);
-      if (result) acc.push(result);
-    } else {
-      acc.push({ ...node, children: mapTree(node.children, id, fn) });
-    }
-    return acc;
-  }, []);
-}
-
 // ── Tree node component ───────────────────────────────────
 function TreeNode({
   node, depth, onToggle, onRename, onAdd, onDelete,
