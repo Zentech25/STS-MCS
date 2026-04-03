@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useEffect, useState, useRef } from "react";
-import { LogOut, Wifi, Bell, Search, Sun, Moon, User, ChevronDown } from "lucide-react";
+import { LogOut, Wifi, Bell, Search, Sun, Moon, Leaf, User, ChevronDown } from "lucide-react";
 
 export function HeaderBar() {
   const { user, logout } = useAuth();
