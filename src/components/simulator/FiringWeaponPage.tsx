@@ -209,6 +209,9 @@ export function FiringWeaponPage() {
   const [positions, setPositions] = useState<TagItem[]>(DEFAULT_POSITIONS);
   const [weapons, setWeapons] = useState<TagItem[]>(DEFAULT_WEAPONS);
 
+  const [posSnapshot, setPosSnapshot] = useState<TagItem[]>(positions);
+  const [weapSnapshot, setWeapSnapshot] = useState<TagItem[]>(weapons);
+
   const toggleItem = (setter: React.Dispatch<React.SetStateAction<TagItem[]>>) => (id: string) => {
     setter((prev) => prev.map((i) => i.id === id ? { ...i, selected: !i.selected } : i));
   };
@@ -233,6 +236,9 @@ export function FiringWeaponPage() {
         onAdd={addItem(setPositions, "Position")}
         onDelete={deleteItem(setPositions, "Position")}
         onToggle={toggleItem(setPositions)}
+        snapshot={posSnapshot}
+        onEnterEdit={() => setPosSnapshot([...positions])}
+        onCancelEdit={() => setPositions([...posSnapshot])}
       />
 
       <div className="h-px w-full" style={{ background: "var(--divider)" }} />
@@ -245,6 +251,9 @@ export function FiringWeaponPage() {
         onAdd={addItem(setWeapons, "Weapon")}
         onDelete={deleteItem(setWeapons, "Weapon")}
         onToggle={toggleItem(setWeapons)}
+        snapshot={weapSnapshot}
+        onEnterEdit={() => setWeapSnapshot([...weapons])}
+        onCancelEdit={() => setWeapons([...weapSnapshot])}
       />
     </div>
   );
