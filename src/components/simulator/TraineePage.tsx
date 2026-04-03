@@ -76,7 +76,7 @@ export function TraineePage() {
             <Building2 className="w-3.5 h-3.5" />
             Modify Organization
           </Button>
-          <Button size="sm" className="gap-1.5 text-xs">
+          <Button size="sm" className="gap-1.5 text-xs" onClick={() => setAddDialogOpen(true)}>
             <UserPlus className="w-3.5 h-3.5" />
             Add New Trainee
           </Button>
