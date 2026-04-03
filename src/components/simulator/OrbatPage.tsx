@@ -39,7 +39,7 @@ function TreeNode({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const meta = TYPE_META[node.type];
-  const Icon = meta.icon;
+  const Icon = ICON_MAP[node.type];
   const hasChildren = node.children.length > 0;
   const canAddChild = !!meta.childType;
 
