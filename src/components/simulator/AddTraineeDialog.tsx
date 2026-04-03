@@ -161,7 +161,7 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
           {/* Section 1: ORBAT Tree */}
           <div className="w-[280px] shrink-0 flex flex-col border-r border-border/40">
             <div className="px-3 py-2 shrink-0" style={{ borderBottom: "1px solid hsl(var(--border) / 0.4)" }}>
-              <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">ORBAT Structure</h3>
+              <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Step 1 - Select Organization</h3>
             </div>
             <div className="flex-1 overflow-y-auto p-2 text-xs">
               {tree.map((node) => (
