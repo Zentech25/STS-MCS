@@ -5,8 +5,9 @@ import { InstructorDashboard } from "./InstructorDashboard";
 import { AdministratorDashboard } from "./AdministratorDashboard";
 import { EngineerDashboard } from "./EngineerDashboard";
 import { SessionPage } from "./SessionPage";
+import { ConfigurePage } from "./ConfigurePage";
 
-type Tab = "dashboard" | "session";
+type Tab = "dashboard" | "configure" | "session";
 
 export function Dashboard() {
   const { user } = useAuth();
@@ -27,7 +28,7 @@ export function Dashboard() {
           WebkitBackdropFilter: "blur(16px)",
           borderBottom: `1px solid var(--divider)`,
         }}>
-          {(["dashboard", "session"] as Tab[]).map((tab) => (
+          {(["dashboard", "configure", "session"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -47,7 +48,9 @@ export function Dashboard() {
       )}
 
       <main className="flex-1 overflow-hidden animate-fade-in" key={activeTab}>
-        {isInstructor && activeTab === "session" ? (
+        {isInstructor && activeTab === "configure" ? (
+          <ConfigurePage />
+        ) : isInstructor && activeTab === "session" ? (
           <SessionPage />
         ) : (
           <>
