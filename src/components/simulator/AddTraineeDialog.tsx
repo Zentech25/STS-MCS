@@ -268,9 +268,6 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
                       mode="single"
                       selected={joinDate}
                       onSelect={setJoinDate}
-                      captionLayout="dropdown-buttons"
-                      fromYear={2000}
-                      toYear={2030}
                       initialFocus
                       className={cn("p-3 pointer-events-auto")}
                     />
