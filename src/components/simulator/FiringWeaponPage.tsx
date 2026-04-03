@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Crosshair, Swords, Plus, X, Trash2 } from "lucide-react";
+import { Crosshair, Swords, Plus, X, Check, Settings } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -7,22 +7,22 @@ import { toast } from "@/hooks/use-toast";
 interface TagItem {
   id: string;
   label: string;
-  isDefault?: boolean;
+  selected: boolean;
 }
 
 const DEFAULT_POSITIONS: TagItem[] = [
-  { id: "standing", label: "Standing", isDefault: true },
-  { id: "kneeling", label: "Kneeling", isDefault: true },
-  { id: "prone", label: "Prone", isDefault: true },
+  { id: "standing", label: "Standing", selected: true },
+  { id: "kneeling", label: "Kneeling", selected: false },
+  { id: "prone", label: "Prone", selected: false },
 ];
 
 const DEFAULT_WEAPONS: TagItem[] = [
-  { id: "ak", label: "AK-47", isDefault: true },
-  { id: "carbine", label: "Carbine", isDefault: true },
-  { id: "pistol", label: "Pistol", isDefault: true },
-  { id: "desert-eagle", label: "Desert Eagle", isDefault: true },
-  { id: "scar", label: "SCAR", isDefault: true },
-  { id: "m4a4", label: "M4A4", isDefault: true },
+  { id: "ak", label: "AK-47", selected: true },
+  { id: "carbine", label: "Carbine", selected: false },
+  { id: "pistol", label: "Pistol", selected: false },
+  { id: "desert-eagle", label: "Desert Eagle", selected: false },
+  { id: "scar", label: "SCAR", selected: false },
+  { id: "m4a4", label: "M4A4", selected: false },
 ];
 
 function TagBoard({
@@ -32,6 +32,7 @@ function TagBoard({
   items,
   onAdd,
   onDelete,
+  onToggle,
 }: {
   title: string;
   icon: React.ReactNode;
@@ -39,9 +40,13 @@ function TagBoard({
   items: TagItem[];
   onAdd: (label: string) => void;
   onDelete: (id: string) => void;
+  onToggle: (id: string) => void;
 }) {
   const [newValue, setNewValue] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+
+  const selectedCount = items.filter((i) => i.selected).length;
 
   const handleAdd = () => {
     const trimmed = newValue.trim();
@@ -66,69 +71,107 @@ function TagBoard({
           {icon}
         </div>
         <h3 className="text-sm font-bold text-foreground tracking-wide uppercase">{title}</h3>
-        <span className="ml-auto text-xs font-mono text-muted-foreground">{items.length} items</span>
+        <span className="text-xs text-muted-foreground ml-1">
+          {selectedCount} of {items.length} active
+        </span>
+        <div className="ml-auto flex items-center gap-2">
+          <Button
+            size="sm"
+            variant={editMode ? "secondary" : "ghost"}
+            className="h-7 text-xs rounded-lg gap-1.5"
+            onClick={() => setEditMode(!editMode)}
+          >
+            <Settings className="w-3.5 h-3.5" />
+            {editMode ? "Done" : "Manage"}
+          </Button>
+        </div>
       </div>
 
       {/* Tag grid */}
       <div className="flex flex-wrap gap-2.5 mb-4">
         {items.map((item) => (
-          <div
+          <button
             key={item.id}
-            className="group relative flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:scale-[1.03] select-none"
+            onClick={() => !editMode && onToggle(item.id)}
+            className={`relative flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 select-none ${
+              !editMode ? "cursor-pointer hover:scale-[1.03] active:scale-[0.97]" : ""
+            }`}
             style={{
-              background: `hsl(${accentColor} / 0.08)`,
-              color: `hsl(${accentColor})`,
-              border: `1px solid hsl(${accentColor} / 0.15)`,
+              background: item.selected
+                ? `hsl(${accentColor} / 0.15)`
+                : "hsl(var(--muted) / 0.5)",
+              color: item.selected
+                ? `hsl(${accentColor})`
+                : "hsl(var(--muted-foreground))",
+              border: item.selected
+                ? `1.5px solid hsl(${accentColor} / 0.4)`
+                : "1.5px solid hsl(var(--border))",
+              boxShadow: item.selected
+                ? `0 0 10px hsl(${accentColor} / 0.1)`
+                : "none",
             }}
           >
-            <span className="w-2 h-2 rounded-full" style={{ background: `hsl(${accentColor})` }} />
+            {/* Selection indicator */}
+            <span
+              className="w-4 h-4 rounded-md flex items-center justify-center shrink-0 transition-colors"
+              style={{
+                background: item.selected ? `hsl(${accentColor})` : "transparent",
+                border: item.selected
+                  ? `1.5px solid hsl(${accentColor})`
+                  : "1.5px solid hsl(var(--muted-foreground) / 0.4)",
+              }}
+            >
+              {item.selected && <Check className="w-3 h-3 text-white" />}
+            </span>
             {item.label}
-            {item.isDefault && (
+
+            {/* Delete button — only in edit mode */}
+            {editMode && (
               <span
-                className="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-md"
-                style={{ background: `hsl(${accentColor} / 0.12)` }}
+                role="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(item.id);
+                }}
+                className="ml-1 p-1 rounded-lg bg-destructive/10 hover:bg-destructive/20 transition-colors cursor-pointer"
+                title="Delete"
               >
-                default
+                <X className="w-3.5 h-3.5 text-destructive" />
               </span>
             )}
-            <button
-              onClick={() => onDelete(item.id)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity ml-1 p-0.5 rounded-md hover:bg-destructive/20"
-              title="Delete"
-            >
-              <X className="w-3.5 h-3.5 text-destructive" />
-            </button>
-          </div>
+          </button>
         ))}
 
-        {/* Add button / inline input */}
-        {isAdding ? (
-          <div className="flex items-center gap-1.5">
-            <Input
-              autoFocus
-              value={newValue}
-              onChange={(e) => setNewValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleAdd();
-                if (e.key === "Escape") { setIsAdding(false); setNewValue(""); }
-              }}
-              placeholder={title === "Firing Positions" ? "e.g. Supine" : "e.g. Sniper Rifle"}
-              className="h-9 w-40 text-sm rounded-xl"
-            />
-            <Button size="sm" className="h-9 rounded-xl" onClick={handleAdd}>Add</Button>
-            <Button size="sm" variant="ghost" className="h-9 rounded-xl" onClick={() => { setIsAdding(false); setNewValue(""); }}>
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setIsAdding(true)}
-            className="flex items-center gap-1.5 rounded-xl border border-dashed px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:scale-[1.03] text-muted-foreground hover:text-foreground"
-            style={{ borderColor: `hsl(${accentColor} / 0.3)` }}
-          >
-            <Plus className="w-4 h-4" />
-            Add {title === "Firing Positions" ? "Position" : "Weapon"}
-          </button>
+        {/* Add button — only in edit mode */}
+        {editMode && (
+          isAdding ? (
+            <div className="flex items-center gap-1.5">
+              <Input
+                autoFocus
+                value={newValue}
+                onChange={(e) => setNewValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleAdd();
+                  if (e.key === "Escape") { setIsAdding(false); setNewValue(""); }
+                }}
+                placeholder={title === "Firing Positions" ? "e.g. Supine" : "e.g. Sniper Rifle"}
+                className="h-9 w-40 text-sm rounded-xl"
+              />
+              <Button size="sm" className="h-9 rounded-xl" onClick={handleAdd}>Add</Button>
+              <Button size="sm" variant="ghost" className="h-9 rounded-xl" onClick={() => { setIsAdding(false); setNewValue(""); }}>
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsAdding(true)}
+              className="flex items-center gap-1.5 rounded-xl border border-dashed px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:scale-[1.03] text-muted-foreground hover:text-foreground"
+              style={{ borderColor: `hsl(${accentColor} / 0.3)` }}
+            >
+              <Plus className="w-4 h-4" />
+              Add {title === "Firing Positions" ? "Position" : "Weapon"}
+            </button>
+          )
         )}
       </div>
     </div>
@@ -139,24 +182,18 @@ export function FiringWeaponPage() {
   const [positions, setPositions] = useState<TagItem[]>(DEFAULT_POSITIONS);
   const [weapons, setWeapons] = useState<TagItem[]>(DEFAULT_WEAPONS);
 
-  const addPosition = (label: string) => {
-    setPositions((prev) => [...prev, { id: label.toLowerCase().replace(/\s+/g, "-"), label }]);
-    toast({ title: "Position added", description: `"${label}" has been added.` });
+  const toggleItem = (setter: React.Dispatch<React.SetStateAction<TagItem[]>>) => (id: string) => {
+    setter((prev) => prev.map((i) => i.id === id ? { ...i, selected: !i.selected } : i));
   };
 
-  const deletePosition = (id: string) => {
-    setPositions((prev) => prev.filter((p) => p.id !== id));
-    toast({ title: "Position removed" });
+  const addItem = (setter: React.Dispatch<React.SetStateAction<TagItem[]>>, type: string) => (label: string) => {
+    setter((prev) => [...prev, { id: label.toLowerCase().replace(/\s+/g, "-"), label, selected: false }]);
+    toast({ title: `${type} added`, description: `"${label}" has been added.` });
   };
 
-  const addWeapon = (label: string) => {
-    setWeapons((prev) => [...prev, { id: label.toLowerCase().replace(/\s+/g, "-"), label }]);
-    toast({ title: "Weapon added", description: `"${label}" has been added.` });
-  };
-
-  const deleteWeapon = (id: string) => {
-    setWeapons((prev) => prev.filter((w) => w.id !== id));
-    toast({ title: "Weapon removed" });
+  const deleteItem = (setter: React.Dispatch<React.SetStateAction<TagItem[]>>, type: string) => (id: string) => {
+    setter((prev) => prev.filter((i) => i.id !== id));
+    toast({ title: `${type} removed` });
   };
 
   return (
@@ -166,8 +203,9 @@ export function FiringWeaponPage() {
         icon={<Crosshair className="w-5 h-5" />}
         accentColor="40 96% 53%"
         items={positions}
-        onAdd={addPosition}
-        onDelete={deletePosition}
+        onAdd={addItem(setPositions, "Position")}
+        onDelete={deleteItem(setPositions, "Position")}
+        onToggle={toggleItem(setPositions)}
       />
 
       <div className="h-px w-full" style={{ background: "var(--divider)" }} />
@@ -177,8 +215,9 @@ export function FiringWeaponPage() {
         icon={<Swords className="w-5 h-5" />}
         accentColor="200 80% 50%"
         items={weapons}
-        onAdd={addWeapon}
-        onDelete={deleteWeapon}
+        onAdd={addItem(setWeapons, "Weapon")}
+        onDelete={deleteItem(setWeapons, "Weapon")}
+        onToggle={toggleItem(setWeapons)}
       />
     </div>
   );
