@@ -33,6 +33,9 @@ function TagBoard({
   onAdd,
   onDelete,
   onToggle,
+  snapshot,
+  onEnterEdit,
+  onCancelEdit,
 }: {
   title: string;
   icon: React.ReactNode;
