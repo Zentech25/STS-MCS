@@ -6,6 +6,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OrbatPage } from "./OrbatPage";
 import { TraineePage } from "./TraineePage";
+import { FiringWeaponPage } from "./FiringWeaponPage";
 
 interface ConfigOption {
   id: string;
