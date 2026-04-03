@@ -319,7 +319,7 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
           {/* Section 3: Organization */}
           <div className="w-[260px] shrink-0 flex flex-col min-w-0">
             <div className="px-4 py-2 shrink-0" style={{ borderBottom: "1px solid hsl(var(--border) / 0.4)" }}>
-              <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Organization</h3>
+              <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider"></h3>
             </div>
             <div className="flex-1 p-4 flex flex-col gap-2.5">
               {(["organization", "regiment", "unit", "platoon", "section"] as const).map((key) => (
