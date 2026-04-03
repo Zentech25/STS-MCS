@@ -150,7 +150,7 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[960px] w-[95vw] p-0 gap-0 overflow-hidden" style={{ maxHeight: "85vh" }}>
+      <DialogContent className="max-w-[960px] w-[95vw] p-0 gap-0 overflow-hidden flex flex-col" style={{ maxHeight: "85vh" }}>
         <DialogHeader className="px-5 pt-4 pb-3" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
           <DialogTitle className="text-base">Add New Trainee</DialogTitle>
           <DialogDescription className="text-xs">Fill in the details and select an ORBAT node to assign the trainee.</DialogDescription>
