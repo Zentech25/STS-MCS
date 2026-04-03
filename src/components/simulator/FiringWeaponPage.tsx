@@ -226,10 +226,12 @@ export function FiringWeaponPage() {
   const [positions, setPositions] = useState<TagItem[]>(DEFAULT_POSITIONS);
   const [weapons, setWeapons] = useState<TagItem[]>(DEFAULT_WEAPONS);
   const [ranks, setRanks] = useState<TagItem[]>(DEFAULT_RANKS);
+  const [batches, setBatches] = useState<TagItem[]>(DEFAULT_BATCHES);
 
   const [posSnapshot, setPosSnapshot] = useState<TagItem[]>(positions);
   const [weapSnapshot, setWeapSnapshot] = useState<TagItem[]>(weapons);
   const [rankSnapshot, setRankSnapshot] = useState<TagItem[]>(ranks);
+  const [batchSnapshot, setBatchSnapshot] = useState<TagItem[]>(batches);
 
   const toggleItem = (setter: React.Dispatch<React.SetStateAction<TagItem[]>>) => (id: string) => {
     setter((prev) => prev.map((i) => i.id === id ? { ...i, selected: !i.selected } : i));
