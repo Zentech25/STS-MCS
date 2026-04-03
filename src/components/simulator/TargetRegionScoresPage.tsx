@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, Trash2, Upload } from "lucide-react";
+import { Plus, Trash2, Upload, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,19 +10,19 @@ import { toast } from "@/hooks/use-toast";
 interface TargetOption {
   id: string;
   label: string;
-  rings: number; // total rings available
+  zones: number;
 }
 
-interface RingRow {
+interface ZoneRow {
   id: string;
-  ring: number; // which ring (1 = bullseye, outward)
+  zone: number;
   score: number;
 }
 
 const TARGETS: TargetOption[] = [
-  { id: "silhouette", label: "Standard Silhouette", rings: 10 },
-  { id: "bullseye", label: "Bullseye Target", rings: 10 },
-  { id: "hostage", label: "Hostage Target", rings: 8 },
+  { id: "silhouette", label: "Standard Silhouette", zones: 10 },
+  { id: "bullseye", label: "Bullseye Target", zones: 10 },
+  { id: "hostage", label: "Hostage Target", zones: 8 },
 ];
 
 const EXERCISE_TYPES = ["Grouping", "Application", "Timed", "Snap Shot"] as const;
@@ -32,15 +32,14 @@ const ACCENT = "4 80% 58%";
 
 /* ── SVG Target Visualization ─────────────────────────────────── */
 
-function TargetSVG({ totalRings, highlightedRings }: { totalRings: number; highlightedRings: Set<number> }) {
+function TargetSVG({ totalZones, highlightedZone }: { totalZones: number; highlightedZone: number | null }) {
   const cx = 150;
   const cy = 170;
   const maxR = 120;
-  const ringWidth = maxR / totalRings;
+  const zoneWidth = maxR / totalZones;
 
   return (
     <svg viewBox="0 0 300 340" className="w-full h-full" style={{ maxHeight: 360 }}>
-      {/* Silhouette head + shoulders outline */}
       <ellipse cx={cx} cy={60} rx={32} ry={40} fill="hsl(var(--muted))" stroke="hsl(var(--border))" strokeWidth={1.5} />
       <path
         d={`M${cx - 70} 340 Q${cx - 70} 95 ${cx - 32} 95 L${cx + 32} 95 Q${cx + 70} 95 ${cx + 70} 340`}
@@ -49,14 +48,13 @@ function TargetSVG({ totalRings, highlightedRings }: { totalRings: number; highl
         strokeWidth={1.5}
       />
 
-      {/* Concentric scoring rings */}
-      {Array.from({ length: totalRings }, (_, i) => {
-        const ringNum = totalRings - i; // outer ring first
-        const r = ringWidth * ringNum;
-        const isHighlighted = highlightedRings.has(ringNum);
+      {Array.from({ length: totalZones }, (_, i) => {
+        const zoneNum = totalZones - i;
+        const r = zoneWidth * zoneNum;
+        const isHighlighted = highlightedZone === zoneNum;
         return (
           <circle
-            key={ringNum}
+            key={zoneNum}
             cx={cx}
             cy={cy}
             r={r}
@@ -68,14 +66,13 @@ function TargetSVG({ totalRings, highlightedRings }: { totalRings: number; highl
         );
       })}
 
-      {/* Ring labels */}
-      {Array.from({ length: totalRings }, (_, i) => {
-        const ringNum = i + 1;
-        const r = ringWidth * ringNum - ringWidth / 2;
-        const isHighlighted = highlightedRings.has(ringNum);
+      {Array.from({ length: totalZones }, (_, i) => {
+        const zoneNum = i + 1;
+        const r = zoneWidth * zoneNum - zoneWidth / 2;
+        const isHighlighted = highlightedZone === zoneNum;
         return (
           <text
-            key={ringNum}
+            key={zoneNum}
             x={cx + r}
             y={cy - 4}
             textAnchor="middle"
@@ -84,17 +81,16 @@ function TargetSVG({ totalRings, highlightedRings }: { totalRings: number; highl
             fill={isHighlighted ? `hsl(${ACCENT})` : "hsl(var(--muted-foreground))"}
             className="transition-all duration-300 select-none"
           >
-            {ringNum}
+            {zoneNum}
           </text>
         );
       })}
 
-      {/* Bullseye dot */}
       <circle
         cx={cx}
         cy={cy}
         r={3}
-        fill={highlightedRings.has(1) ? `hsl(${ACCENT})` : "hsl(var(--muted-foreground))"}
+        fill={highlightedZone === 1 ? `hsl(${ACCENT})` : "hsl(var(--muted-foreground))"}
       />
     </svg>
   );
@@ -106,42 +102,55 @@ export function TargetRegionScoresPage() {
   const [selectedTarget, setSelectedTarget] = useState<string>(TARGETS[0].id);
   const [range, setRange] = useState("100");
   const [exerciseType, setExerciseType] = useState<string>(EXERCISE_TYPES[0]);
-  const [rows, setRows] = useState<RingRow[]>([
-    { id: "r1", ring: 1, score: 10 },
-    { id: "r2", ring: 2, score: 9 },
-    { id: "r3", ring: 3, score: 8 },
+  const [rows, setRows] = useState<ZoneRow[]>([
+    { id: "r1", zone: 1, score: 10 },
+    { id: "r2", zone: 2, score: 9 },
+    { id: "r3", zone: 3, score: 8 },
   ]);
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
 
   const target = TARGETS.find((t) => t.id === selectedTarget)!;
-  const usedRings = new Set(rows.map((r) => r.ring));
+  const usedZones = new Set(rows.map((r) => r.zone));
 
-  const availableRingsForRow = (currentRing: number) => {
+  const availableZonesForRow = (currentZone: number) => {
     const available: number[] = [];
-    for (let i = 1; i <= target.rings; i++) {
-      if (!usedRings.has(i) || i === currentRing) available.push(i);
+    for (let i = 1; i <= target.zones; i++) {
+      if (!usedZones.has(i) || i === currentZone) available.push(i);
     }
     return available;
   };
 
-  const highlightedRings = useMemo(() => new Set(rows.map((r) => r.ring)), [rows]);
+  const highlightedZone = useMemo(() => {
+    const row = rows.find((r) => r.id === selectedRowId);
+    return row ? row.zone : null;
+  }, [rows, selectedRowId]);
 
   const addRow = () => {
     if (rows.length >= MAX_ROWS) {
-      toast({ title: "Maximum rows reached", description: `You can add up to ${MAX_ROWS} ring rows.`, variant: "destructive" });
+      toast({ title: "Maximum rows reached", description: `You can add up to ${MAX_ROWS} zone rows.`, variant: "destructive" });
       return;
     }
-    const nextRing = Array.from({ length: target.rings }, (_, i) => i + 1).find((r) => !usedRings.has(r));
-    if (nextRing === undefined) {
-      toast({ title: "All rings assigned", variant: "destructive" });
+    const nextZone = Array.from({ length: target.zones }, (_, i) => i + 1).find((z) => !usedZones.has(z));
+    if (nextZone === undefined) {
+      toast({ title: "All zones assigned", variant: "destructive" });
       return;
     }
-    setRows((prev) => [...prev, { id: `r${Date.now()}`, ring: nextRing, score: 0 }]);
+    const newId = `r${Date.now()}`;
+    setRows((prev) => [...prev, { id: newId, zone: nextZone, score: 0 }]);
+    setSelectedRowId(newId);
   };
 
-  const removeRow = (id: string) => setRows((prev) => prev.filter((r) => r.id !== id));
+  const removeRow = (id: string) => {
+    setRows((prev) => prev.filter((r) => r.id !== id));
+    if (selectedRowId === id) setSelectedRowId(null);
+  };
 
-  const updateRow = (id: string, patch: Partial<RingRow>) =>
+  const updateRow = (id: string, patch: Partial<ZoneRow>) =>
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+
+  const handleSave = () => {
+    toast({ title: "Configuration saved", description: "Target region scores have been saved successfully." });
+  };
 
   return (
     <div className="flex-1 flex flex-col lg:flex-row gap-6 p-6 overflow-y-auto animate-fade-in">
@@ -149,7 +158,6 @@ export function TargetRegionScoresPage() {
       <div className="flex-1 flex flex-col gap-5 min-w-0">
         {/* Top fields row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Target */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Target</label>
             <div className="flex gap-2">
@@ -175,7 +183,6 @@ export function TargetRegionScoresPage() {
             </div>
           </div>
 
-          {/* Range */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Range (m)</label>
             <Input
@@ -188,7 +195,6 @@ export function TargetRegionScoresPage() {
             />
           </div>
 
-          {/* Exercise Type */}
           <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Exercise Type</label>
             <div className="flex flex-wrap gap-2">
@@ -213,7 +219,7 @@ export function TargetRegionScoresPage() {
           </div>
         </div>
 
-        {/* Ring Score Table */}
+        {/* Zone Score Table */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground tracking-wide uppercase flex items-center gap-2">
@@ -223,7 +229,7 @@ export function TargetRegionScoresPage() {
               >
                 <span className="text-xs font-bold">⊚</span>
               </div>
-              Ring Scores
+              Zone Scores
               <span className="text-xs font-normal text-muted-foreground ml-1">
                 {rows.length} / {MAX_ROWS}
               </span>
@@ -236,11 +242,10 @@ export function TargetRegionScoresPage() {
               disabled={rows.length >= MAX_ROWS}
             >
               <Plus className="w-3.5 h-3.5" />
-              Add Ring
+              Add Zone
             </Button>
           </div>
 
-          {/* Table */}
           <div
             className="rounded-2xl overflow-hidden"
             style={{
@@ -249,67 +254,81 @@ export function TargetRegionScoresPage() {
               backdropFilter: "blur(12px)",
             }}
           >
-            {/* Header */}
             <div
               className="grid grid-cols-[50px_1fr_1fr_48px] text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 py-2.5"
               style={{ borderBottom: "1px solid var(--divider)" }}
             >
               <span>#</span>
-              <span>Ring</span>
+              <span>Zone</span>
               <span>Score</span>
               <span />
             </div>
 
-            {/* Rows */}
             {rows.length === 0 && (
               <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-                No rings configured. Click "Add Ring" to get started.
+                No zones configured. Click "Add Zone" to get started.
               </div>
             )}
-            {rows.map((row, idx) => (
-              <div
-                key={row.id}
-                className="grid grid-cols-[50px_1fr_1fr_48px] items-center px-4 py-2 transition-colors hover:bg-muted/30"
-                style={{ borderBottom: idx < rows.length - 1 ? "1px solid var(--divider)" : "none" }}
-              >
-                <span className="text-xs font-mono text-muted-foreground">{idx + 1}</span>
-
-                {/* Ring selector */}
-                <Select
-                  value={String(row.ring)}
-                  onValueChange={(v) => updateRow(row.id, { ring: Number(v) })}
+            {rows.map((row, idx) => {
+              const isSelected = selectedRowId === row.id;
+              return (
+                <div
+                  key={row.id}
+                  onClick={() => setSelectedRowId(isSelected ? null : row.id)}
+                  className="grid grid-cols-[50px_1fr_1fr_48px] items-center px-4 py-2 transition-colors cursor-pointer"
+                  style={{
+                    borderBottom: idx < rows.length - 1 ? "1px solid var(--divider)" : "none",
+                    background: isSelected ? `hsl(${ACCENT} / 0.08)` : "transparent",
+                  }}
                 >
-                  <SelectTrigger className="h-8 w-28 rounded-lg text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableRingsForRow(row.ring).map((r) => (
-                      <SelectItem key={r} value={String(r)}>
-                        Ring {r}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <span className="text-xs font-mono text-muted-foreground">{idx + 1}</span>
 
-                {/* Score */}
-                <Input
-                  type="number"
-                  value={row.score}
-                  onChange={(e) => updateRow(row.id, { score: Number(e.target.value) })}
-                  className="h-8 w-24 rounded-lg text-sm"
-                  min={0}
-                />
+                  <Select
+                    value={String(row.zone)}
+                    onValueChange={(v) => updateRow(row.id, { zone: Number(v) })}
+                  >
+                    <SelectTrigger className="h-8 w-28 rounded-lg text-sm" onClick={(e) => e.stopPropagation()}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableZonesForRow(row.zone).map((z) => (
+                        <SelectItem key={z} value={String(z)}>
+                          Zone {z}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                {/* Delete */}
-                <button
-                  onClick={() => removeRow(row.id)}
-                  className="p-1.5 rounded-lg bg-destructive/10 hover:bg-destructive/20 transition-colors"
-                  title="Remove ring"
-                >
-                  <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                </button>
-              </div>
-            ))}
+                  <Input
+                    type="number"
+                    value={row.score}
+                    onChange={(e) => updateRow(row.id, { score: Number(e.target.value) })}
+                    onClick={(e) => e.stopPropagation()}
+                    className="h-8 w-24 rounded-lg text-sm"
+                    min={0}
+                  />
+
+                  <button
+                    onClick={(e) => { e.stopPropagation(); removeRow(row.id); }}
+                    className="p-1.5 rounded-lg bg-destructive/10 hover:bg-destructive/20 transition-colors"
+                    title="Remove zone"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Save button */}
+          <div className="flex justify-end mt-2">
+            <Button
+              className="h-9 rounded-xl gap-2 bg-green-600 hover:bg-green-700 text-white"
+              onClick={handleSave}
+            >
+              <Save className="w-4 h-4" />
+              Save Configuration
+            </Button>
           </div>
         </div>
       </div>
@@ -327,19 +346,22 @@ export function TargetRegionScoresPage() {
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
             {target.label}
           </h4>
-          <TargetSVG totalRings={target.rings} highlightedRings={highlightedRings} />
+          <TargetSVG totalZones={target.zones} highlightedZone={highlightedZone} />
           <div className="flex flex-wrap gap-2 mt-3 justify-center">
             {rows.map((row) => (
               <span
                 key={row.id}
-                className="text-[10px] font-bold px-2 py-1 rounded-lg"
+                onClick={() => setSelectedRowId(selectedRowId === row.id ? null : row.id)}
+                className="text-[10px] font-bold px-2 py-1 rounded-lg cursor-pointer transition-all"
                 style={{
-                  background: `hsl(${ACCENT} / 0.15)`,
+                  background: selectedRowId === row.id ? `hsl(${ACCENT} / 0.3)` : `hsl(${ACCENT} / 0.15)`,
                   color: `hsl(${ACCENT})`,
-                  border: `1px solid hsl(${ACCENT} / 0.3)`,
+                  border: selectedRowId === row.id
+                    ? `1.5px solid hsl(${ACCENT})`
+                    : `1px solid hsl(${ACCENT} / 0.3)`,
                 }}
               >
-                Ring {row.ring}: {row.score}pts
+                Zone {row.zone}: {row.score}pts
               </span>
             ))}
           </div>
