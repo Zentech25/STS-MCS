@@ -78,15 +78,36 @@ function TagBoard({
           {selectedCount} of {items.length} active
         </span>
         <div className="ml-auto flex items-center gap-2">
-          <Button
-            size="sm"
-            variant={editMode ? "secondary" : "ghost"}
-            className="h-7 text-xs rounded-lg gap-1.5"
-            onClick={() => setEditMode(!editMode)}
-          >
-            <Settings className="w-3.5 h-3.5" />
-            {editMode ? "Done" : "Manage"}
-          </Button>
+          {editMode ? (
+            <>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 text-xs rounded-lg gap-1.5"
+                onClick={() => { onCancelEdit(); setEditMode(false); setIsAdding(false); setNewValue(""); }}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                className="h-7 text-xs rounded-lg gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => { setEditMode(false); setIsAdding(false); setNewValue(""); }}
+              >
+                <Check className="w-3.5 h-3.5" />
+                Done
+              </Button>
+            </>
+          ) : (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-xs rounded-lg gap-1.5"
+              onClick={() => { onEnterEdit(); setEditMode(true); }}
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Manage
+            </Button>
+          )}
         </div>
       </div>
 
