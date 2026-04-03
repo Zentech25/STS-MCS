@@ -9,6 +9,7 @@ import { TraineePage } from "./TraineePage";
 import { FiringWeaponPage } from "./FiringWeaponPage";
 import { TargetRegionScoresPage } from "./TargetRegionScoresPage";
 import { SystemActionsPage } from "./SystemActionsPage";
+import { RestartFpePage } from "./RestartFpePage";
 
 interface ConfigOption {
   id: string;
