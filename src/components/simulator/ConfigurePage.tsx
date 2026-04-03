@@ -6,6 +6,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OrbatPage } from "./OrbatPage";
 import { TraineePage } from "./TraineePage";
+import { FiringWeaponPage } from "./FiringWeaponPage";
 
 interface ConfigOption {
   id: string;
@@ -19,9 +20,8 @@ const CONFIG_OPTIONS: ConfigOption[] = [
   { id: "trainee", label: "Trainee", icon: <Users className="w-5 h-5" />, color: "217 91% 60%", description: "Manage trainee profiles and assignments" },
   { id: "orbat", label: "ORBAT", icon: <Shield className="w-5 h-5" />, color: "280 65% 60%", description: "Order of Battle configuration" },
   { id: "batch", label: "Batch", icon: <Layers className="w-5 h-5" />, color: "160 72% 42%", description: "Batch training session setup" },
-  { id: "firing-position", label: "Firing Position", icon: <Crosshair className="w-5 h-5" />, color: "40 96% 53%", description: "Configure firing positions & lanes" },
+  { id: "firing-weapon", label: "Firing & Weapons", icon: <Crosshair className="w-5 h-5" />, color: "40 96% 53%", description: "Firing positions & weapon configurations" },
   { id: "arc-tool", label: "ARC Tool", icon: <Wrench className="w-5 h-5" />, color: "340 75% 55%", description: "ARC calibration & tools" },
-  { id: "weapon-details", label: "Weapon Details", icon: <Swords className="w-5 h-5" />, color: "200 80% 50%", description: "Weapon types and specifications" },
   { id: "rank-details", label: "Rank Details", icon: <Award className="w-5 h-5" />, color: "30 90% 55%", description: "Military rank configuration" },
   { id: "target-region-scores", label: "Target Region Scores", icon: <Target className="w-5 h-5" />, color: "4 80% 58%", description: "Scoring zones and point values" },
   { id: "remote-fpe-shutdown", label: "Remote FPE Shutdown", icon: <Power className="w-5 h-5" />, color: "0 70% 50%", description: "Remote shutdown of FPE units" },
@@ -36,6 +36,9 @@ function ConfigContent({ option }: { option: ConfigOption }) {
   }
   if (option.id === "trainee") {
     return <TraineePage />;
+  }
+  if (option.id === "firing-weapon") {
+    return <FiringWeaponPage />;
   }
 
   return (
