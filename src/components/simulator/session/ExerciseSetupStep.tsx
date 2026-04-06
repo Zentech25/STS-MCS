@@ -311,7 +311,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         onChange={(e) => updateExercise(lane.laneId, { targetType: e.target.value })}
                         className="sys-input h-8 text-xs flex-1 rounded-md px-2"
                       >
-                        {TARGET_TYPES.map((t) => (
+                        {TARGETS.map((t) => (
                           <option key={t.id} value={t.id}>{t.label}</option>
                         ))}
                       </select>
