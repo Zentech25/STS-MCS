@@ -133,6 +133,16 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
     toast.success("Group deleted");
   };
 
+  const handleRenameGroup = (id: string) => {
+    if (!editGroupName.trim()) return;
+    const updated = savedGroups.map((g) => g.id === id ? { ...g, name: editGroupName.trim() } : g);
+    setSavedGroups(updated);
+    saveGroupsToStorage(updated);
+    setEditingGroupId(null);
+    setEditGroupName("");
+    toast.success("Group renamed");
+  };
+
   const hasAnyTrainee = lanes.some((l) => l.queue.length > 0);
 
   return (
