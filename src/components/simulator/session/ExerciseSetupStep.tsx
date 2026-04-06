@@ -4,27 +4,7 @@ import { LaneAssignment, ExerciseConfig, PracticeType, TimeOfDay } from "./types
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
-import imgFig120cm from "@/assets/targets/Fig120cm.jpg";
-import imgFig120x4 from "@/assets/targets/Fig120x4.jpg";
-import imgSmallBlue from "@/assets/targets/small_target_blue.jpg";
-import imgSmallRed from "@/assets/targets/small_target_red.jpg";
-import imgSPG from "@/assets/targets/SPGTarget.jpg";
-import imgTarget3 from "@/assets/targets/Target_3.jpg";
-import imgFig11 from "@/assets/targets/Fig11.jpg";
-import imgFig11Line from "@/assets/targets/Fig11_Line.jpg";
-import imgFig12 from "@/assets/targets/Fig12.jpg";
-
-const TARGET_TYPES = [
-  { id: "fig120cm", label: "Fig 120cm", preview: imgFig120cm },
-  { id: "fig120x4", label: "Bullseye", preview: imgFig120x4 },
-  { id: "fig11", label: "Fig 11", preview: imgFig11 },
-  { id: "fig11-line", label: "Fig 11 Line", preview: imgFig11Line },
-  { id: "fig12", label: "Fig 12", preview: imgFig12 },
-  { id: "spg", label: "SPG Target", preview: imgSPG },
-  { id: "target3", label: "No-Shoot", preview: imgTarget3 },
-  { id: "small-blue", label: "Small Blue", preview: imgSmallBlue },
-  { id: "small-red", label: "Small Red", preview: imgSmallRed },
-];
+import { TARGETS } from "@/contexts/TargetsContext";
 
 const PRACTICE_TYPES: { id: PracticeType; label: string }[] = [
   { id: "grouping", label: "Grouping" },

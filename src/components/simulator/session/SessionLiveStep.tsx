@@ -1,30 +1,7 @@
 import { useState } from "react";
 import { Play, Pause, Square, ChevronLeft } from "lucide-react";
 import { LaneAssignment, ExerciseConfig } from "./types";
-
-const TARGET_COLORS: Record<string, string> = {
-  "humanoid-a": "hsl(230 80% 60%)",
-  "humanoid-b": "hsl(40 96% 53%)",
-  "humanoid-c": "hsl(160 72% 42%)",
-  "humanoid-d": "hsl(280 65% 60%)",
-};
-
-function HumanoidTarget({ targetType }: { targetType: string }) {
-  const color = TARGET_COLORS[targetType] || TARGET_COLORS["humanoid-a"];
-  return (
-    <svg viewBox="0 0 120 200" className="w-full h-full max-h-[160px]">
-      <circle cx="60" cy="35" r="14" fill="none" stroke={color} strokeWidth="1.5" opacity="0.8" />
-      <circle cx="60" cy="35" r="4" fill={color} opacity="0.4" />
-      <line x1="60" y1="49" x2="60" y2="58" stroke={color} strokeWidth="1.5" opacity="0.8" />
-      <rect x="40" y="58" width="40" height="50" rx="3" fill="none" stroke={color} strokeWidth="1.5" opacity="0.8" />
-      <circle cx="60" cy="83" r="4" fill={color} opacity="0.3" />
-      <line x1="40" y1="62" x2="22" y2="95" stroke={color} strokeWidth="1.5" opacity="0.8" />
-      <line x1="80" y1="62" x2="98" y2="95" stroke={color} strokeWidth="1.5" opacity="0.8" />
-      <line x1="48" y1="108" x2="38" y2="155" stroke={color} strokeWidth="1.5" opacity="0.8" />
-      <line x1="72" y1="108" x2="82" y2="155" stroke={color} strokeWidth="1.5" opacity="0.8" />
-    </svg>
-  );
-}
+import { getTargetById } from "@/contexts/TargetsContext";
 
 interface Props {
   lanes: LaneAssignment[];
@@ -86,6 +63,7 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
             const activeTrainee = lane.queue[0];
             const shots = shotData[lane.laneId] || { hits: 0, misses: 0 };
             const isEmpty = lane.queue.length === 0;
+            const target = exercise ? getTargetById(exercise.targetType) : null;
 
             if (isEmpty || !exercise) {
               return (
@@ -103,8 +81,12 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
                 </div>
 
                 <div className="flex-1 p-3.5 flex flex-col gap-3 overflow-y-auto">
-                  <div className="rounded-xl p-2 flex items-center justify-center" style={{ background: "var(--surface-inset)", border: "1px solid var(--divider)", minHeight: "140px" }}>
-                    <HumanoidTarget targetType={exercise.targetType} />
+                  <div className="rounded-xl overflow-hidden flex items-center justify-center bg-white" style={{ border: "1px solid var(--divider)", minHeight: "140px" }}>
+                    {target ? (
+                      <img src={target.image} alt={target.label} className="w-full h-full object-contain max-h-[160px]" />
+                    ) : (
+                      <p className="text-xs text-muted-foreground">No target</p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-x-3 gap-y-2">
