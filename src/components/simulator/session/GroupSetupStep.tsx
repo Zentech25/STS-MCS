@@ -191,24 +191,38 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            {SAVED_GROUPS.map((g) => (
-              <button
-                key={g.id}
-                onClick={() => loadGroup(g)}
-                className="p-3.5 rounded-xl text-left transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
-                style={{
-                  background: "var(--surface-elevated)",
-                  border: "1px solid var(--divider)",
-                }}
-              >
-                <p className="text-sm font-semibold text-foreground">{g.name}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {g.lanes.reduce((a, l) => a + l.queue.length, 0)} trainees · {g.lanes.filter((l) => l.queue.length > 0).length} lanes · Created {g.createdAt}
-                </p>
-              </button>
-            ))}
-          </div>
+          {savedGroups.length === 0 ? (
+            <p className="text-[11px] text-muted-foreground py-3 text-center">No saved groups yet.</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              {savedGroups.map((g) => (
+                <div
+                  key={g.id}
+                  className="p-3.5 rounded-xl flex items-center gap-2 transition-all duration-200 hover:scale-[1.01] group"
+                  style={{
+                    background: "var(--surface-elevated)",
+                    border: "1px solid var(--divider)",
+                  }}
+                >
+                  <button
+                    onClick={() => loadGroup(g)}
+                    className="flex-1 text-left min-w-0"
+                  >
+                    <p className="text-sm font-semibold text-foreground truncate">{g.name}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {g.lanes.reduce((a, l) => a + l.queue.length, 0)} trainees · {g.lanes.filter((l) => l.queue.length > 0).length} lanes · Created {g.createdAt}
+                    </p>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteGroup(g.id)}
+                    className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all shrink-0"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
