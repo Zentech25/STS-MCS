@@ -37,7 +37,6 @@ function ConfigContent({ option }: { option: ConfigOption }) {
   if (option.id === "batches") return <BatchesPage />;
   if (option.id === "target-region-scores") return <TargetRegionScoresPage />;
   if (option.id === "system-actions") return <SystemActionsPage />;
-  if (option.id === "restart-fpe") return <RestartFpePage />;
 
   return (
     <div className="flex-1 flex items-center justify-center p-8 animate-fade-in" key={option.id}>
