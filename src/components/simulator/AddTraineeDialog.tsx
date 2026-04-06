@@ -111,15 +111,8 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
     setTree((prev) => mapTree(prev, id, (n) => ({ ...n, expanded: !n.expanded })));
   }, []);
 
-  // Derive org fields from selection
+  // Derive path from selection
   const path = selectedNodeId ? getNodePath(tree, selectedNodeId) : null;
-  const orgFields = {
-    organization: path?.find((n) => n.type === "organization")?.name ?? "",
-    regiment: path?.find((n) => n.type === "regiment")?.name ?? "",
-    unit: path?.find((n) => n.type === "unit")?.name ?? "",
-    platoon: path?.find((n) => n.type === "platoon")?.name ?? "",
-    section: path?.find((n) => n.type === "section")?.name ?? "",
-  };
   const fullPath = path ? path.map((n) => n.name).join(" / ") : "";
 
   const handlePhotoSelect = () => {
@@ -151,7 +144,7 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[960px] w-[95vw] p-0 gap-0 overflow-hidden flex flex-col" style={{ maxHeight: "85vh" }}>
+      <DialogContent className="max-w-[720px] w-[95vw] p-0 gap-0 overflow-hidden flex flex-col" style={{ maxHeight: "85vh" }}>
         <DialogHeader className="px-5 pt-4 pb-3" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
           <DialogTitle className="text-base">Add New Trainee</DialogTitle>
           <DialogDescription className="text-xs">Fill in the details and select an ORBAT node to assign the trainee.</DialogDescription>
@@ -313,36 +306,13 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
                   </PopoverContent>
                 </Popover>
               </div>
-            </div>
-          </div>
-
-          {/* Section 3: Organization */}
-          <div className="w-[260px] shrink-0 flex flex-col min-w-0">
-            <div className="px-4 py-2 shrink-0" style={{ borderBottom: "1px solid hsl(var(--border) / 0.4)" }}>
-              <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider"></h3>
-            </div>
-            <div className="flex-1 p-4 flex flex-col gap-2.5">
-              {(["organization", "regiment", "unit", "platoon", "section"] as const).map((key) => (
-                <div key={key}>
-                  <Label className="text-[11px] text-muted-foreground capitalize">{key}</Label>
-                  <Input
-                    readOnly
-                    value={orgFields[key]}
-                    placeholder="—"
-                    className="h-8 text-xs mt-1 bg-muted/30 cursor-default"
-                  />
+              {/* Path display */}
+              {fullPath && (
+                <div className="mt-1">
+                  <Label className="text-[11px] text-muted-foreground">Selected Path</Label>
+                  <p className="text-xs font-mono text-primary mt-1 truncate" title={fullPath}>{fullPath}</p>
                 </div>
-              ))}
-              <div>
-                <Label className="text-[11px] text-muted-foreground">Path</Label>
-                <Input
-                  readOnly
-                  value={fullPath}
-                  placeholder="Select a node from ORBAT"
-                  className="h-8 text-[10px] mt-1 bg-muted/30 cursor-default font-mono"
-                  title={fullPath}
-                />
-              </div>
+              )}
             </div>
           </div>
         </div>
