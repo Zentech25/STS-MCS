@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Crosshair, Lock, Copy, Sun, Moon, Eye, Save, FolderOpen, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Crosshair, Lock, Copy, Sun, Moon, Eye, Save, FolderOpen, X, Pencil, Check } from "lucide-react";
 import { LaneAssignment, ExerciseConfig, PracticeType, TimeOfDay } from "./types";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
