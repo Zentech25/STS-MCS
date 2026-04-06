@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Users, Plus, Save, FolderOpen, X, ChevronRight, Search, UserPlus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Users, Plus, Save, FolderOpen, X, ChevronRight, Search, UserPlus, Trash2 } from "lucide-react";
 import { LaneAssignment, SavedGroup, Trainee } from "./types";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -22,7 +22,9 @@ const TRAINEE_POOL: Trainee[] = Array.from({ length: 30 }, (_, i) => {
   };
 });
 
-const SAVED_GROUPS: SavedGroup[] = [
+const GROUPS_KEY = "simulator_saved_groups";
+
+const DEFAULT_GROUPS: SavedGroup[] = [
   {
     id: "g1", name: "Alpha Squad - Morning", createdAt: "2026-04-01",
     lanes: [
@@ -42,6 +44,20 @@ const SAVED_GROUPS: SavedGroup[] = [
     ],
   },
 ];
+
+function loadGroups(): SavedGroup[] {
+  try {
+    const stored = localStorage.getItem(GROUPS_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  // Initialize with defaults
+  localStorage.setItem(GROUPS_KEY, JSON.stringify(DEFAULT_GROUPS));
+  return DEFAULT_GROUPS;
+}
+
+function saveGroupsToStorage(groups: SavedGroup[]) {
+  localStorage.setItem(GROUPS_KEY, JSON.stringify(groups));
+}
 
 interface Props {
   lanes: LaneAssignment[];
