@@ -72,6 +72,8 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [saveGroupName, setSaveGroupName] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [editGroupName, setEditGroupName] = useState("");
 
   const assignedIds = new Set(lanes.flatMap((l) => l.queue.map((t) => t.id)));
   const availableTrainees = TRAINEE_POOL.filter(
