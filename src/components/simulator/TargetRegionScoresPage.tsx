@@ -5,12 +5,23 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 
+import imgFig120cm from "@/assets/targets/Fig120cm.jpg";
+import imgFig120x4 from "@/assets/targets/Fig120x4.jpg";
+import imgSmallBlue from "@/assets/targets/small_target_blue.jpg";
+import imgSmallRed from "@/assets/targets/small_target_red.jpg";
+import imgSPG from "@/assets/targets/SPGTarget.jpg";
+import imgTarget3 from "@/assets/targets/Target_3.jpg";
+import imgFig11 from "@/assets/targets/Fig11.jpg";
+import imgFig11Line from "@/assets/targets/Fig11_Line.jpg";
+import imgFig12 from "@/assets/targets/Fig12.jpg";
+
 /* ── Types ────────────────────────────────────────────────────── */
 
 interface TargetOption {
   id: string;
   label: string;
   zones: number;
+  image: string;
 }
 
 interface ZoneRow {
@@ -20,96 +31,21 @@ interface ZoneRow {
 }
 
 const TARGETS: TargetOption[] = [
-  { id: "silhouette", label: "Standard Silhouette", zones: 10 },
-  { id: "bullseye", label: "Bullseye Target", zones: 10 },
-  { id: "hostage", label: "Hostage Target", zones: 8 },
+  { id: "fig120cm", label: "Fig 120cm (Concentric)", zones: 10, image: imgFig120cm },
+  { id: "fig120x4", label: "Fig 120 Bullseye", zones: 10, image: imgFig120x4 },
+  { id: "fig11", label: "Fig 11 Soldier", zones: 8, image: imgFig11 },
+  { id: "fig11-line", label: "Fig 11 Line Target", zones: 8, image: imgFig11Line },
+  { id: "fig12", label: "Fig 12 Silhouette", zones: 6, image: imgFig12 },
+  { id: "spg", label: "SPG Target", zones: 6, image: imgSPG },
+  { id: "target3", label: "Hostage / No-Shoot", zones: 4, image: imgTarget3 },
+  { id: "small-blue", label: "Small Target (Blue)", zones: 3, image: imgSmallBlue },
+  { id: "small-red", label: "Small Target (Red)", zones: 3, image: imgSmallRed },
 ];
 
 const EXERCISE_TYPES = ["Grouping", "Application", "Timed", "Snap Shot"] as const;
 
 const MAX_ROWS = 8;
 const ACCENT = "4 80% 58%";
-
-/* ── SVG Target Visualization ─────────────────────────────────── */
-
-function TargetSVG({ totalZones, highlightedZone }: { totalZones: number; highlightedZone: number | null }) {
-  const cx = 150;
-  const cy = 170;
-  const maxR = 120;
-  const zoneWidth = maxR / totalZones;
-
-  return (
-    <svg viewBox="0 0 300 340" className="w-full h-full" style={{ maxHeight: 360 }}>
-      <ellipse cx={cx} cy={60} rx={32} ry={40} fill="hsl(var(--muted))" stroke="hsl(var(--border))" strokeWidth={1.5} />
-      <path
-        d={`M${cx - 70} 340 Q${cx - 70} 95 ${cx - 32} 95 L${cx + 32} 95 Q${cx + 70} 95 ${cx + 70} 340`}
-        fill="hsl(var(--muted))"
-        stroke="hsl(var(--border))"
-        strokeWidth={1.5}
-      />
-
-      {Array.from({ length: totalZones }, (_, i) => {
-        const zoneNum = totalZones - i;
-        const r = zoneWidth * zoneNum;
-        return (
-          <circle
-            key={`outline-${zoneNum}`}
-            cx={cx}
-            cy={cy}
-            r={r}
-            fill="transparent"
-            stroke="hsl(var(--border))"
-            strokeWidth={1}
-            className="transition-all duration-300"
-          />
-        );
-      })}
-
-      {highlightedZone !== null && (
-        <circle
-          cx={cx}
-          cy={cy}
-          r={zoneWidth * highlightedZone - zoneWidth / 2}
-          fill="transparent"
-          stroke={`hsl(${ACCENT})`}
-          strokeWidth={Math.max(zoneWidth - 6, 6)}
-          className="transition-all duration-300"
-          opacity={0.95}
-        />
-      )}
-
-      {Array.from({ length: totalZones }, (_, i) => {
-        const zoneNum = i + 1;
-        const r = zoneWidth * zoneNum - zoneWidth / 2;
-        const isHighlighted = highlightedZone === zoneNum;
-        return (
-          <text
-            key={zoneNum}
-            x={cx + r}
-            y={cy - 4}
-            textAnchor="middle"
-            fontSize={9}
-            fontWeight={isHighlighted ? 700 : 400}
-            fill={isHighlighted ? `hsl(${ACCENT})` : "hsl(var(--muted-foreground))"}
-            className="transition-all duration-300 select-none"
-          >
-            {zoneNum}
-          </text>
-        );
-      })}
-
-      <circle
-        cx={cx}
-        cy={cy}
-        r={highlightedZone === 1 ? zoneWidth / 2 - 2 : 3}
-        fill={highlightedZone === 1 ? `hsl(${ACCENT} / 0.3)` : "hsl(var(--muted-foreground))"}
-        stroke={highlightedZone === 1 ? `hsl(${ACCENT})` : "transparent"}
-        strokeWidth={highlightedZone === 1 ? 2 : 0}
-        className="transition-all duration-300"
-      />
-    </svg>
-  );
-}
 
 /* ── Main Component ───────────────────────────────────────────── */
 
@@ -169,6 +105,7 @@ export function TargetRegionScoresPage() {
 
   return (
     <div className="flex-1 flex flex-col lg:flex-row gap-6 p-6 overflow-y-auto animate-fade-in">
+      {/* Left: controls + table */}
       <div className="flex-1 flex flex-col gap-5 min-w-0">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="flex flex-col gap-1.5">
@@ -180,7 +117,12 @@ export function TargetRegionScoresPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {TARGETS.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                    <SelectItem key={t.id} value={t.id}>
+                      <div className="flex items-center gap-2">
+                        <img src={t.image} alt={t.label} className="w-6 h-6 rounded object-contain bg-white" />
+                        {t.label}
+                      </div>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -232,6 +174,7 @@ export function TargetRegionScoresPage() {
           </div>
         </div>
 
+        {/* Zone scores table */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground tracking-wide uppercase flex items-center gap-2">
@@ -345,7 +288,8 @@ export function TargetRegionScoresPage() {
         </div>
       </div>
 
-      <div className="lg:w-[320px] shrink-0 flex flex-col items-center gap-3">
+      {/* Right: Target image preview */}
+      <div className="lg:w-[400px] shrink-0 flex flex-col items-center gap-3">
         <div
           className="w-full rounded-2xl p-4 flex flex-col items-center"
           style={{
@@ -354,10 +298,37 @@ export function TargetRegionScoresPage() {
             border: "1px solid var(--divider)",
           }}
         >
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             {target.label}
           </h4>
-          <TargetSVG totalZones={target.zones} highlightedZone={highlightedZone} />
+
+          {/* Target image — maintains 1:1 aspect ratio */}
+          <div className="w-full aspect-square rounded-xl overflow-hidden bg-white relative">
+            <img
+              src={target.image}
+              alt={target.label}
+              className="w-full h-full object-contain"
+              draggable={false}
+            />
+            {/* Highlighted zone overlay indicator */}
+            {highlightedZone !== null && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-lg text-xs font-bold"
+                style={{
+                  background: `hsl(${ACCENT} / 0.9)`,
+                  color: "white",
+                  boxShadow: `0 2px 12px hsl(${ACCENT} / 0.4)`,
+                }}
+              >
+                Zone {highlightedZone} selected
+              </div>
+            )}
+          </div>
+
+          <p className="text-[10px] text-muted-foreground mt-2 text-center">
+            1024 × 1024 px &middot; {target.zones} scoring zones
+          </p>
+
+          {/* Zone badges */}
           <div className="flex flex-wrap gap-2 mt-3 justify-center">
             {rows.map((row) => (
               <span
