@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  Users, Shield, Crosshair, Wrench,
+  Users, Shield, Crosshair, Wrench, Swords,
   Target, Power, Layers,
 } from "lucide-react";
 import { OrbatPage } from "./OrbatPage";
