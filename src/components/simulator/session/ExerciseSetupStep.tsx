@@ -82,6 +82,16 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
     toast({ title: "Preset deleted" });
   };
 
+  const handleRenamePreset = (id: string) => {
+    if (!editPresetName.trim()) return;
+    const updated = presets.map((p) => p.id === id ? { ...p, name: editPresetName.trim() } : p);
+    setPresets(updated);
+    savePresetsToStorage(updated);
+    setEditingPresetId(null);
+    setEditPresetName("");
+    toast({ title: "Preset renamed" });
+  };
+
   const updateExercise = (laneId: number, update: Partial<ExerciseConfig>) => {
     onExercisesChange(
       exercises.map((e) => (e.laneId === laneId ? { ...e, ...update } : e))
