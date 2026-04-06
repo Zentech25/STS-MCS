@@ -78,7 +78,7 @@ export function ConfigurePage() {
             <button
               key={opt.id}
               onClick={() => setSelected(opt)}
-              className={`relative flex items-center gap-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.97] ${
+              className={`relative flex items-center gap-3 rounded-xl transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-[1.02] active:scale-[0.97] ${
                 hovered ? "px-3 py-2.5" : "w-10 h-10 justify-center"
               } ${isActive ? "shadow-lg" : "hover:bg-muted/50"}`}
               style={isActive ? {
