@@ -27,8 +27,7 @@ const CONFIG_OPTIONS: ConfigOption[] = [
   { id: "batches", label: "Batches", icon: <Layers className="w-5 h-5" />, color: "160 72% 42%", description: "Manage training batches" },
   { id: "arc-tool", label: "ARC Tool", icon: <Wrench className="w-5 h-5" />, color: "340 75% 55%", description: "ARC calibration & tools" },
   { id: "target-region-scores", label: "Target Region Scores", icon: <Target className="w-5 h-5" />, color: "4 80% 58%", description: "Scoring zones and point values" },
-  { id: "system-actions", label: "System Actions", icon: <Power className="w-5 h-5" />, color: "0 70% 50%", description: "Shutdown, backup & restore operations" },
-  { id: "restart-fpe", label: "Restart FPE", icon: <RefreshCw className="w-5 h-5" />, color: "120 60% 40%", description: "Restart FPE service" },
+  { id: "system-actions", label: "System Actions", icon: <Power className="w-5 h-5" />, color: "0 70% 50%", description: "Database, FPE shutdown & maintenance" },
 ];
 
 function ConfigContent({ option }: { option: ConfigOption }) {
