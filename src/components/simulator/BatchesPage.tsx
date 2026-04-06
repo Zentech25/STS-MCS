@@ -32,6 +32,7 @@ export function BatchesPage() {
         onAdd={addBatch}
         onDelete={deleteBatch}
         singularName="Batch"
+        showSearch
       />
     </div>
   );
