@@ -343,7 +343,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         style={{ background: "var(--surface-inset)", border: "1px solid var(--divider)" }}
                         title={target?.label}
                       >
-                        <span className="text-2xl leading-none">{target?.preview}</span>
+                        <img src={target?.preview} alt={target?.label} className="w-10 h-10 object-contain" loading="lazy" />
                         <span className="text-[7px] text-muted-foreground mt-0.5 text-center leading-tight px-0.5 truncate max-w-full">{target?.label?.split(" ")[0]}</span>
                       </div>
                     </div>
