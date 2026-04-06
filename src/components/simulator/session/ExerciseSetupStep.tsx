@@ -44,6 +44,41 @@ interface Props {
 export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack, onNext }: Props) {
   const { weapons, positions } = useTrainingAssets();
   const [copyFromLane, setCopyFromLane] = useState<number | null>(null);
+  const [presets, setPresets] = useState<SavedPreset[]>(loadPresets());
+  const [showSavePreset, setShowSavePreset] = useState(false);
+  const [showLoadPreset, setShowLoadPreset] = useState(false);
+  const [presetName, setPresetName] = useState("");
+
+  const handleSavePreset = () => {
+    if (!presetName.trim()) return;
+    const preset: SavedPreset = {
+      id: `preset-${Date.now()}`,
+      name: presetName.trim(),
+      createdAt: new Date().toISOString().split("T")[0],
+      exercises: exercises.map(({ laneId, ...rest }) => rest),
+    };
+    const updated = [...presets, preset];
+    setPresets(updated);
+    savePresetsToStorage(updated);
+    setPresetName("");
+    setShowSavePreset(false);
+    toast({ title: "Preset Saved", description: `"${preset.name}" saved successfully` });
+  };
+
+  const handleLoadPreset = (preset: SavedPreset) => {
+    onExercisesChange(
+      exercises.map((e, i) => ({ ...e, ...(preset.exercises[i] || preset.exercises[0]) }))
+    );
+    setShowLoadPreset(false);
+    toast({ title: "Preset Loaded", description: `"${preset.name}" applied to all lanes` });
+  };
+
+  const handleDeletePreset = (id: string) => {
+    const updated = presets.filter((p) => p.id !== id);
+    setPresets(updated);
+    savePresetsToStorage(updated);
+    toast({ title: "Preset deleted" });
+  };
 
   const updateExercise = (laneId: number, update: Partial<ExerciseConfig>) => {
     onExercisesChange(
