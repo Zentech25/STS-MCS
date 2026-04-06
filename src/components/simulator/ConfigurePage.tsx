@@ -63,7 +63,7 @@ export function ConfigurePage() {
       <div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="shrink-0 flex flex-col gap-1 py-3 px-2 overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out"
+        className="shrink-0 flex flex-col gap-1 py-3 px-2 overflow-y-auto overflow-x-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{
           width: hovered ? 200 : 56,
           background: "var(--surface-glass)",
