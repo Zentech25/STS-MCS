@@ -111,15 +111,8 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
     setTree((prev) => mapTree(prev, id, (n) => ({ ...n, expanded: !n.expanded })));
   }, []);
 
-  // Derive org fields from selection
+  // Derive path from selection
   const path = selectedNodeId ? getNodePath(tree, selectedNodeId) : null;
-  const orgFields = {
-    organization: path?.find((n) => n.type === "organization")?.name ?? "",
-    regiment: path?.find((n) => n.type === "regiment")?.name ?? "",
-    unit: path?.find((n) => n.type === "unit")?.name ?? "",
-    platoon: path?.find((n) => n.type === "platoon")?.name ?? "",
-    section: path?.find((n) => n.type === "section")?.name ?? "",
-  };
   const fullPath = path ? path.map((n) => n.name).join(" / ") : "";
 
   const handlePhotoSelect = () => {
