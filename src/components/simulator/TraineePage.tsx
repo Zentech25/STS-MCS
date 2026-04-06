@@ -177,7 +177,7 @@ export function TraineePage() {
               <TableHead className="text-xs font-semibold text-muted-foreground w-[12%]">Designation</TableHead>
               <TableHead className="text-xs font-semibold text-muted-foreground w-[10%]">Join Date</TableHead>
               <TableHead className="text-xs font-semibold text-muted-foreground w-[35%]">Organization Path</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground w-[80px] text-center">Actions</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[80px] text-center">​</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
