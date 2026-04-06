@@ -33,6 +33,7 @@ const CONFIG_OPTIONS: ConfigOption[] = [
 function ConfigContent({ option }: { option: ConfigOption }) {
   if (option.id === "orbat") return <OrbatPage />;
   if (option.id === "trainee") return <TraineePage />;
+  if (option.id === "weapons") return <WeaponsPage />;
   if (option.id === "firing-weapon") return <FiringWeaponPage />;
   if (option.id === "batches") return <BatchesPage />;
   if (option.id === "target-region-scores") return <TargetRegionScoresPage />;
