@@ -4,27 +4,7 @@ import { LaneAssignment, ExerciseConfig, PracticeType, TimeOfDay } from "./types
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
-import imgFig120cm from "@/assets/targets/Fig120cm.jpg";
-import imgFig120x4 from "@/assets/targets/Fig120x4.jpg";
-import imgSmallBlue from "@/assets/targets/small_target_blue.jpg";
-import imgSmallRed from "@/assets/targets/small_target_red.jpg";
-import imgSPG from "@/assets/targets/SPGTarget.jpg";
-import imgTarget3 from "@/assets/targets/Target_3.jpg";
-import imgFig11 from "@/assets/targets/Fig11.jpg";
-import imgFig11Line from "@/assets/targets/Fig11_Line.jpg";
-import imgFig12 from "@/assets/targets/Fig12.jpg";
-
-const TARGET_TYPES = [
-  { id: "fig120cm", label: "Fig 120cm", preview: imgFig120cm },
-  { id: "fig120x4", label: "Bullseye", preview: imgFig120x4 },
-  { id: "fig11", label: "Fig 11", preview: imgFig11 },
-  { id: "fig11-line", label: "Fig 11 Line", preview: imgFig11Line },
-  { id: "fig12", label: "Fig 12", preview: imgFig12 },
-  { id: "spg", label: "SPG Target", preview: imgSPG },
-  { id: "target3", label: "No-Shoot", preview: imgTarget3 },
-  { id: "small-blue", label: "Small Blue", preview: imgSmallBlue },
-  { id: "small-red", label: "Small Red", preview: imgSmallRed },
-];
+import { TARGETS } from "@/contexts/TargetsContext";
 
 const PRACTICE_TYPES: { id: PracticeType; label: string }[] = [
   { id: "grouping", label: "Grouping" },
@@ -69,7 +49,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
 
   const activeLanes = lanes.filter((l) => l.queue.length > 0);
 
-  const selectedTarget = (targetType: string) => TARGET_TYPES.find((t) => t.id === targetType);
+  const selectedTarget = (targetType: string) => TARGETS.find((t) => t.id === targetType);
 
   return (
     <div className="flex flex-col h-full gap-3">
@@ -331,7 +311,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         onChange={(e) => updateExercise(lane.laneId, { targetType: e.target.value })}
                         className="sys-input h-8 text-xs flex-1 rounded-md px-2"
                       >
-                        {TARGET_TYPES.map((t) => (
+                        {TARGETS.map((t) => (
                           <option key={t.id} value={t.id}>{t.label}</option>
                         ))}
                       </select>
@@ -340,7 +320,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         style={{ background: "var(--surface-inset)", border: "1px solid var(--divider)" }}
                         title={target?.label}
                       >
-                        <img src={target?.preview} alt={target?.label} className="w-10 h-10 object-contain" loading="lazy" />
+                        <img src={target?.image} alt={target?.label} className="w-10 h-10 object-contain" loading="lazy" />
                         <span className="text-[7px] text-muted-foreground mt-0.5 text-center leading-tight px-0.5 truncate max-w-full">{target?.label?.split(" ")[0]}</span>
                       </div>
                     </div>

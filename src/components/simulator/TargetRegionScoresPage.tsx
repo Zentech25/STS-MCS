@@ -5,42 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 
-import imgFig120cm from "@/assets/targets/Fig120cm.jpg";
-import imgFig120x4 from "@/assets/targets/Fig120x4.jpg";
-import imgSmallBlue from "@/assets/targets/small_target_blue.jpg";
-import imgSmallRed from "@/assets/targets/small_target_red.jpg";
-import imgSPG from "@/assets/targets/SPGTarget.jpg";
-import imgTarget3 from "@/assets/targets/Target_3.jpg";
-import imgFig11 from "@/assets/targets/Fig11.jpg";
-import imgFig11Line from "@/assets/targets/Fig11_Line.jpg";
-import imgFig12 from "@/assets/targets/Fig12.jpg";
+import { TARGETS, TargetType } from "@/contexts/TargetsContext";
 
 /* ── Types ────────────────────────────────────────────────────── */
-
-interface TargetOption {
-  id: string;
-  label: string;
-  zones: number;
-  image: string;
-}
 
 interface ZoneRow {
   id: string;
   zone: number;
   score: number;
 }
-
-const TARGETS: TargetOption[] = [
-  { id: "fig120cm", label: "Fig 120cm (Concentric)", zones: 10, image: imgFig120cm },
-  { id: "fig120x4", label: "Fig 120 Bullseye", zones: 10, image: imgFig120x4 },
-  { id: "fig11", label: "Fig 11 Soldier", zones: 8, image: imgFig11 },
-  { id: "fig11-line", label: "Fig 11 Line Target", zones: 8, image: imgFig11Line },
-  { id: "fig12", label: "Fig 12 Silhouette", zones: 6, image: imgFig12 },
-  { id: "spg", label: "SPG Target", zones: 6, image: imgSPG },
-  { id: "target3", label: "Hostage / No-Shoot", zones: 4, image: imgTarget3 },
-  { id: "small-blue", label: "Small Target (Blue)", zones: 3, image: imgSmallBlue },
-  { id: "small-red", label: "Small Target (Red)", zones: 3, image: imgSmallRed },
-];
 
 const EXERCISE_TYPES = ["Grouping", "Application", "Timed", "Snap Shot"] as const;
 
