@@ -111,7 +111,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
 
   const allConfigured = exercises
     .filter((e) => lanes.find((l) => l.laneId === e.laneId)?.queue.length)
-    .every((e) => e.name.trim() !== "");
+    .every((e) => e.weapon !== "");
 
   const activeLanes = lanes.filter((l) => l.queue.length > 0);
 
