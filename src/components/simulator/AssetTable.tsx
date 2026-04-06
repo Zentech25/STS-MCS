@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,11 +25,17 @@ interface AssetTableProps {
   onAdd: (label: string) => void;
   onDelete: (id: string) => void;
   singularName: string;
+  showSearch?: boolean;
 }
 
-export function AssetTable({ title, icon, accentColor, items, onAdd, onDelete, singularName }: AssetTableProps) {
+export function AssetTable({ title, icon, accentColor, items, onAdd, onDelete, singularName, showSearch = false }: AssetTableProps) {
   const [newValue, setNewValue] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filteredItems = showSearch && search
+    ? items.filter((i) => i.label.toLowerCase().includes(search.toLowerCase()))
+    : items;
 
   const handleAdd = () => {
     const trimmed = newValue.trim();
@@ -55,6 +61,17 @@ export function AssetTable({ title, icon, accentColor, items, onAdd, onDelete, s
         </div>
         <h3 className="text-sm font-bold text-foreground tracking-wide uppercase">{title}</h3>
         <span className="text-xs text-muted-foreground ml-1">{items.length} items</span>
+        {showSearch && (
+          <div className="relative ml-4">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={`Search ${title.toLowerCase()}...`}
+              className="h-8 w-48 pl-8 text-sm rounded-lg"
+            />
+          </div>
+        )}
         <div className="ml-auto">
           {isAdding ? (
             <div className="flex items-center gap-1.5">
@@ -99,14 +116,14 @@ export function AssetTable({ title, icon, accentColor, items, onAdd, onDelete, s
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.length === 0 ? (
+            {filteredItems.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-sm text-muted-foreground py-8">
-                  No {title.toLowerCase()} added yet
+                  {search ? `No matches for "${search}"` : `No ${title.toLowerCase()} added yet`}
                 </TableCell>
               </TableRow>
             ) : (
-              items.map((item, idx) => (
+              filteredItems.map((item, idx) => (
                 <TableRow key={item.id}>
                   <TableCell className="text-xs text-muted-foreground font-mono">{idx + 1}</TableCell>
                   <TableCell className="text-sm font-medium text-foreground">{item.label}</TableCell>
