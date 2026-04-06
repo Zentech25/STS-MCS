@@ -194,24 +194,51 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
               {presets.map((p) => (
                 <div
                   key={p.id}
-                  className="p-3 rounded-xl flex items-center gap-2 transition-all duration-200 hover:scale-[1.01] group"
+                  className="p-3 rounded-xl flex items-center gap-2 transition-all duration-200 hover:scale-[1.01] group/card"
                   style={{ background: "var(--surface-elevated)", border: "1px solid var(--divider)" }}
                 >
-                  <button
-                    onClick={() => handleLoadPreset(p)}
-                    className="flex-1 text-left min-w-0"
-                  >
-                    <p className="text-xs font-semibold text-foreground truncate">{p.name}</p>
-                    <p className="text-[9px] text-muted-foreground mt-0.5">
-                      {p.exercises[0]?.practiceType} · {p.createdAt}
-                    </p>
-                  </button>
-                  <button
-                    onClick={() => handleDeletePreset(p.id)}
-                    className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all shrink-0"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+                  {editingPresetId === p.id ? (
+                    <div className="flex-1 flex items-center gap-2 min-w-0">
+                      <Input
+                        autoFocus
+                        value={editPresetName}
+                        onChange={(e) => setEditPresetName(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleRenamePreset(p.id)}
+                        className="h-7 text-xs flex-1"
+                      />
+                      <button onClick={() => handleRenamePreset(p.id)} className="text-primary hover:scale-110 transition-all shrink-0">
+                        <Check className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => setEditingPresetId(null)} className="text-muted-foreground hover:text-foreground transition-all shrink-0">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleLoadPreset(p)}
+                        className="flex-1 text-left min-w-0"
+                      >
+                        <p className="text-xs font-semibold text-foreground truncate">{p.name}</p>
+                        <p className="text-[9px] text-muted-foreground mt-0.5">
+                          {p.exercises[0]?.practiceType} · {p.createdAt}
+                        </p>
+                      </button>
+                      <button
+                        onClick={() => { setEditingPresetId(p.id); setEditPresetName(p.name); }}
+                        className="opacity-0 group-hover/card:opacity-100 text-muted-foreground hover:text-primary transition-all shrink-0"
+                        title="Rename"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
+                      <button
+                        onClick={() => handleDeletePreset(p.id)}
+                        className="opacity-0 group-hover/card:opacity-100 text-muted-foreground hover:text-destructive transition-all shrink-0"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
