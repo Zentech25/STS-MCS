@@ -329,9 +329,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                             </button>
                           ))}
                           <button
-                            onClick={() => {
-                              otherActiveLanes.forEach((ol) => copyToLane(lane.laneId, ol.laneId));
-                            }}
+                            onClick={() => copyToAllLanes(lane.laneId, otherActiveLanes.map((ol) => ol.laneId))}
                             className="text-[10px] text-primary font-semibold px-2 py-1 rounded-md hover:bg-primary/10 text-left transition-colors border-t border-[var(--divider)] mt-0.5 pt-1.5"
                           >
                             All Lanes
