@@ -116,14 +116,14 @@ export function AssetTable({ title, icon, accentColor, items, onAdd, onDelete, s
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.length === 0 ? (
+            {filteredItems.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-sm text-muted-foreground py-8">
-                  No {title.toLowerCase()} added yet
+                  {search ? `No matches for "${search}"` : `No ${title.toLowerCase()} added yet`}
                 </TableCell>
               </TableRow>
             ) : (
-              items.map((item, idx) => (
+              filteredItems.map((item, idx) => (
                 <TableRow key={item.id}>
                   <TableCell className="text-xs text-muted-foreground font-mono">{idx + 1}</TableCell>
                   <TableCell className="text-sm font-medium text-foreground">{item.label}</TableCell>
