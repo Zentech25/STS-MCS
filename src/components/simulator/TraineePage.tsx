@@ -67,6 +67,7 @@ export function TraineePage() {
   const pageData = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const allPageSelected = pageData.length > 0 && pageData.every((t) => selectedIds.has(t.id));
+  const multiSelected = selectedIds.size > 1;
 
   const toggleSelectAll = () => {
     setSelectedIds((prev) => {
@@ -187,49 +188,64 @@ export function TraineePage() {
                 </TableCell>
               </TableRow>
             ) : (
-              pageData.map((t) => (
-                <TableRow key={t.id} className="border-border/20 hover:bg-muted/40 transition-colors">
-                  <TableCell className="px-2 py-2.5">
-                    <Checkbox checked={selectedIds.has(t.id)} onCheckedChange={() => toggleSelect(t.id)} />
-                  </TableCell>
-                  <TableCell className="text-xs font-mono text-primary/80 py-2.5">{t.id}</TableCell>
-                  <TableCell className="text-sm font-medium text-foreground py-2.5">{t.name}</TableCell>
-                  <TableCell className="py-2.5">
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                      {t.rank}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground py-2.5">{t.designation}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground tabular-nums py-2.5">{t.joinDate}</TableCell>
-                  <TableCell className="text-[11px] text-muted-foreground/80 font-mono truncate py-2.5" title={t.orgPath}>
-                    {t.orgPath}
-                  </TableCell>
-                  <TableCell className="py-2.5">
-                    <div className="flex items-center justify-center gap-1">
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handleEdit(t)}>
-                        <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                            <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete trainee "{t.name}"?</AlertDialogTitle>
-                            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeleteOne(t.id)}>Delete</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+              pageData.map((t) => {
+                const isSelected = selectedIds.has(t.id);
+                return (
+                  <TableRow
+                    key={t.id}
+                    className="border-border/20 hover:bg-muted/40 transition-colors group"
+                  >
+                    {/* Checkbox: invisible by default, visible on row hover or when selected */}
+                    <TableCell className="px-2 py-2.5">
+                      <div className={`transition-opacity duration-200 ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-60"}`}>
+                        <Checkbox checked={isSelected} onCheckedChange={() => toggleSelect(t.id)} />
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs font-mono text-primary/80 py-2.5">{t.id}</TableCell>
+                    <TableCell className="text-sm font-medium text-foreground py-2.5">{t.name}</TableCell>
+                    <TableCell className="py-2.5">
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                        {t.rank}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground py-2.5">{t.designation}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground tabular-nums py-2.5">{t.joinDate}</TableCell>
+                    <TableCell className="text-[11px] text-muted-foreground/80 font-mono truncate py-2.5" title={t.orgPath}>
+                      {t.orgPath}
+                    </TableCell>
+                    {/* Actions: only visible when selected */}
+                    <TableCell className="py-2.5">
+                      {isSelected && (
+                        <div className="flex items-center justify-center gap-1 animate-fade-in">
+                          {/* Edit only when single selection */}
+                          {!multiSelected && (
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handleEdit(t)}>
+                              <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                            </Button>
+                          )}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete trainee "{t.name}"?</AlertDialogTitle>
+                                <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteOne(t.id)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
