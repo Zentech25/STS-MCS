@@ -3,12 +3,16 @@ import { ChevronLeft, ChevronRight, Crosshair, Lock, Copy, Sun, Moon, Eye } from
 import { LaneAssignment, ExerciseConfig, PracticeType, TimeOfDay } from "./types";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
+import targetA from "@/assets/targets/humanoid-a.png";
+import targetB from "@/assets/targets/humanoid-b.png";
+import targetC from "@/assets/targets/humanoid-c.png";
+import targetD from "@/assets/targets/humanoid-d.png";
 
 const TARGET_TYPES = [
-  { id: "humanoid-a", label: "Standard Humanoid", preview: "🎯" },
-  { id: "humanoid-b", label: "Armored Humanoid", preview: "🛡️" },
-  { id: "humanoid-c", label: "Moving Target", preview: "🏃" },
-  { id: "humanoid-d", label: "Partial Exposure", preview: "👤" },
+  { id: "humanoid-a", label: "Standard Humanoid", preview: targetA },
+  { id: "humanoid-b", label: "Armored Humanoid", preview: targetB },
+  { id: "humanoid-c", label: "Moving Target", preview: targetC },
+  { id: "humanoid-d", label: "Partial Exposure", preview: targetD },
 ];
 
 const PRACTICE_TYPES: { id: PracticeType; label: string }[] = [
@@ -339,7 +343,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         style={{ background: "var(--surface-inset)", border: "1px solid var(--divider)" }}
                         title={target?.label}
                       >
-                        <span className="text-2xl leading-none">{target?.preview}</span>
+                        <img src={target?.preview} alt={target?.label} className="w-10 h-10 object-contain" loading="lazy" />
                         <span className="text-[7px] text-muted-foreground mt-0.5 text-center leading-tight px-0.5 truncate max-w-full">{target?.label?.split(" ")[0]}</span>
                       </div>
                     </div>
