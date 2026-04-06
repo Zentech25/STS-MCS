@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Users, Plus, Save, FolderOpen, X, ChevronRight, Search, UserPlus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Users, Plus, Save, FolderOpen, X, ChevronRight, Search, UserPlus, Trash2 } from "lucide-react";
 import { LaneAssignment, SavedGroup, Trainee } from "./types";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -22,7 +22,9 @@ const TRAINEE_POOL: Trainee[] = Array.from({ length: 30 }, (_, i) => {
   };
 });
 
-const SAVED_GROUPS: SavedGroup[] = [
+const GROUPS_KEY = "simulator_saved_groups";
+
+const DEFAULT_GROUPS: SavedGroup[] = [
   {
     id: "g1", name: "Alpha Squad - Morning", createdAt: "2026-04-01",
     lanes: [
@@ -43,6 +45,20 @@ const SAVED_GROUPS: SavedGroup[] = [
   },
 ];
 
+function loadGroups(): SavedGroup[] {
+  try {
+    const stored = localStorage.getItem(GROUPS_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  // Initialize with defaults
+  localStorage.setItem(GROUPS_KEY, JSON.stringify(DEFAULT_GROUPS));
+  return DEFAULT_GROUPS;
+}
+
+function saveGroupsToStorage(groups: SavedGroup[]) {
+  localStorage.setItem(GROUPS_KEY, JSON.stringify(groups));
+}
+
 interface Props {
   lanes: LaneAssignment[];
   onLanesChange: (lanes: LaneAssignment[]) => void;
@@ -50,6 +66,7 @@ interface Props {
 }
 
 export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
+  const [savedGroups, setSavedGroups] = useState<SavedGroup[]>(loadGroups());
   const [showGroupPicker, setShowGroupPicker] = useState(false);
   const [showTraineeSearch, setShowTraineeSearch] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -93,9 +110,25 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
 
   const handleSaveGroup = () => {
     if (!saveGroupName.trim()) return;
+    const newGroup: SavedGroup = {
+      id: `g-${Date.now()}`,
+      name: saveGroupName.trim(),
+      createdAt: new Date().toISOString().split("T")[0],
+      lanes: lanes.map((l) => ({ ...l, queue: [...l.queue] })),
+    };
+    const updated = [...savedGroups, newGroup];
+    setSavedGroups(updated);
+    saveGroupsToStorage(updated);
     toast.success(`Group "${saveGroupName}" saved successfully`);
     setSaveGroupName("");
     setShowSaveDialog(false);
+  };
+
+  const handleDeleteGroup = (id: string) => {
+    const updated = savedGroups.filter((g) => g.id !== id);
+    setSavedGroups(updated);
+    saveGroupsToStorage(updated);
+    toast.success("Group deleted");
   };
 
   const hasAnyTrainee = lanes.some((l) => l.queue.length > 0);
@@ -158,24 +191,38 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            {SAVED_GROUPS.map((g) => (
-              <button
-                key={g.id}
-                onClick={() => loadGroup(g)}
-                className="p-3.5 rounded-xl text-left transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
-                style={{
-                  background: "var(--surface-elevated)",
-                  border: "1px solid var(--divider)",
-                }}
-              >
-                <p className="text-sm font-semibold text-foreground">{g.name}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {g.lanes.reduce((a, l) => a + l.queue.length, 0)} trainees · {g.lanes.filter((l) => l.queue.length > 0).length} lanes · Created {g.createdAt}
-                </p>
-              </button>
-            ))}
-          </div>
+          {savedGroups.length === 0 ? (
+            <p className="text-[11px] text-muted-foreground py-3 text-center">No saved groups yet.</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              {savedGroups.map((g) => (
+                <div
+                  key={g.id}
+                  className="p-3.5 rounded-xl flex items-center gap-2 transition-all duration-200 hover:scale-[1.01] group"
+                  style={{
+                    background: "var(--surface-elevated)",
+                    border: "1px solid var(--divider)",
+                  }}
+                >
+                  <button
+                    onClick={() => loadGroup(g)}
+                    className="flex-1 text-left min-w-0"
+                  >
+                    <p className="text-sm font-semibold text-foreground truncate">{g.name}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {g.lanes.reduce((a, l) => a + l.queue.length, 0)} trainees · {g.lanes.filter((l) => l.queue.length > 0).length} lanes · Created {g.createdAt}
+                    </p>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteGroup(g.id)}
+                    className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all shrink-0"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
