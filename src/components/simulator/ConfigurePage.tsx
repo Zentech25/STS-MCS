@@ -63,7 +63,7 @@ export function ConfigurePage() {
       <div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="shrink-0 flex flex-col gap-1 py-3 px-2 overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out"
+        className="shrink-0 flex flex-col gap-1 py-3 px-2 overflow-y-auto overflow-x-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{
           width: hovered ? 200 : 56,
           background: "var(--surface-glass)",
@@ -78,7 +78,7 @@ export function ConfigurePage() {
             <button
               key={opt.id}
               onClick={() => setSelected(opt)}
-              className={`relative flex items-center gap-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.97] ${
+              className={`relative flex items-center gap-3 rounded-xl transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-[1.02] active:scale-[0.97] ${
                 hovered ? "px-3 py-2.5" : "w-10 h-10 justify-center"
               } ${isActive ? "shadow-lg" : "hover:bg-muted/50"}`}
               style={isActive ? {
@@ -92,7 +92,7 @@ export function ConfigurePage() {
               {/* Active indicator */}
               {isActive && (
                 <span
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full transition-all duration-200"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full transition-all duration-500"
                   style={{ background: `hsl(${opt.color})` }}
                 />
               )}
@@ -103,7 +103,7 @@ export function ConfigurePage() {
 
               {/* Label – only visible when expanded */}
               <span
-                className={`text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                className={`text-xs font-semibold whitespace-nowrap transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
                   hovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 w-0 overflow-hidden"
                 }`}
               >
