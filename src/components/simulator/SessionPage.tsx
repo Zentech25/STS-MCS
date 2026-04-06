@@ -23,10 +23,19 @@ const createDefaultExercises = (): ExerciseConfig[] =>
     laneId: id,
     type: "custom" as const,
     name: "",
+    practiceType: "grouping" as const,
+    weapon: "",
+    firingPosition: "",
+    range: 25,
     rounds: 10,
-    distance: 25,
-    timeLimit: 60,
+    timeOfDay: "day" as const,
+    visibility: 100,
     targetType: "humanoid-a",
+    timeLimit: 60,
+    exposure: 1,
+    upTime: 5,
+    downTime: 3,
+    distance: 25,
   }));
 
 export function SessionPage() {
