@@ -210,26 +210,57 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
               {savedGroups.map((g) => (
                 <div
                   key={g.id}
-                  className="p-3.5 rounded-xl flex items-center gap-2 transition-all duration-200 hover:scale-[1.01] group"
+                  className="p-3.5 rounded-xl flex items-center gap-2 transition-all duration-200 hover:scale-[1.01] group/card"
                   style={{
                     background: "var(--surface-elevated)",
                     border: "1px solid var(--divider)",
                   }}
                 >
-                  <button
-                    onClick={() => loadGroup(g)}
-                    className="flex-1 text-left min-w-0"
-                  >
-                    <p className="text-sm font-semibold text-foreground truncate">{g.name}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      {g.lanes.reduce((a, l) => a + l.queue.length, 0)} trainees · {g.lanes.filter((l) => l.queue.length > 0).length} lanes · Created {g.createdAt}
-                    </p>
-                  </button>
-                  <button
-                    onClick={() => handleDeleteGroup(g.id)}
-                    className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all shrink-0"
-                  >
-                    <X className="w-3.5 h-3.5" />
+                  {editingGroupId === g.id ? (
+                    <div className="flex-1 flex items-center gap-2 min-w-0">
+                      <Input
+                        autoFocus
+                        value={editGroupName}
+                        onChange={(e) => setEditGroupName(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleRenameGroup(g.id)}
+                        className="h-8 text-xs flex-1"
+                      />
+                      <button onClick={() => handleRenameGroup(g.id)} className="text-primary hover:scale-110 transition-all shrink-0">
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => setEditingGroupId(null)} className="text-muted-foreground hover:text-foreground transition-all shrink-0">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => loadGroup(g)}
+                        className="flex-1 text-left min-w-0"
+                      >
+                        <p className="text-sm font-semibold text-foreground truncate">{g.name}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          {g.lanes.reduce((a, l) => a + l.queue.length, 0)} trainees · {g.lanes.filter((l) => l.queue.length > 0).length} lanes · Created {g.createdAt}
+                        </p>
+                      </button>
+                      <button
+                        onClick={() => { setEditingGroupId(g.id); setEditGroupName(g.name); }}
+                        className="opacity-0 group-hover/card:opacity-100 text-muted-foreground hover:text-primary transition-all shrink-0"
+                        title="Rename"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteGroup(g.id)}
+                        className="opacity-0 group-hover/card:opacity-100 text-muted-foreground hover:text-destructive transition-all shrink-0"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
                   </button>
                 </div>
               ))}
