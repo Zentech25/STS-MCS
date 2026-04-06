@@ -33,6 +33,7 @@ interface Props {
 }
 
 export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack, onNext }: Props) {
+  const { weapons, positions } = useTrainingAssets();
   const [copyFromLane, setCopyFromLane] = useState<number | null>(null);
 
   const updateExercise = (laneId: number, update: Partial<ExerciseConfig>) => {
