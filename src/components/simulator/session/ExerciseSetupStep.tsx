@@ -3,12 +3,16 @@ import { ChevronLeft, ChevronRight, Crosshair, Lock, Copy, Sun, Moon, Eye } from
 import { LaneAssignment, ExerciseConfig, PracticeType, TimeOfDay } from "./types";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
+import targetA from "@/assets/targets/humanoid-a.png";
+import targetB from "@/assets/targets/humanoid-b.png";
+import targetC from "@/assets/targets/humanoid-c.png";
+import targetD from "@/assets/targets/humanoid-d.png";
 
 const TARGET_TYPES = [
-  { id: "humanoid-a", label: "Standard Humanoid", preview: "🎯" },
-  { id: "humanoid-b", label: "Armored Humanoid", preview: "🛡️" },
-  { id: "humanoid-c", label: "Moving Target", preview: "🏃" },
-  { id: "humanoid-d", label: "Partial Exposure", preview: "👤" },
+  { id: "humanoid-a", label: "Standard Humanoid", preview: targetA },
+  { id: "humanoid-b", label: "Armored Humanoid", preview: targetB },
+  { id: "humanoid-c", label: "Moving Target", preview: targetC },
+  { id: "humanoid-d", label: "Partial Exposure", preview: targetD },
 ];
 
 const PRACTICE_TYPES: { id: PracticeType; label: string }[] = [
