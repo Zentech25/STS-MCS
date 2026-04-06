@@ -25,6 +25,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
+    </TrainingAssetsProvider>
   </QueryClientProvider>
 );
 

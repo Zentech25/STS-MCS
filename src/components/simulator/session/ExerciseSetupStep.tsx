@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Crosshair, Lock, Copy, Sun, Moon, Eye } from
 import { LaneAssignment, ExerciseConfig, PracticeType, TimeOfDay } from "./types";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
+import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
 import targetA from "@/assets/targets/humanoid-a.png";
 import targetB from "@/assets/targets/humanoid-b.png";
 import targetC from "@/assets/targets/humanoid-c.png";
