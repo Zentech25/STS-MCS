@@ -49,7 +49,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
 
   const activeLanes = lanes.filter((l) => l.queue.length > 0);
 
-  const selectedTarget = (targetType: string) => TARGET_TYPES.find((t) => t.id === targetType);
+  const selectedTarget = (targetType: string) => TARGETS.find((t) => t.id === targetType);
 
   return (
     <div className="flex flex-col h-full gap-3">
