@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, Plus, Save, FolderOpen, X, ChevronRight, Search, UserPlus, Trash2 } from "lucide-react";
+import { Users, Plus, Save, FolderOpen, X, ChevronRight, Search, UserPlus, Trash2, Pencil, Check } from "lucide-react";
 import { LaneAssignment, SavedGroup, Trainee } from "./types";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
