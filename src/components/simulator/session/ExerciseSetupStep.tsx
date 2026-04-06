@@ -332,18 +332,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                 </div>
 
                 {/* Exercise config form */}
-                <div className="flex-1 p-3 flex flex-col gap-2.5 overflow-hidden">
-                  {/* Exercise Name */}
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Exercise Name</label>
-                    <Input
-                      value={exercise.name}
-                      onChange={(e) => updateExercise(lane.laneId, { name: e.target.value })}
-                      placeholder="e.g. CQB Drill 1"
-                      className="h-8 text-xs px-2.5"
-                    />
-                  </div>
-
+                <div className="flex-1 p-3 flex flex-col gap-2 overflow-hidden">
                   {/* Practice Type - toggle pills */}
                   <div>
                     <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Practice Type</label>
@@ -366,10 +355,9 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                   </div>
 
                   {/* Common fields - dense 2-col grid */}
-                  <div className="grid grid-cols-2 gap-x-2.5 gap-y-2">
-                    {/* Weapon */}
+                  <div className="grid grid-cols-2 gap-x-2.5 gap-y-1.5">
                     <div>
-                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Weapon</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Weapon</label>
                       <select
                         value={exercise.weapon}
                         onChange={(e) => updateExercise(lane.laneId, { weapon: e.target.value })}
@@ -381,10 +369,8 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         ))}
                       </select>
                     </div>
-
-                    {/* Firing Position */}
                     <div>
-                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Position</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Position</label>
                       <select
                         value={exercise.firingPosition}
                         onChange={(e) => updateExercise(lane.laneId, { firingPosition: e.target.value })}
@@ -396,10 +382,8 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         ))}
                       </select>
                     </div>
-
-                    {/* Range */}
                     <div>
-                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Range (m)</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Range (m)</label>
                       <Input
                         type="number"
                         value={exercise.range}
@@ -408,10 +392,8 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         min={5}
                       />
                     </div>
-
-                    {/* Rounds */}
                     <div>
-                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Rounds</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Rounds</label>
                       <Input
                         type="number"
                         value={exercise.rounds}
@@ -424,7 +406,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
 
                   {/* Time of Day */}
                   <div>
-                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Time of Day</label>
+                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Time of Day</label>
                     <div className="flex items-center gap-2">
                       <div className="grid grid-cols-2 gap-0.5 p-0.5 rounded-lg flex-1" style={{ background: "var(--surface-inset)" }}>
                         <button
@@ -465,34 +447,10 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                     </div>
                   </div>
 
-                  {/* Target Type with larger preview */}
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Target</label>
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={exercise.targetType}
-                        onChange={(e) => updateExercise(lane.laneId, { targetType: e.target.value })}
-                        className="sys-input h-8 text-xs flex-1 rounded-md px-2"
-                      >
-                        {TARGETS.map((t) => (
-                          <option key={t.id} value={t.id}>{t.label}</option>
-                        ))}
-                      </select>
-                      <div
-                        className="w-14 h-14 rounded-lg flex flex-col items-center justify-center shrink-0"
-                        style={{ background: "var(--surface-inset)", border: "1px solid var(--divider)" }}
-                        title={target?.label}
-                      >
-                        <img src={target?.image} alt={target?.label} className="w-10 h-10 object-contain" loading="lazy" />
-                        <span className="text-[7px] text-muted-foreground mt-0.5 text-center leading-tight px-0.5 truncate max-w-full">{target?.label?.split(" ")[0]}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Practice-type specific fields */}
+                  {/* Practice-type specific fields — ABOVE target */}
                   {exercise.practiceType === "timed" && (
                     <div>
-                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Time Limit (sec)</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Time Limit (sec)</label>
                       <Input
                         type="number"
                         value={exercise.timeLimit}
@@ -506,7 +464,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                   {exercise.practiceType === "snapshot" && (
                     <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Exposure</label>
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Exposure</label>
                         <Input
                           type="number"
                           value={exercise.exposure}
@@ -516,7 +474,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Up (sec)</label>
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Up (sec)</label>
                         <Input
                           type="number"
                           value={exercise.upTime}
@@ -526,7 +484,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Down (sec)</label>
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Down (sec)</label>
                         <Input
                           type="number"
                           value={exercise.downTime}
@@ -537,6 +495,32 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                       </div>
                     </div>
                   )}
+
+                  {/* Target — at bottom with large preview */}
+                  <div className="flex-1 flex flex-col min-h-0">
+                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block shrink-0">Target</label>
+                    <select
+                      value={exercise.targetType}
+                      onChange={(e) => updateExercise(lane.laneId, { targetType: e.target.value })}
+                      className="sys-input h-7 text-[10px] w-full rounded-md px-2 shrink-0 mb-1.5"
+                    >
+                      {TARGETS.map((t) => (
+                        <option key={t.id} value={t.id}>{t.label}</option>
+                      ))}
+                    </select>
+                    <div
+                      className="flex-1 rounded-lg flex items-center justify-center min-h-0 overflow-hidden"
+                      style={{ background: "var(--surface-inset)", border: "1px solid var(--divider)" }}
+                      title={target?.label}
+                    >
+                      <img
+                        src={target?.image}
+                        alt={target?.label}
+                        className="max-w-full max-h-full object-contain p-1"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             );
