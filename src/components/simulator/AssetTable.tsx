@@ -25,11 +25,17 @@ interface AssetTableProps {
   onAdd: (label: string) => void;
   onDelete: (id: string) => void;
   singularName: string;
+  showSearch?: boolean;
 }
 
-export function AssetTable({ title, icon, accentColor, items, onAdd, onDelete, singularName }: AssetTableProps) {
+export function AssetTable({ title, icon, accentColor, items, onAdd, onDelete, singularName, showSearch = false }: AssetTableProps) {
   const [newValue, setNewValue] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filteredItems = showSearch && search
+    ? items.filter((i) => i.label.toLowerCase().includes(search.toLowerCase()))
+    : items;
 
   const handleAdd = () => {
     const trimmed = newValue.trim();
