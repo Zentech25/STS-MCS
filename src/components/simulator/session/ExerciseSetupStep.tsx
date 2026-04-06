@@ -116,8 +116,8 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                   key={lane.laneId}
                   className="glass-panel flex flex-col items-center justify-center opacity-40"
                 >
-                  <p className="text-[10px] text-muted-foreground font-medium">Lane {lane.laneId}</p>
-                  <p className="text-[9px] text-muted-foreground">No trainees</p>
+                   <p className="text-xs text-muted-foreground font-medium">Lane {lane.laneId}</p>
+                   <p className="text-[10px] text-muted-foreground">No trainees</p>
                 </div>
               );
             }
