@@ -306,36 +306,13 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
                   </PopoverContent>
                 </Popover>
               </div>
-            </div>
-          </div>
-
-          {/* Section 3: Organization */}
-          <div className="w-[260px] shrink-0 flex flex-col min-w-0">
-            <div className="px-4 py-2 shrink-0" style={{ borderBottom: "1px solid hsl(var(--border) / 0.4)" }}>
-              <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider"></h3>
-            </div>
-            <div className="flex-1 p-4 flex flex-col gap-2.5">
-              {(["organization", "regiment", "unit", "platoon", "section"] as const).map((key) => (
-                <div key={key}>
-                  <Label className="text-[11px] text-muted-foreground capitalize">{key}</Label>
-                  <Input
-                    readOnly
-                    value={orgFields[key]}
-                    placeholder="—"
-                    className="h-8 text-xs mt-1 bg-muted/30 cursor-default"
-                  />
+              {/* Path display */}
+              {fullPath && (
+                <div className="mt-1">
+                  <Label className="text-[11px] text-muted-foreground">Selected Path</Label>
+                  <p className="text-xs font-mono text-primary mt-1 truncate" title={fullPath}>{fullPath}</p>
                 </div>
-              ))}
-              <div>
-                <Label className="text-[11px] text-muted-foreground">Path</Label>
-                <Input
-                  readOnly
-                  value={fullPath}
-                  placeholder="Select a node from ORBAT"
-                  className="h-8 text-[10px] mt-1 bg-muted/30 cursor-default font-mono"
-                  title={fullPath}
-                />
-              </div>
+              )}
             </div>
           </div>
         </div>
