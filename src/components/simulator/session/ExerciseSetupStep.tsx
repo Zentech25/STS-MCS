@@ -48,6 +48,8 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
   const [showSavePreset, setShowSavePreset] = useState(false);
   const [showLoadPreset, setShowLoadPreset] = useState(false);
   const [presetName, setPresetName] = useState("");
+  const [editingPresetId, setEditingPresetId] = useState<string | null>(null);
+  const [editPresetName, setEditPresetName] = useState("");
 
   const handleSavePreset = () => {
     if (!presetName.trim()) return;
