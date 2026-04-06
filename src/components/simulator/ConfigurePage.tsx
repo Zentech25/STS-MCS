@@ -1,11 +1,12 @@
 import { useState } from "react";
 import {
-  Users, Shield, Crosshair, Wrench,
+  Users, Shield, Crosshair, Wrench, Swords,
   Target, Power, Layers,
 } from "lucide-react";
 import { OrbatPage } from "./OrbatPage";
 import { TraineePage } from "./TraineePage";
 import { FiringWeaponPage } from "./FiringWeaponPage";
+import { WeaponsPage } from "./WeaponsPage";
 import { BatchesPage } from "./BatchesPage";
 import { TargetRegionScoresPage } from "./TargetRegionScoresPage";
 import { SystemActionsPage } from "./SystemActionsPage";
@@ -21,7 +22,8 @@ interface ConfigOption {
 const CONFIG_OPTIONS: ConfigOption[] = [
   { id: "trainee", label: "Trainee", icon: <Users className="w-5 h-5" />, color: "217 91% 60%", description: "Manage trainee profiles and assignments" },
   { id: "orbat", label: "ORBAT", icon: <Shield className="w-5 h-5" />, color: "280 65% 60%", description: "Order of Battle configuration" },
-  { id: "firing-weapon", label: "Training Assets", icon: <Crosshair className="w-5 h-5" />, color: "40 96% 53%", description: "Manage positions, weapons & ranks" },
+  { id: "weapons", label: "Weapons", icon: <Swords className="w-5 h-5" />, color: "200 80% 50%", description: "Manage weapon inventory" },
+  { id: "firing-weapon", label: "Positions & Ranks", icon: <Crosshair className="w-5 h-5" />, color: "40 96% 53%", description: "Firing positions & rank configuration" },
   { id: "batches", label: "Batches", icon: <Layers className="w-5 h-5" />, color: "160 72% 42%", description: "Manage training batches" },
   { id: "arc-tool", label: "ARC Tool", icon: <Wrench className="w-5 h-5" />, color: "340 75% 55%", description: "ARC calibration & tools" },
   { id: "target-region-scores", label: "Target Region Scores", icon: <Target className="w-5 h-5" />, color: "4 80% 58%", description: "Scoring zones and point values" },
@@ -31,6 +33,7 @@ const CONFIG_OPTIONS: ConfigOption[] = [
 function ConfigContent({ option }: { option: ConfigOption }) {
   if (option.id === "orbat") return <OrbatPage />;
   if (option.id === "trainee") return <TraineePage />;
+  if (option.id === "weapons") return <WeaponsPage />;
   if (option.id === "firing-weapon") return <FiringWeaponPage />;
   if (option.id === "batches") return <BatchesPage />;
   if (option.id === "target-region-scores") return <TargetRegionScoresPage />;
