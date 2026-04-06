@@ -187,28 +187,28 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                   )}
                 </div>
 
-                {/* Exercise config form - very compact, no scroll */}
-                <div className="flex-1 p-2.5 flex flex-col gap-2">
+                {/* Exercise config form */}
+                <div className="flex-1 p-3 flex flex-col gap-2.5 overflow-hidden">
                   {/* Exercise Name */}
                   <div>
-                    <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Exercise Name</label>
+                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Exercise Name</label>
                     <Input
                       value={exercise.name}
                       onChange={(e) => updateExercise(lane.laneId, { name: e.target.value })}
                       placeholder="e.g. CQB Drill 1"
-                      className="h-7 text-[10px] px-2"
+                      className="h-8 text-xs px-2.5"
                     />
                   </div>
 
                   {/* Practice Type - toggle pills */}
                   <div>
-                    <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Practice Type</label>
+                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Practice Type</label>
                     <div className="grid grid-cols-4 gap-0.5 p-0.5 rounded-lg" style={{ background: "var(--surface-inset)" }}>
                       {PRACTICE_TYPES.map((pt) => (
                         <button
                           key={pt.id}
                           onClick={() => updateExercise(lane.laneId, { practiceType: pt.id })}
-                          className={`text-[8px] font-semibold py-1 rounded-md transition-all ${
+                          className={`text-[10px] font-semibold py-1.5 rounded-md transition-all ${
                             exercise.practiceType === pt.id
                               ? "text-primary-foreground shadow-sm"
                               : "text-muted-foreground hover:text-foreground"
@@ -222,14 +222,14 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                   </div>
 
                   {/* Common fields - dense 2-col grid */}
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                  <div className="grid grid-cols-2 gap-x-2.5 gap-y-2">
                     {/* Weapon */}
                     <div>
-                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Weapon</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Weapon</label>
                       <select
                         value={exercise.weapon}
                         onChange={(e) => updateExercise(lane.laneId, { weapon: e.target.value })}
-                        className="sys-input h-7 text-[10px] w-full rounded-md px-1.5"
+                        className="sys-input h-8 text-xs w-full rounded-md px-2"
                       >
                         <option value="">Select...</option>
                         {WEAPONS.map((w) => (
@@ -240,11 +240,11 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
 
                     {/* Firing Position */}
                     <div>
-                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Position</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Position</label>
                       <select
                         value={exercise.firingPosition}
                         onChange={(e) => updateExercise(lane.laneId, { firingPosition: e.target.value })}
-                        className="sys-input h-7 text-[10px] w-full rounded-md px-1.5"
+                        className="sys-input h-8 text-xs w-full rounded-md px-2"
                       >
                         <option value="">Select...</option>
                         {FIRING_POSITIONS.map((fp) => (
@@ -255,24 +255,24 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
 
                     {/* Range */}
                     <div>
-                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Range (m)</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Range (m)</label>
                       <Input
                         type="number"
                         value={exercise.range}
                         onChange={(e) => updateExercise(lane.laneId, { range: Number(e.target.value), distance: Number(e.target.value) })}
-                        className="h-7 text-[10px] px-2"
+                        className="h-8 text-xs px-2.5"
                         min={5}
                       />
                     </div>
 
                     {/* Rounds */}
                     <div>
-                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Rounds</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Rounds</label>
                       <Input
                         type="number"
                         value={exercise.rounds}
                         onChange={(e) => updateExercise(lane.laneId, { rounds: Number(e.target.value) })}
-                        className="h-7 text-[10px] px-2"
+                        className="h-8 text-xs px-2.5"
                         min={1}
                       />
                     </div>
@@ -280,66 +280,67 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
 
                   {/* Time of Day */}
                   <div>
-                    <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Time of Day</label>
-                    <div className="flex items-center gap-1.5">
+                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Time of Day</label>
+                    <div className="flex items-center gap-2">
                       <div className="grid grid-cols-2 gap-0.5 p-0.5 rounded-lg flex-1" style={{ background: "var(--surface-inset)" }}>
                         <button
                           onClick={() => updateExercise(lane.laneId, { timeOfDay: "day", visibility: 100 })}
-                          className={`flex items-center justify-center gap-1 text-[9px] font-semibold py-1 rounded-md transition-all ${
+                          className={`flex items-center justify-center gap-1.5 text-[11px] font-semibold py-1.5 rounded-md transition-all ${
                             exercise.timeOfDay === "day"
                               ? "bg-amber-500/90 text-white shadow-sm"
                               : "text-muted-foreground hover:text-foreground"
                           }`}
                         >
-                          <Sun className="w-2.5 h-2.5" /> Day
+                          <Sun className="w-3.5 h-3.5" /> Day
                         </button>
                         <button
                           onClick={() => updateExercise(lane.laneId, { timeOfDay: "night" })}
-                          className={`flex items-center justify-center gap-1 text-[9px] font-semibold py-1 rounded-md transition-all ${
+                          className={`flex items-center justify-center gap-1.5 text-[11px] font-semibold py-1.5 rounded-md transition-all ${
                             exercise.timeOfDay === "night"
                               ? "bg-indigo-600/90 text-white shadow-sm"
                               : "text-muted-foreground hover:text-foreground"
                           }`}
                         >
-                          <Moon className="w-2.5 h-2.5" /> Night
+                          <Moon className="w-3.5 h-3.5" /> Night
                         </button>
                       </div>
                       {exercise.timeOfDay === "night" && (
-                        <div className="flex items-center gap-1">
-                          <Eye className="w-3 h-3 text-muted-foreground shrink-0" />
+                        <div className="flex items-center gap-1.5">
+                          <Eye className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                           <Input
                             type="number"
                             value={exercise.visibility}
                             onChange={(e) => updateExercise(lane.laneId, { visibility: Math.min(100, Math.max(0, Number(e.target.value))) })}
-                            className="h-7 text-[10px] px-1.5 w-14"
+                            className="h-8 text-xs px-2 w-16"
                             min={0}
                             max={100}
                           />
-                          <span className="text-[8px] text-muted-foreground">%</span>
+                          <span className="text-[10px] text-muted-foreground">%</span>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Target Type with preview */}
+                  {/* Target Type with larger preview */}
                   <div>
-                    <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Target</label>
-                    <div className="flex items-center gap-1.5">
+                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Target</label>
+                    <div className="flex items-center gap-2">
                       <select
                         value={exercise.targetType}
                         onChange={(e) => updateExercise(lane.laneId, { targetType: e.target.value })}
-                        className="sys-input h-7 text-[10px] flex-1 rounded-md px-1.5"
+                        className="sys-input h-8 text-xs flex-1 rounded-md px-2"
                       >
                         {TARGET_TYPES.map((t) => (
                           <option key={t.id} value={t.id}>{t.label}</option>
                         ))}
                       </select>
                       <div
-                        className="w-7 h-7 rounded-md flex items-center justify-center text-sm shrink-0"
+                        className="w-14 h-14 rounded-lg flex flex-col items-center justify-center shrink-0"
                         style={{ background: "var(--surface-inset)", border: "1px solid var(--divider)" }}
                         title={target?.label}
                       >
-                        {target?.preview}
+                        <span className="text-2xl leading-none">{target?.preview}</span>
+                        <span className="text-[7px] text-muted-foreground mt-0.5 text-center leading-tight px-0.5 truncate max-w-full">{target?.label?.split(" ")[0]}</span>
                       </div>
                     </div>
                   </div>
@@ -347,46 +348,46 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                   {/* Practice-type specific fields */}
                   {exercise.practiceType === "timed" && (
                     <div>
-                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Time Limit (sec)</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Time Limit (sec)</label>
                       <Input
                         type="number"
                         value={exercise.timeLimit}
                         onChange={(e) => updateExercise(lane.laneId, { timeLimit: Number(e.target.value) })}
-                        className="h-7 text-[10px] px-2"
+                        className="h-8 text-xs px-2.5"
                         min={1}
                       />
                     </div>
                   )}
 
                   {exercise.practiceType === "snapshot" && (
-                    <div className="grid grid-cols-3 gap-1.5">
+                    <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Exposure</label>
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Exposure</label>
                         <Input
                           type="number"
                           value={exercise.exposure}
                           onChange={(e) => updateExercise(lane.laneId, { exposure: Number(e.target.value) })}
-                          className="h-7 text-[10px] px-1.5"
+                          className="h-8 text-xs px-2"
                           min={1}
                         />
                       </div>
                       <div>
-                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Up (sec)</label>
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Up (sec)</label>
                         <Input
                           type="number"
                           value={exercise.upTime}
                           onChange={(e) => updateExercise(lane.laneId, { upTime: Number(e.target.value) })}
-                          className="h-7 text-[10px] px-1.5"
+                          className="h-8 text-xs px-2"
                           min={1}
                         />
                       </div>
                       <div>
-                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Down (sec)</label>
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Down (sec)</label>
                         <Input
                           type="number"
                           value={exercise.downTime}
                           onChange={(e) => updateExercise(lane.laneId, { downTime: Number(e.target.value) })}
-                          className="h-7 text-[10px] px-1.5"
+                          className="h-8 text-xs px-2"
                           min={1}
                         />
                       </div>
