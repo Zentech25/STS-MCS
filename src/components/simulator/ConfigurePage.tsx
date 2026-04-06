@@ -3,14 +3,12 @@ import {
   Users, Shield, Crosshair, Wrench,
   Target, Power, Layers,
 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OrbatPage } from "./OrbatPage";
 import { TraineePage } from "./TraineePage";
 import { FiringWeaponPage } from "./FiringWeaponPage";
 import { BatchesPage } from "./BatchesPage";
 import { TargetRegionScoresPage } from "./TargetRegionScoresPage";
 import { SystemActionsPage } from "./SystemActionsPage";
-
 
 interface ConfigOption {
   id: string;
@@ -57,12 +55,17 @@ function ConfigContent({ option }: { option: ConfigOption }) {
 
 export function ConfigurePage() {
   const [selected, setSelected] = useState<ConfigOption>(CONFIG_OPTIONS[0]);
+  const [hovered, setHovered] = useState(false);
 
   return (
     <div className="h-full flex overflow-hidden">
+      {/* Sidebar – expands on hover */}
       <div
-        className="shrink-0 flex flex-col gap-1 py-3 px-2 overflow-y-auto"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className="shrink-0 flex flex-col gap-1 py-3 px-2 overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out"
         style={{
+          width: hovered ? 200 : 56,
           background: "var(--surface-glass)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
@@ -72,38 +75,46 @@ export function ConfigurePage() {
         {CONFIG_OPTIONS.map((opt) => {
           const isActive = selected.id === opt.id;
           return (
-            <Tooltip key={opt.id} delayDuration={300}>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setSelected(opt)}
-                  className={`relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 ${
-                    isActive ? "shadow-lg" : "hover:bg-muted/50"
-                  }`}
-                  style={isActive ? {
-                    background: `hsl(${opt.color} / 0.15)`,
-                    color: `hsl(${opt.color})`,
-                    boxShadow: `0 0 12px hsl(${opt.color} / 0.2)`,
-                  } : {
-                    color: "hsl(var(--muted-foreground))",
-                  }}
-                >
-                  {opt.icon}
-                  {isActive && (
-                    <span
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
-                      style={{ background: `hsl(${opt.color})` }}
-                    />
-                  )}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="right" className="text-xs font-semibold">
+            <button
+              key={opt.id}
+              onClick={() => setSelected(opt)}
+              className={`relative flex items-center gap-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.97] ${
+                hovered ? "px-3 py-2.5" : "w-10 h-10 justify-center"
+              } ${isActive ? "shadow-lg" : "hover:bg-muted/50"}`}
+              style={isActive ? {
+                background: `hsl(${opt.color} / 0.15)`,
+                color: `hsl(${opt.color})`,
+                boxShadow: `0 0 12px hsl(${opt.color} / 0.2)`,
+              } : {
+                color: "hsl(var(--muted-foreground))",
+              }}
+            >
+              {/* Active indicator */}
+              {isActive && (
+                <span
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full transition-all duration-200"
+                  style={{ background: `hsl(${opt.color})` }}
+                />
+              )}
+
+              <span className="shrink-0 w-5 h-5 flex items-center justify-center">
+                {opt.icon}
+              </span>
+
+              {/* Label – only visible when expanded */}
+              <span
+                className={`text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                  hovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 w-0 overflow-hidden"
+                }`}
+              >
                 {opt.label}
-              </TooltipContent>
-            </Tooltip>
+              </span>
+            </button>
           );
         })}
       </div>
 
+      {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="shrink-0 flex items-center gap-3 px-6 py-3" style={{ borderBottom: "1px solid var(--divider)" }}>
           <div
