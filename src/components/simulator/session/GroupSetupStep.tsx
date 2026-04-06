@@ -259,10 +259,8 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
                     </>
                   )}
                 </div>
-              ))}
+            </div>
           )}
-        </div>
-      )}
         </div>
       )}
 
