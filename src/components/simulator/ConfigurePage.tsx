@@ -10,7 +10,7 @@ import { FiringWeaponPage } from "./FiringWeaponPage";
 import { BatchesPage } from "./BatchesPage";
 import { TargetRegionScoresPage } from "./TargetRegionScoresPage";
 import { SystemActionsPage } from "./SystemActionsPage";
-import { RestartFpePage } from "./RestartFpePage";
+
 
 interface ConfigOption {
   id: string;
