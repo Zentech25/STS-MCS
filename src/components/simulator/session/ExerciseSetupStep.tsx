@@ -23,21 +23,6 @@ const PRACTICE_TYPES: { id: PracticeType; label: string }[] = [
   { id: "snapshot", label: "Snap Shot" },
 ];
 
-// These would come from the configure page in a real app
-const WEAPONS = [
-  { id: "ak", label: "AK-47" },
-  { id: "carbine", label: "Carbine" },
-  { id: "pistol", label: "Pistol" },
-  { id: "desert-eagle", label: "Desert Eagle" },
-  { id: "scar", label: "SCAR" },
-  { id: "m4a4", label: "M4A4" },
-];
-
-const FIRING_POSITIONS = [
-  { id: "standing", label: "Standing" },
-  { id: "kneeling", label: "Kneeling" },
-  { id: "prone", label: "Prone" },
-];
 
 interface Props {
   lanes: LaneAssignment[];
