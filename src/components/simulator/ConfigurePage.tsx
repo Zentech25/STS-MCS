@@ -6,6 +6,7 @@ import {
 import { OrbatPage } from "./OrbatPage";
 import { TraineePage } from "./TraineePage";
 import { FiringWeaponPage } from "./FiringWeaponPage";
+import { WeaponsPage } from "./WeaponsPage";
 import { BatchesPage } from "./BatchesPage";
 import { TargetRegionScoresPage } from "./TargetRegionScoresPage";
 import { SystemActionsPage } from "./SystemActionsPage";
