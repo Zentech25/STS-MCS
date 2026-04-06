@@ -238,7 +238,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         className="sys-input h-8 text-xs w-full rounded-md px-2"
                       >
                         <option value="">Select...</option>
-                        {FIRING_POSITIONS.map((fp) => (
+                        {positions.map((fp) => (
                           <option key={fp.id} value={fp.id}>{fp.label}</option>
                         ))}
                       </select>
