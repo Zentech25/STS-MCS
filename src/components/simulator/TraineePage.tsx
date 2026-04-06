@@ -1,11 +1,17 @@
 import { useState, useMemo } from "react";
-import { Search, UserPlus, RefreshCw, Building2 } from "lucide-react";
+import { Search, UserPlus, Trash2, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AddTraineeDialog } from "./AddTraineeDialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface Trainee {
   id: string;
@@ -16,7 +22,7 @@ interface Trainee {
   orgPath: string;
 }
 
-const SAMPLE_TRAINEES: Trainee[] = Array.from({ length: 47 }, (_, i) => {
+const INITIAL_TRAINEES: Trainee[] = Array.from({ length: 47 }, (_, i) => {
   const ranks = ["Pvt", "LCpl", "Cpl", "Sgt", "SSgt", "Lt", "Capt", "Maj"];
   const designations = ["Rifleman", "Marksman", "Grenadier", "SAW Gunner", "Team Leader", "Squad Leader"];
   const orgs = [
@@ -44,18 +50,72 @@ export function TraineePage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editTrainee, setEditTrainee] = useState<Trainee | null>(null);
+  const [trainees, setTrainees] = useState<Trainee[]>(INITIAL_TRAINEES);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return SAMPLE_TRAINEES;
+    if (!search.trim()) return trainees;
     const q = search.toLowerCase();
-    return SAMPLE_TRAINEES.filter(
+    return trainees.filter(
       (t) => t.name.toLowerCase().includes(q) || t.rank.toLowerCase().includes(q) || t.id.toLowerCase().includes(q),
     );
-  }, [search]);
+  }, [search, trainees]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pageData = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  const allPageSelected = pageData.length > 0 && pageData.every((t) => selectedIds.has(t.id));
+
+  const toggleSelectAll = () => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allPageSelected) {
+        pageData.forEach((t) => next.delete(t.id));
+      } else {
+        pageData.forEach((t) => next.add(t.id));
+      }
+      return next;
+    });
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkDelete = () => {
+    setTrainees((prev) => prev.filter((t) => !selectedIds.has(t.id)));
+    toast.success(`Deleted ${selectedIds.size} trainee(s).`);
+    setSelectedIds(new Set());
+  };
+
+  const handleDeleteOne = (id: string) => {
+    setTrainees((prev) => prev.filter((t) => t.id !== id));
+    setSelectedIds((prev) => { const n = new Set(prev); n.delete(id); return n; });
+    toast.success("Trainee deleted.");
+  };
+
+  const handleEdit = (t: Trainee) => {
+    setEditTrainee(t);
+  };
+
+  const handleEditSave = (updated: { name: string; rank: string; designation: string; orgPath: string; photo: string | null }) => {
+    if (!editTrainee) return;
+    setTrainees((prev) =>
+      prev.map((t) =>
+        t.id === editTrainee.id
+          ? { ...t, name: updated.name, rank: updated.rank, designation: updated.designation, orgPath: updated.orgPath }
+          : t,
+      ),
+    );
+    setEditTrainee(null);
+    toast.success("Trainee updated.");
+  };
 
   return (
     <div className="h-full flex flex-col p-5 gap-4 overflow-hidden animate-fade-in">
@@ -72,17 +132,29 @@ export function TraineePage() {
         </div>
 
         <div className="flex items-center gap-2 ml-auto">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-            <Building2 className="w-3.5 h-3.5" />
-            Modify Organization
-          </Button>
+          {selectedIds.size > 0 && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" className="gap-1.5 text-xs">
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Delete {selectedIds.size} Selected
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete {selectedIds.size} trainee(s)?</AlertDialogTitle>
+                  <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleBulkDelete}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           <Button size="sm" className="gap-1.5 text-xs" onClick={() => setAddDialogOpen(true)}>
             <UserPlus className="w-3.5 h-3.5" />
             Add New Trainee
-          </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-            <RefreshCw className="w-3.5 h-3.5" />
-            Refresh from CS
           </Button>
         </div>
       </div>
@@ -95,24 +167,31 @@ export function TraineePage() {
         <Table className="table-fixed w-full">
           <TableHeader>
             <TableRow className="border-border/30 hover:bg-transparent">
-              <TableHead className="text-xs font-semibold text-muted-foreground w-[10%]">Trainee ID</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground w-[18%]">Name</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground w-[8%]">Rank</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground w-[14%]">Designation</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground w-[12%]">Join Date</TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground w-[38%]">Organization Path</TableHead>
+              <TableHead className="w-[40px] px-2">
+                <Checkbox checked={allPageSelected} onCheckedChange={toggleSelectAll} />
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[9%]">Trainee ID</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[15%]">Name</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[7%]">Rank</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[12%]">Designation</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[10%]">Join Date</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[35%]">Organization Path</TableHead>
+              <TableHead className="text-xs font-semibold text-muted-foreground w-[80px] text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {pageData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-12">
+                <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-12">
                   No trainees found
                 </TableCell>
               </TableRow>
             ) : (
               pageData.map((t) => (
-                <TableRow key={t.id} className="border-border/20 cursor-pointer hover:bg-muted/40 transition-colors">
+                <TableRow key={t.id} className="border-border/20 hover:bg-muted/40 transition-colors">
+                  <TableCell className="px-2 py-2.5">
+                    <Checkbox checked={selectedIds.has(t.id)} onCheckedChange={() => toggleSelect(t.id)} />
+                  </TableCell>
                   <TableCell className="text-xs font-mono text-primary/80 py-2.5">{t.id}</TableCell>
                   <TableCell className="text-sm font-medium text-foreground py-2.5">{t.name}</TableCell>
                   <TableCell className="py-2.5">
@@ -124,6 +203,30 @@ export function TraineePage() {
                   <TableCell className="text-xs text-muted-foreground tabular-nums py-2.5">{t.joinDate}</TableCell>
                   <TableCell className="text-[11px] text-muted-foreground/80 font-mono truncate py-2.5" title={t.orgPath}>
                     {t.orgPath}
+                  </TableCell>
+                  <TableCell className="py-2.5">
+                    <div className="flex items-center justify-center gap-1">
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handleEdit(t)}>
+                        <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete trainee "{t.name}"?</AlertDialogTitle>
+                            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteOne(t.id)}>Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -138,14 +241,7 @@ export function TraineePage() {
           Showing {filtered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length} trainees
         </span>
         <div className="flex items-center gap-1">
-          <Button
-            variant="outline" size="sm"
-            className="h-7 px-2 text-xs"
-            disabled={safePage <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Previous
-          </Button>
+          <Button variant="outline" size="sm" className="h-7 px-2 text-xs" disabled={safePage <= 1} onClick={() => setPage((p) => p - 1)}>Previous</Button>
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter((p) => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
             .reduce<(number | "ellipsis")[]>((acc, p, idx, arr) => {
@@ -157,28 +253,33 @@ export function TraineePage() {
               item === "ellipsis" ? (
                 <span key={`e${idx}`} className="px-1">…</span>
               ) : (
-                <Button
-                  key={item}
-                  variant={item === safePage ? "default" : "outline"}
-                  size="sm"
-                  className="h-7 w-7 p-0 text-xs"
-                  onClick={() => setPage(item)}
-                >
-                  {item}
-                </Button>
+                <Button key={item} variant={item === safePage ? "default" : "outline"} size="sm" className="h-7 w-7 p-0 text-xs" onClick={() => setPage(item)}>{item}</Button>
               ),
             )}
-          <Button
-            variant="outline" size="sm"
-            className="h-7 px-2 text-xs"
-            disabled={safePage >= totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </Button>
+          <Button variant="outline" size="sm" className="h-7 px-2 text-xs" disabled={safePage >= totalPages} onClick={() => setPage((p) => p + 1)}>Next</Button>
         </div>
       </div>
+
+      {/* Add dialog */}
       <AddTraineeDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
+
+      {/* Edit dialog */}
+      {editTrainee && (
+        <AddTraineeDialog
+          open={true}
+          onOpenChange={(open) => { if (!open) setEditTrainee(null); }}
+          editMode
+          initialData={{
+            traineeId: editTrainee.id,
+            name: editTrainee.name,
+            rank: editTrainee.rank,
+            designation: editTrainee.designation,
+            joinDate: editTrainee.joinDate,
+            orgPath: editTrainee.orgPath,
+          }}
+          onSave={handleEditSave}
+        />
+      )}
     </div>
   );
 }

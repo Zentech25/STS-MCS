@@ -1,9 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   ChevronRight, ChevronDown, Building2, Shield, Users, Crosshair, UserCheck,
   ImagePlus,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
@@ -32,7 +32,6 @@ const ICON_MAP: Record<OrbatNode["type"], typeof Building2> = {
 const RANKS = ["Pvt", "LCpl", "Cpl", "Sgt", "SSgt", "Lt", "Capt", "Maj", "LtCol", "Col"];
 const DESIGNATIONS = ["Rifleman", "Marksman", "Grenadier", "SAW Gunner", "Team Leader", "Squad Leader", "Medic", "Signaller"];
 
-// ── Mini tree for selection ───────────────────────────────
 function SelectableTreeNode({
   node, depth, selectedId, onSelect, onToggle,
 }: {
@@ -92,13 +91,22 @@ function SelectableTreeNode({
 interface AddTraineeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editMode?: boolean;
+  initialData?: {
+    traineeId: string;
+    name: string;
+    rank: string;
+    designation: string;
+    joinDate: string;
+    orgPath: string;
+  };
+  onSave?: (data: { name: string; rank: string; designation: string; orgPath: string; photo: string | null }) => void;
 }
 
-export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) {
+export function AddTraineeDialog({ open, onOpenChange, editMode, initialData, onSave }: AddTraineeDialogProps) {
   const [tree, setTree] = useState<OrbatNode[]>(INITIAL_ORBAT);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // Form state
   const [traineeId, setTraineeId] = useState("");
   const [name, setName] = useState("");
   const [rank, setRank] = useState("");
@@ -107,13 +115,28 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
   const [photo, setPhoto] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
 
+  // Populate fields when editing
+  useEffect(() => {
+    if (editMode && initialData && open) {
+      setTraineeId(initialData.traineeId);
+      setName(initialData.name);
+      setRank(initialData.rank);
+      setDesignation(initialData.designation);
+      try { setJoinDate(parseISO(initialData.joinDate)); } catch { setJoinDate(undefined); }
+      setPhoto(null);
+      setSelectedNodeId(null);
+    } else if (!editMode && open) {
+      setTraineeId(""); setName(""); setRank(""); setDesignation("");
+      setJoinDate(undefined); setPhoto(null); setSelectedNodeId(null);
+    }
+  }, [editMode, initialData, open]);
+
   const toggleNode = useCallback((id: string) => {
     setTree((prev) => mapTree(prev, id, (n) => ({ ...n, expanded: !n.expanded })));
   }, []);
 
-  // Derive path from selection
   const path = selectedNodeId ? getNodePath(tree, selectedNodeId) : null;
-  const fullPath = path ? path.map((n) => n.name).join(" / ") : "";
+  const fullPath = path ? path.map((n) => n.name).join(" / ") : (editMode && initialData ? initialData.orgPath : "");
 
   const handlePhotoSelect = () => {
     const input = document.createElement("input");
@@ -131,23 +154,33 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
   };
 
   const handleSubmit = () => {
-    if (!traineeId || !name || !rank || !designation || !joinDate || !selectedNodeId) {
-      toast.error("Please fill in all required fields and select an ORBAT node.");
+    if (!traineeId || !name || !rank || !designation || !joinDate) {
+      toast.error("Please fill in all required fields.");
       return;
     }
-    toast.success(`Trainee "${name}" added successfully.`);
-    onOpenChange(false);
-    // Reset
-    setTraineeId(""); setName(""); setRank(""); setDesignation("");
-    setJoinDate(undefined); setPhoto(null); setSelectedNodeId(null);
+    if (!editMode && !selectedNodeId) {
+      toast.error("Please select an ORBAT node.");
+      return;
+    }
+
+    if (editMode && onSave) {
+      onSave({ name, rank, designation, orgPath: fullPath, photo });
+    } else {
+      toast.success(`Trainee "${name}" added successfully.`);
+      onOpenChange(false);
+      setTraineeId(""); setName(""); setRank(""); setDesignation("");
+      setJoinDate(undefined); setPhoto(null); setSelectedNodeId(null);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[720px] w-[95vw] p-0 gap-0 overflow-hidden flex flex-col" style={{ maxHeight: "85vh" }}>
         <DialogHeader className="px-5 pt-4 pb-3" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
-          <DialogTitle className="text-base">Add New Trainee</DialogTitle>
-          <DialogDescription className="text-xs">Fill in the details and select an ORBAT node to assign the trainee.</DialogDescription>
+          <DialogTitle className="text-base">{editMode ? "Edit Trainee" : "Add New Trainee"}</DialogTitle>
+          <DialogDescription className="text-xs">
+            {editMode ? "Update trainee details. ID and join date cannot be changed." : "Fill in the details and select an ORBAT node to assign the trainee."}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex gap-0 flex-1 min-h-0 overflow-hidden">
@@ -200,7 +233,8 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
                       value={traineeId}
                       onChange={(e) => setTraineeId(e.target.value)}
                       placeholder="TRN-0001"
-                      className="h-8 text-xs mt-1"
+                      className={cn("h-8 text-xs mt-1", editMode && "opacity-50 cursor-not-allowed bg-muted")}
+                      disabled={editMode}
                     />
                   </div>
                   <div>
@@ -244,68 +278,77 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
               {/* Date of Joining */}
               <div>
                 <Label className="text-[11px] text-muted-foreground">Date of Joining</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full h-8 justify-start text-left text-xs font-normal mt-1",
-                        !joinDate && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="w-3.5 h-3.5 mr-2" />
-                      {joinDate ? format(joinDate, "PPP") : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <div className="flex items-center justify-between gap-1 px-3 pt-3 pb-1">
-                      <Select
-                        value={String(calendarMonth.getMonth())}
-                        onValueChange={(v) => {
-                          const d = new Date(calendarMonth);
-                          d.setMonth(Number(v));
-                          setCalendarMonth(d);
-                        }}
+                {editMode ? (
+                  <Input
+                    value={joinDate ? format(joinDate, "PPP") : ""}
+                    className="h-8 text-xs mt-1 opacity-50 cursor-not-allowed bg-muted"
+                    disabled
+                  />
+                ) : (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full h-8 justify-start text-left text-xs font-normal mt-1",
+                          !joinDate && "text-muted-foreground",
+                        )}
                       >
-                        <SelectTrigger className="h-7 text-xs w-[100px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => (
-                            <SelectItem key={i} value={String(i)} className="text-xs">{m}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        value={String((calendarMonth ?? new Date()).getFullYear())}
-                        onValueChange={(v) => {
-                          const d = new Date(calendarMonth);
-                          d.setFullYear(Number(v));
-                          setCalendarMonth(d);
-                        }}
-                      >
-                        <SelectTrigger className="h-7 text-xs w-[80px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Array.from({ length: 31 }, (_, i) => 2000 + i).map((y) => (
-                            <SelectItem key={y} value={String(y)} className="text-xs">{y}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Calendar
-                      mode="single"
-                      month={calendarMonth}
-                      onMonthChange={setCalendarMonth}
-                      selected={joinDate}
-                      onSelect={setJoinDate}
-                      initialFocus
-                      className={cn("p-3 pt-1 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
+                        <CalendarIcon className="w-3.5 h-3.5 mr-2" />
+                        {joinDate ? format(joinDate, "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <div className="flex items-center justify-between gap-1 px-3 pt-3 pb-1">
+                        <Select
+                          value={String(calendarMonth.getMonth())}
+                          onValueChange={(v) => {
+                            const d = new Date(calendarMonth);
+                            d.setMonth(Number(v));
+                            setCalendarMonth(d);
+                          }}
+                        >
+                          <SelectTrigger className="h-7 text-xs w-[100px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => (
+                              <SelectItem key={i} value={String(i)} className="text-xs">{m}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={String((calendarMonth ?? new Date()).getFullYear())}
+                          onValueChange={(v) => {
+                            const d = new Date(calendarMonth);
+                            d.setFullYear(Number(v));
+                            setCalendarMonth(d);
+                          }}
+                        >
+                          <SelectTrigger className="h-7 text-xs w-[80px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 31 }, (_, i) => 2000 + i).map((y) => (
+                              <SelectItem key={y} value={String(y)} className="text-xs">{y}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Calendar
+                        mode="single"
+                        month={calendarMonth}
+                        onMonthChange={setCalendarMonth}
+                        selected={joinDate}
+                        onSelect={setJoinDate}
+                        initialFocus
+                        className={cn("p-3 pt-1 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
+
               {/* Path display */}
               {fullPath && (
                 <div className="mt-1">
@@ -319,7 +362,7 @@ export function AddTraineeDialog({ open, onOpenChange }: AddTraineeDialogProps) 
 
         <DialogFooter className="px-5 py-3 gap-2 sm:gap-2" style={{ borderTop: "1px solid hsl(var(--border))" }}>
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button size="sm" onClick={handleSubmit}>Add Trainee</Button>
+          <Button size="sm" onClick={handleSubmit}>{editMode ? "Save Changes" : "Add Trainee"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
