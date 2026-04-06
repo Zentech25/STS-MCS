@@ -109,6 +109,17 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
     setCopyFromLane(null);
   };
 
+  const copyToAllLanes = (fromLaneId: number, targetLaneIds: number[]) => {
+    const source = exercises.find((e) => e.laneId === fromLaneId);
+    if (!source) return;
+    const { laneId: _, ...config } = source;
+    onExercisesChange(
+      exercises.map((e) => targetLaneIds.includes(e.laneId) ? { ...e, ...config } : e)
+    );
+    toast({ title: `Copied to all lanes`, description: `Exercise config copied from Lane ${fromLaneId}` });
+    setCopyFromLane(null);
+  };
+
   const allConfigured = exercises
     .filter((e) => lanes.find((l) => l.laneId === e.laneId)?.queue.length)
     .every((e) => e.weapon !== "");
