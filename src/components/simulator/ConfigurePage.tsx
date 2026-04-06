@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   Users, Shield, Crosshair, Wrench,
-  Target, Power, RefreshCw, Layers,
+  Target, Power, Layers,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OrbatPage } from "./OrbatPage";
@@ -10,7 +10,7 @@ import { FiringWeaponPage } from "./FiringWeaponPage";
 import { BatchesPage } from "./BatchesPage";
 import { TargetRegionScoresPage } from "./TargetRegionScoresPage";
 import { SystemActionsPage } from "./SystemActionsPage";
-import { RestartFpePage } from "./RestartFpePage";
+
 
 interface ConfigOption {
   id: string;
@@ -27,8 +27,7 @@ const CONFIG_OPTIONS: ConfigOption[] = [
   { id: "batches", label: "Batches", icon: <Layers className="w-5 h-5" />, color: "160 72% 42%", description: "Manage training batches" },
   { id: "arc-tool", label: "ARC Tool", icon: <Wrench className="w-5 h-5" />, color: "340 75% 55%", description: "ARC calibration & tools" },
   { id: "target-region-scores", label: "Target Region Scores", icon: <Target className="w-5 h-5" />, color: "4 80% 58%", description: "Scoring zones and point values" },
-  { id: "system-actions", label: "System Actions", icon: <Power className="w-5 h-5" />, color: "0 70% 50%", description: "Shutdown, backup & restore operations" },
-  { id: "restart-fpe", label: "Restart FPE", icon: <RefreshCw className="w-5 h-5" />, color: "120 60% 40%", description: "Restart FPE service" },
+  { id: "system-actions", label: "System Actions", icon: <Power className="w-5 h-5" />, color: "0 70% 50%", description: "Database, FPE shutdown & maintenance" },
 ];
 
 function ConfigContent({ option }: { option: ConfigOption }) {
@@ -38,7 +37,6 @@ function ConfigContent({ option }: { option: ConfigOption }) {
   if (option.id === "batches") return <BatchesPage />;
   if (option.id === "target-region-scores") return <TargetRegionScoresPage />;
   if (option.id === "system-actions") return <SystemActionsPage />;
-  if (option.id === "restart-fpe") return <RestartFpePage />;
 
   return (
     <div className="flex-1 flex items-center justify-center p-8 animate-fade-in" key={option.id}>
