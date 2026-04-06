@@ -103,7 +103,7 @@ export function ConfigurePage() {
 
               {/* Label – only visible when expanded */}
               <span
-                className={`text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                className={`text-xs font-semibold whitespace-nowrap transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
                   hovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 w-0 overflow-hidden"
                 }`}
               >
