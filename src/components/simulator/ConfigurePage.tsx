@@ -92,7 +92,7 @@ export function ConfigurePage() {
               {/* Active indicator */}
               {isActive && (
                 <span
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full transition-all duration-200"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full transition-all duration-500"
                   style={{ background: `hsl(${opt.color})` }}
                 />
               )}
