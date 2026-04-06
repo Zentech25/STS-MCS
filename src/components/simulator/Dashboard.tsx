@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { HeaderBar } from "./HeaderBar";
-import { InstructorDashboard } from "./InstructorDashboard";
 import { AdministratorDashboard } from "./AdministratorDashboard";
 import { EngineerDashboard } from "./EngineerDashboard";
 import { SessionPage } from "./SessionPage";
 import { ConfigurePage } from "./ConfigurePage";
+import { LeaderboardPage } from "./LeaderboardPage";
 
-type Tab = "dashboard" | "configure" | "session";
+type Tab = "session" | "leaderboard" | "configure";
 
 export function Dashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<Tab>("dashboard");
+  const [activeTab, setActiveTab] = useState<Tab>("session");
 
   const isInstructor = user?.role === "instructor";
 
@@ -28,7 +28,7 @@ export function Dashboard() {
           WebkitBackdropFilter: "blur(16px)",
           borderBottom: `1px solid var(--divider)`,
         }}>
-          {(["dashboard", "configure", "session"] as Tab[]).map((tab) => (
+          {(["session", "leaderboard", "configure"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -50,11 +50,12 @@ export function Dashboard() {
       <main className="flex-1 overflow-hidden animate-fade-in" key={activeTab}>
         {isInstructor && activeTab === "configure" ? (
           <ConfigurePage />
+        ) : isInstructor && activeTab === "leaderboard" ? (
+          <LeaderboardPage />
         ) : isInstructor && activeTab === "session" ? (
           <SessionPage />
         ) : (
           <>
-            {user?.role === "instructor" && <InstructorDashboard />}
             {user?.role === "administrator" && <AdministratorDashboard />}
             {user?.role === "engineer" && <EngineerDashboard />}
           </>
