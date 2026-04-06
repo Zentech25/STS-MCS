@@ -1,38 +1,10 @@
-import { useState } from "react";
 import { Crosshair, Swords, Award } from "lucide-react";
-import { AssetTable, type AssetItem } from "./AssetTable";
+import { AssetTable } from "./AssetTable";
 import { toast } from "@/hooks/use-toast";
-
-const DEFAULT_POSITIONS: AssetItem[] = [
-  { id: "standing", label: "Standing" },
-  { id: "kneeling", label: "Kneeling" },
-  { id: "prone", label: "Prone" },
-];
-
-const DEFAULT_WEAPONS: AssetItem[] = [
-  { id: "ak", label: "AK-47" },
-  { id: "carbine", label: "Carbine" },
-  { id: "pistol", label: "Pistol" },
-  { id: "desert-eagle", label: "Desert Eagle" },
-  { id: "scar", label: "SCAR" },
-  { id: "m4a4", label: "M4A4" },
-];
-
-const DEFAULT_RANKS: AssetItem[] = [
-  { id: "pvt", label: "Private" },
-  { id: "cpl", label: "Corporal" },
-  { id: "sgt", label: "Sergeant" },
-  { id: "lt", label: "Lieutenant" },
-  { id: "capt", label: "Captain" },
-  { id: "maj", label: "Major" },
-  { id: "col", label: "Colonel" },
-  { id: "brig", label: "Brigadier" },
-];
+import { useTrainingAssets, type AssetItem } from "@/contexts/TrainingAssetsContext";
 
 export function FiringWeaponPage() {
-  const [positions, setPositions] = useState<AssetItem[]>(DEFAULT_POSITIONS);
-  const [weapons, setWeapons] = useState<AssetItem[]>(DEFAULT_WEAPONS);
-  const [ranks, setRanks] = useState<AssetItem[]>(DEFAULT_RANKS);
+  const { positions, setPositions, weapons, setWeapons, ranks, setRanks } = useTrainingAssets();
 
   const addItem = (setter: React.Dispatch<React.SetStateAction<AssetItem[]>>, type: string) => (label: string) => {
     setter((prev) => [...prev, { id: label.toLowerCase().replace(/\s+/g, "-"), label }]);
@@ -55,7 +27,6 @@ export function FiringWeaponPage() {
         onDelete={deleteItem(setPositions, "Position")}
         singularName="Position"
       />
-
       <AssetTable
         title="Weapons"
         icon={<Swords className="w-5 h-5" />}
@@ -65,7 +36,6 @@ export function FiringWeaponPage() {
         onDelete={deleteItem(setWeapons, "Weapon")}
         singularName="Weapon"
       />
-
       <AssetTable
         title="Ranks"
         icon={<Award className="w-5 h-5" />}

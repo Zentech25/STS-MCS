@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Crosshair, Lock, Copy, Sun, Moon, Eye } from
 import { LaneAssignment, ExerciseConfig, PracticeType, TimeOfDay } from "./types";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
+import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
 import targetA from "@/assets/targets/humanoid-a.png";
 import targetB from "@/assets/targets/humanoid-b.png";
 import targetC from "@/assets/targets/humanoid-c.png";
@@ -22,21 +23,6 @@ const PRACTICE_TYPES: { id: PracticeType; label: string }[] = [
   { id: "snapshot", label: "Snap Shot" },
 ];
 
-// These would come from the configure page in a real app
-const WEAPONS = [
-  { id: "ak", label: "AK-47" },
-  { id: "carbine", label: "Carbine" },
-  { id: "pistol", label: "Pistol" },
-  { id: "desert-eagle", label: "Desert Eagle" },
-  { id: "scar", label: "SCAR" },
-  { id: "m4a4", label: "M4A4" },
-];
-
-const FIRING_POSITIONS = [
-  { id: "standing", label: "Standing" },
-  { id: "kneeling", label: "Kneeling" },
-  { id: "prone", label: "Prone" },
-];
 
 interface Props {
   lanes: LaneAssignment[];
@@ -47,6 +33,7 @@ interface Props {
 }
 
 export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack, onNext }: Props) {
+  const { weapons, positions } = useTrainingAssets();
   const [copyFromLane, setCopyFromLane] = useState<number | null>(null);
 
   const updateExercise = (laneId: number, update: Partial<ExerciseConfig>) => {
@@ -236,7 +223,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         className="sys-input h-8 text-xs w-full rounded-md px-2"
                       >
                         <option value="">Select...</option>
-                        {WEAPONS.map((w) => (
+                        {weapons.map((w) => (
                           <option key={w.id} value={w.id}>{w.label}</option>
                         ))}
                       </select>
@@ -251,7 +238,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         className="sys-input h-8 text-xs w-full rounded-md px-2"
                       >
                         <option value="">Select...</option>
-                        {FIRING_POSITIONS.map((fp) => (
+                        {positions.map((fp) => (
                           <option key={fp.id} value={fp.id}>{fp.label}</option>
                         ))}
                       </select>
