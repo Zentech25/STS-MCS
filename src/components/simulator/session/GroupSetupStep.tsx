@@ -66,6 +66,7 @@ interface Props {
 }
 
 export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
+  const [savedGroups, setSavedGroups] = useState<SavedGroup[]>(loadGroups());
   const [showGroupPicker, setShowGroupPicker] = useState(false);
   const [showTraineeSearch, setShowTraineeSearch] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -109,9 +110,25 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
 
   const handleSaveGroup = () => {
     if (!saveGroupName.trim()) return;
+    const newGroup: SavedGroup = {
+      id: `g-${Date.now()}`,
+      name: saveGroupName.trim(),
+      createdAt: new Date().toISOString().split("T")[0],
+      lanes: lanes.map((l) => ({ ...l, queue: [...l.queue] })),
+    };
+    const updated = [...savedGroups, newGroup];
+    setSavedGroups(updated);
+    saveGroupsToStorage(updated);
     toast.success(`Group "${saveGroupName}" saved successfully`);
     setSaveGroupName("");
     setShowSaveDialog(false);
+  };
+
+  const handleDeleteGroup = (id: string) => {
+    const updated = savedGroups.filter((g) => g.id !== id);
+    setSavedGroups(updated);
+    saveGroupsToStorage(updated);
+    toast.success("Group deleted");
   };
 
   const hasAnyTrainee = lanes.some((l) => l.queue.length > 0);
