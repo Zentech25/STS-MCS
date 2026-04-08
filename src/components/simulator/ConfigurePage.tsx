@@ -10,6 +10,7 @@ import { WeaponsPage } from "./WeaponsPage";
 import { BatchesPage } from "./BatchesPage";
 import { TargetRegionScoresPage } from "./TargetRegionScoresPage";
 import { SystemActionsPage } from "./SystemActionsPage";
+import { ARCToolPage } from "./ARCToolPage";
 
 interface ConfigOption {
   id: string;
@@ -38,6 +39,7 @@ function ConfigContent({ option }: { option: ConfigOption }) {
   if (option.id === "batches") return <BatchesPage />;
   if (option.id === "target-region-scores") return <TargetRegionScoresPage />;
   if (option.id === "system-actions") return <SystemActionsPage />;
+  if (option.id === "arc-tool") return <ARCToolPage />;
 
   return (
     <div className="flex-1 flex items-center justify-center p-8 animate-fade-in" key={option.id}>
