@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef } from "react";
-import { Plus, Trash2, Upload, Save } from "lucide-react";
+import { Plus, Trash2, PlusCircle, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import { TARGETS } from "@/contexts/TargetsContext";
 import { useZoneHighlight } from "@/hooks/useZoneHighlight";
 import { TargetZonePreview } from "./TargetZonePreview";
+import { AddTargetDialog } from "./AddTargetDialog";
 
 /* ── Types ────────────────────────────────────────────────────── */
 
@@ -33,6 +34,7 @@ export function TargetRegionScoresPage() {
     { id: "r3", zone: 3, score: 8 },
   ]);
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const target = TARGETS.find((t) => t.id === selectedTarget)!;
   const usedZones = new Set(rows.map((r) => r.zone));
@@ -124,10 +126,10 @@ export function TargetRegionScoresPage() {
                 size="sm"
                 variant="outline"
                 className="h-9 rounded-xl gap-1.5 shrink-0"
-                onClick={() => toast({ title: "Import Target", description: "Target import dialog coming soon." })}
+                onClick={() => setAddDialogOpen(true)}
               >
-                <Upload className="w-3.5 h-3.5" />
-                Import
+                <PlusCircle className="w-3.5 h-3.5" />
+                Add Target
               </Button>
             </div>
           </div>
