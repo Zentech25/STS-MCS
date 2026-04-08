@@ -27,6 +27,7 @@ const ACCENT = "4 80% 58%";
 export function TargetRegionScoresPage() {
   const [selectedTarget, setSelectedTarget] = useState<string>(TARGETS[0].id);
   const [range, setRange] = useState("100");
+  const [totalZones, setTotalZones] = useState("8");
   const [exerciseType, setExerciseType] = useState<string>(EXERCISE_TYPES[0]);
   const [rows, setRows] = useState<ZoneRow[]>([
     { id: "r1", zone: 1, score: 10 },
