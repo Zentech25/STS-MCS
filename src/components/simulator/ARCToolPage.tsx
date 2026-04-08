@@ -1,9 +1,8 @@
-import { useState, useMemo, useCallback } from "react";
-import { Plus, Save, Trash2, RotateCcw, PlusCircle } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Plus, Save, Trash2, RotateCcw, PlusCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
 import { TARGETS } from "@/contexts/TargetsContext";
@@ -13,7 +12,6 @@ import { TARGETS } from "@/contexts/TargetsContext";
 const PRACTICE_TYPES = ["Grouping", "Application", "Timed", "Snap Shot"] as const;
 type PracticeType = (typeof PRACTICE_TYPES)[number];
 
-/* Hierarchical: weaponId → fireTypes[], each fireType → practices[] */
 interface FireTypeEntry {
   id: string;
   label: string;
@@ -60,16 +58,12 @@ interface ARCConfig {
   practiceType: PracticeType;
   roundsAllotted: number;
   timeOfPractice: "day" | "night";
-  // Grouping-specific
   acceptingGroupSize: number;
-  // Timed-specific
   timeSec: number;
   isBonusPoint: boolean;
-  // Snap Shot-specific
   exposures: number;
   upTime: number;
   downTime: number;
-  // Shared
   maxScorePerHit: number;
   scoreClassification: ScoreClassification;
   regions: RegionRow[];
@@ -98,8 +92,6 @@ const defaultConfig = (): ARCConfig => ({
   regions: [{ id: "reg1", regionNo: 1, fromSector: 1, toSector: 7, score: 1 }],
 });
 
-/* ── Helpers ──────────────────────────────────────────── */
-
 const hasSectorTable = (type: PracticeType) => type !== "Grouping";
 const hasScoreClassification = (type: PracticeType) => type !== "Grouping";
 
@@ -111,9 +103,9 @@ export function ARCToolPage() {
   const [savedConfigs, setSavedConfigs] = useState<ARCConfig[]>([]);
   const [fireMap, setFireMap] = useState<WeaponFireMap>(DEFAULT_FIRE_MAP);
 
-  /* ── Inline-add dialog state ── */
-  const [addDialogType, setAddDialogType] = useState<"weapon" | "fire" | "practice" | null>(null);
-  const [addDialogValue, setAddDialogValue] = useState("");
+  /* ── Inline add mode: which field is in "text input" mode ── */
+  const [addingField, setAddingField] = useState<"weapon" | "fire" | "practice" | null>(null);
+  const [inlineValue, setInlineValue] = useState("");
 
   const fireTypesForWeapon = useMemo(
     () => (config.weapon ? fireMap[config.weapon] ?? [] : []),
@@ -125,11 +117,21 @@ export function ARCToolPage() {
     return ft?.practices ?? [];
   }, [fireTypesForWeapon, config.typeOfFire]);
 
-  const handleAddEntry = () => {
-    const val = addDialogValue.trim();
+  /* Is the currently selected practice an existing one? */
+  const isExistingPractice = config.nameOfPractice !== "" && practicesForFire.includes(config.nameOfPractice);
+
+  const patch = (p: Partial<ARCConfig>) => setConfig((prev) => ({ ...prev, ...p }));
+  const patchClass = (p: Partial<ScoreClassification>) =>
+    setConfig((prev) => ({ ...prev, scoreClassification: { ...prev.scoreClassification, ...p } }));
+
+  const selectedTarget = TARGETS.find((t) => t.id === config.typeOfTarget);
+
+  /* ── Inline confirm handlers ── */
+  const confirmInlineAdd = () => {
+    const val = inlineValue.trim();
     if (!val) return;
 
-    if (addDialogType === "weapon") {
+    if (addingField === "weapon") {
       const id = val.toLowerCase().replace(/\s+/g, "-");
       if (weapons.some((w) => w.id === id)) {
         toast({ title: "Weapon already exists", variant: "destructive" });
@@ -138,25 +140,33 @@ export function ARCToolPage() {
       setWeapons((prev) => [...prev, { id, label: val }]);
       patch({ weapon: id, typeOfFire: "", nameOfPractice: "" });
       toast({ title: "Weapon added", description: `"${val}" added to weapons.` });
-    } else if (addDialogType === "fire") {
+    } else if (addingField === "fire") {
       if (!config.weapon) { toast({ title: "Select a weapon first", variant: "destructive" }); return; }
       const id = val.toLowerCase().replace(/\s+/g, "-");
-      setFireMap((prev) => {
-        const existing = prev[config.weapon] ?? [];
-        if (existing.some((f) => f.id === id)) return prev;
-        return { ...prev, [config.weapon]: [...existing, { id, label: val, practices: [] }] };
-      });
+      const existing = fireMap[config.weapon] ?? [];
+      if (existing.some((f) => f.id === id || f.label.toLowerCase() === val.toLowerCase())) {
+        toast({ title: "Type of Fire already exists", description: `"${val}" already exists for this weapon.`, variant: "destructive" });
+        return;
+      }
+      setFireMap((prev) => ({
+        ...prev,
+        [config.weapon]: [...(prev[config.weapon] ?? []), { id, label: val, practices: [] }],
+      }));
       patch({ typeOfFire: id, nameOfPractice: "" });
       toast({ title: "Type of Fire added" });
-    } else if (addDialogType === "practice") {
+    } else if (addingField === "practice") {
       if (!config.weapon || !config.typeOfFire) { toast({ title: "Select weapon & fire type first", variant: "destructive" }); return; }
+      if (practicesForFire.some((p) => p.toLowerCase() === val.toLowerCase())) {
+        toast({ title: "Practice already exists", description: `"${val}" already exists for this fire type.`, variant: "destructive" });
+        return;
+      }
       setFireMap((prev) => {
         const entries = prev[config.weapon] ?? [];
         return {
           ...prev,
           [config.weapon]: entries.map((f) =>
             f.id === config.typeOfFire
-              ? { ...f, practices: f.practices.includes(val) ? f.practices : [...f.practices, val] }
+              ? { ...f, practices: [...f.practices, val] }
               : f
           ),
         };
@@ -164,16 +174,20 @@ export function ARCToolPage() {
       patch({ nameOfPractice: val });
       toast({ title: "Practice added" });
     }
-    setAddDialogType(null);
-    setAddDialogValue("");
+    cancelInlineAdd();
   };
 
-  const patch = (p: Partial<ARCConfig>) => setConfig((prev) => ({ ...prev, ...p }));
-  const patchClass = (p: Partial<ScoreClassification>) =>
-    setConfig((prev) => ({ ...prev, scoreClassification: { ...prev.scoreClassification, ...p } }));
+  const cancelInlineAdd = () => {
+    setAddingField(null);
+    setInlineValue("");
+  };
 
-  const selectedTarget = TARGETS.find((t) => t.id === config.typeOfTarget);
+  const startInlineAdd = (field: "weapon" | "fire" | "practice") => {
+    setAddingField(field);
+    setInlineValue("");
+  };
 
+  /* ── Region management ── */
   const addRegion = () => {
     const next = config.regions.length + 1;
     patch({
@@ -189,21 +203,84 @@ export function ARCToolPage() {
     patch({ regions: config.regions.map((r) => (r.id === id ? { ...r, ...p } : r)) });
   };
 
+  /* ── Bottom action handlers ── */
   const handleAdd = () => {
     if (!config.weapon || !config.nameOfPractice) {
       toast({ title: "Missing fields", description: "Please fill weapon and practice name.", variant: "destructive" });
+      return;
+    }
+    // Check if this practice config already exists
+    const exists = savedConfigs.some(
+      (c) => c.weapon === config.weapon && c.typeOfFire === config.typeOfFire && c.nameOfPractice === config.nameOfPractice
+    );
+    if (exists) {
+      toast({ title: "Configuration already exists", description: "Use Update to modify an existing configuration.", variant: "destructive" });
       return;
     }
     setSavedConfigs((prev) => [...prev, { ...config }]);
     toast({ title: "ARC configuration added" });
   };
 
+  const handleUpdate = () => {
+    if (!config.weapon || !config.nameOfPractice) {
+      toast({ title: "Missing fields", description: "Please fill weapon and practice name.", variant: "destructive" });
+      return;
+    }
+    const idx = savedConfigs.findIndex(
+      (c) => c.weapon === config.weapon && c.typeOfFire === config.typeOfFire && c.nameOfPractice === config.nameOfPractice
+    );
+    if (idx === -1) {
+      toast({ title: "No existing config found", description: "Use Add for new configurations.", variant: "destructive" });
+      return;
+    }
+    setSavedConfigs((prev) => prev.map((c, i) => (i === idx ? { ...config } : c)));
+    toast({ title: "Configuration updated" });
+  };
+
   const handleReset = () => {
     setConfig(defaultConfig());
+    cancelInlineAdd();
     toast({ title: "Form reset" });
   };
 
-  /* ── Field row helper ────────────────────────────────── */
+  /* ── Inline field renderer ── */
+  const renderInlineField = (
+    placeholder: string,
+  ) => (
+    <div className="flex items-center gap-2 flex-1">
+      <Input
+        autoFocus
+        value={inlineValue}
+        onChange={(e) => setInlineValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") confirmInlineAdd();
+          if (e.key === "Escape") cancelInlineAdd();
+        }}
+        placeholder={placeholder}
+        className="h-9 rounded-xl text-sm max-w-xs"
+      />
+      <Button
+        size="sm"
+        className="h-9 w-9 p-0 rounded-xl shrink-0"
+        style={{ background: `hsl(${ACCENT})`, color: "#fff" }}
+        onClick={confirmInlineAdd}
+        title="Confirm"
+      >
+        <Plus className="w-4 h-4" />
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        className="h-9 w-9 p-0 rounded-xl shrink-0"
+        onClick={cancelInlineAdd}
+        title="Cancel"
+      >
+        <X className="w-4 h-4" />
+      </Button>
+    </div>
+  );
+
+  /* ── Field row helper ── */
   const FieldRow = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div className="flex items-center gap-3">
       <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground w-40 shrink-0 text-right">
@@ -217,82 +294,96 @@ export function ARCToolPage() {
     <div className="flex-1 flex flex-col lg:flex-row gap-6 p-6 overflow-y-auto animate-fade-in">
       {/* ─── Left: Form Fields ─── */}
       <div className="flex-1 flex flex-col gap-4 min-w-0">
-        {/* Common fields */}
+        {/* Weapon */}
         <FieldRow label="Weapon">
-          <div className="flex items-center gap-2">
-            <Select value={config.weapon} onValueChange={(v) => patch({ weapon: v, typeOfFire: "", nameOfPractice: "" })}>
-              <SelectTrigger className="h-9 rounded-xl text-sm max-w-xs">
-                <SelectValue placeholder="Select weapon" />
-              </SelectTrigger>
-              <SelectContent>
-                {weapons.map((w) => (
-                  <SelectItem key={w.id} value={w.id}>{w.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-9 w-9 p-0 rounded-xl shrink-0"
-              style={{ borderColor: `hsl(${ACCENT} / 0.4)`, color: `hsl(${ACCENT})` }}
-              onClick={() => { setAddDialogType("weapon"); setAddDialogValue(""); }}
-              title="Add new weapon"
-            >
-              <PlusCircle className="w-4 h-4" />
-            </Button>
-          </div>
+          {addingField === "weapon" ? (
+            renderInlineField("e.g. M16A4")
+          ) : (
+            <div className="flex items-center gap-2">
+              <Select value={config.weapon} onValueChange={(v) => { patch({ weapon: v, typeOfFire: "", nameOfPractice: "" }); cancelInlineAdd(); }}>
+                <SelectTrigger className="h-9 rounded-xl text-sm max-w-xs">
+                  <SelectValue placeholder="Select weapon" />
+                </SelectTrigger>
+                <SelectContent>
+                  {weapons.map((w) => (
+                    <SelectItem key={w.id} value={w.id}>{w.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 w-9 p-0 rounded-xl shrink-0"
+                style={{ borderColor: `hsl(${ACCENT} / 0.4)`, color: `hsl(${ACCENT})` }}
+                onClick={() => startInlineAdd("weapon")}
+                title="Add new weapon"
+              >
+                <PlusCircle className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </FieldRow>
 
+        {/* Type of Fire */}
         <FieldRow label="Type of Fire">
-          <div className="flex items-center gap-2">
-            <Select value={config.typeOfFire} onValueChange={(v) => patch({ typeOfFire: v, nameOfPractice: "" })}>
-              <SelectTrigger className="h-9 rounded-xl text-sm max-w-md">
-                <SelectValue placeholder={config.weapon ? "Select type of fire" : "Select a weapon first"} />
-              </SelectTrigger>
-              <SelectContent>
-                {fireTypesForWeapon.map((f) => (
-                  <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-9 w-9 p-0 rounded-xl shrink-0"
-              style={{ borderColor: `hsl(${ACCENT} / 0.4)`, color: `hsl(${ACCENT})` }}
-              onClick={() => { setAddDialogType("fire"); setAddDialogValue(""); }}
-              title="Add new type of fire"
-              disabled={!config.weapon}
-            >
-              <PlusCircle className="w-4 h-4" />
-            </Button>
-          </div>
+          {addingField === "fire" ? (
+            renderInlineField("e.g. Infantry - Advanced Marksmanship")
+          ) : (
+            <div className="flex items-center gap-2">
+              <Select value={config.typeOfFire} onValueChange={(v) => { patch({ typeOfFire: v, nameOfPractice: "" }); cancelInlineAdd(); }}>
+                <SelectTrigger className="h-9 rounded-xl text-sm max-w-md">
+                  <SelectValue placeholder={config.weapon ? "Select type of fire" : "Select a weapon first"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {fireTypesForWeapon.map((f) => (
+                    <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 w-9 p-0 rounded-xl shrink-0"
+                style={{ borderColor: `hsl(${ACCENT} / 0.4)`, color: `hsl(${ACCENT})` }}
+                onClick={() => startInlineAdd("fire")}
+                title="Add new type of fire"
+                disabled={!config.weapon}
+              >
+                <PlusCircle className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </FieldRow>
 
+        {/* Name of Practice */}
         <FieldRow label="Name of Practice">
-          <div className="flex items-center gap-2">
-            <Select value={config.nameOfPractice} onValueChange={(v) => patch({ nameOfPractice: v })}>
-              <SelectTrigger className="h-9 rounded-xl text-sm max-w-xs">
-                <SelectValue placeholder={config.typeOfFire ? "Select practice" : "Select fire type first"} />
-              </SelectTrigger>
-              <SelectContent>
-                {practicesForFire.map((p) => (
-                  <SelectItem key={p} value={p}>{p}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-9 w-9 p-0 rounded-xl shrink-0"
-              style={{ borderColor: `hsl(${ACCENT} / 0.4)`, color: `hsl(${ACCENT})` }}
-              onClick={() => { setAddDialogType("practice"); setAddDialogValue(""); }}
-              title="Add new practice"
-              disabled={!config.typeOfFire}
-            >
-              <PlusCircle className="w-4 h-4" />
-            </Button>
-          </div>
+          {addingField === "practice" ? (
+            renderInlineField("e.g. BM1(TRB)")
+          ) : (
+            <div className="flex items-center gap-2">
+              <Select value={config.nameOfPractice} onValueChange={(v) => { patch({ nameOfPractice: v }); cancelInlineAdd(); }}>
+                <SelectTrigger className="h-9 rounded-xl text-sm max-w-xs">
+                  <SelectValue placeholder={config.typeOfFire ? "Select practice" : "Select fire type first"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {practicesForFire.map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 w-9 p-0 rounded-xl shrink-0"
+                style={{ borderColor: `hsl(${ACCENT} / 0.4)`, color: `hsl(${ACCENT})` }}
+                onClick={() => startInlineAdd("practice")}
+                title="Add new practice"
+                disabled={!config.typeOfFire}
+              >
+                <PlusCircle className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </FieldRow>
 
         <FieldRow label="Firing Position">
@@ -384,7 +475,7 @@ export function ARCToolPage() {
           </div>
         </FieldRow>
 
-        {/* ─── Practice-specific fields ─── */}
+        {/* Practice-specific fields */}
         {config.practiceType === "Grouping" && (
           <FieldRow label="Accepting Groupsize (cm)">
             <Input
@@ -455,7 +546,7 @@ export function ARCToolPage() {
           </>
         )}
 
-        {/* Max Score Per Hit – all types */}
+        {/* Max Score Per Hit */}
         <FieldRow label="Max. Score per Hit">
           <Input
             type="number"
@@ -468,10 +559,22 @@ export function ARCToolPage() {
 
         {/* Action buttons */}
         <div className="flex gap-3 mt-4 pt-4" style={{ borderTop: "1px solid var(--divider)" }}>
-          <Button className="h-9 rounded-xl gap-2" style={{ background: `hsl(${ACCENT})`, color: "#fff" }} onClick={handleAdd}>
+          <Button
+            className="h-9 rounded-xl gap-2"
+            style={{ background: `hsl(${ACCENT})`, color: "#fff" }}
+            onClick={handleAdd}
+            disabled={isExistingPractice}
+            title={isExistingPractice ? "This practice already exists. Use Update to modify." : "Add new configuration"}
+          >
             <Plus className="w-4 h-4" /> Add
           </Button>
-          <Button variant="outline" className="h-9 rounded-xl gap-2" onClick={() => toast({ title: "Configuration updated" })}>
+          <Button
+            variant="outline"
+            className="h-9 rounded-xl gap-2"
+            onClick={handleUpdate}
+            disabled={!isExistingPractice}
+            title={!isExistingPractice ? "Select an existing practice to update" : "Update configuration"}
+          >
             <Save className="w-4 h-4" /> Update
           </Button>
           <Button variant="outline" className="h-9 rounded-xl gap-2 text-destructive hover:bg-destructive/10" onClick={() => toast({ title: "Configuration deleted", variant: "destructive" })}>
@@ -485,7 +588,6 @@ export function ARCToolPage() {
 
       {/* ─── Right: Target preview + Region table + Score Classification ─── */}
       <div className="w-full lg:w-[420px] flex flex-col gap-5 shrink-0">
-        {/* Target preview */}
         {selectedTarget && (
           <div
             className="rounded-2xl overflow-hidden flex items-center justify-center p-4"
@@ -500,7 +602,6 @@ export function ARCToolPage() {
           </div>
         )}
 
-        {/* Region Scores Table – Application, Timed, Snap Shot */}
         {hasSectorTable(config.practiceType) && (
           <div
             className="rounded-2xl overflow-hidden"
@@ -575,7 +676,6 @@ export function ARCToolPage() {
           </div>
         )}
 
-        {/* Score Classification – Application, Timed, Snap Shot */}
         {hasScoreClassification(config.practiceType) && (
           <div
             className="rounded-2xl overflow-hidden"
@@ -607,37 +707,6 @@ export function ARCToolPage() {
           </div>
         )}
       </div>
-
-      {/* ── Add-entry dialog ── */}
-      <Dialog open={addDialogType !== null} onOpenChange={(open) => { if (!open) setAddDialogType(null); }}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-base">
-              {addDialogType === "weapon" && "Add New Weapon"}
-              {addDialogType === "fire" && "Add Type of Fire"}
-              {addDialogType === "practice" && "Add Name of Practice"}
-            </DialogTitle>
-          </DialogHeader>
-          <Input
-            autoFocus
-            value={addDialogValue}
-            onChange={(e) => setAddDialogValue(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddEntry()}
-            placeholder={
-              addDialogType === "weapon" ? "e.g. M16A4" :
-              addDialogType === "fire" ? "e.g. Infantry - Advanced Marksmanship" :
-              "e.g. BM1(TRB)"
-            }
-            className="h-10 rounded-xl"
-          />
-          <DialogFooter>
-            <Button variant="outline" className="rounded-xl" onClick={() => setAddDialogType(null)}>Cancel</Button>
-            <Button className="rounded-xl" style={{ background: `hsl(${ACCENT})`, color: "#fff" }} onClick={handleAddEntry}>
-              <Plus className="w-4 h-4 mr-1" /> Add
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
