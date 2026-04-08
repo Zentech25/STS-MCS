@@ -104,7 +104,7 @@ export function TargetRegionScoresPage() {
     <div className="flex-1 flex flex-col lg:flex-row gap-6 p-6 overflow-y-auto animate-fade-in">
       {/* Left: controls + table */}
       <div className="flex-1 flex flex-col gap-5 min-w-0">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Target</label>
             <div className="flex gap-2">
