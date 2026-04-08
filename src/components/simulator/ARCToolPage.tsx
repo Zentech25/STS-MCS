@@ -288,7 +288,17 @@ export function ARCToolPage() {
             renderInlineField("e.g. BM1(TRB)")
           ) : (
             <div className="flex items-center gap-2">
-              <Select value={config.nameOfPractice} onValueChange={(v) => { patch({ nameOfPractice: v }); cancelInlineAdd(); }}>
+              <Select value={config.nameOfPractice} onValueChange={(v) => {
+                cancelInlineAdd();
+                const existing = savedConfigs.find(
+                  (c) => c.weapon === config.weapon && c.typeOfFire === config.typeOfFire && c.nameOfPractice === v
+                );
+                if (existing) {
+                  setConfig({ ...existing });
+                } else {
+                  patch({ nameOfPractice: v });
+                }
+              }}>
                 <SelectTrigger className="h-9 rounded-xl text-sm max-w-xs">
                   <SelectValue placeholder={config.typeOfFire ? "Select practice" : "Select fire type first"} />
                 </SelectTrigger>
