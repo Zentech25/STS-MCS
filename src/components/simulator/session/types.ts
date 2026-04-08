@@ -41,4 +41,4 @@ export interface ExerciseConfig {
   distance: number;
 }
 
-export type SessionStep = "group" | "exercise" | "live";
+export type SessionStep = "group" | "arc" | "live";
