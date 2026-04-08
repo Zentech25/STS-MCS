@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Users, Crosshair, Radio } from "lucide-react";
 import { GroupSetupStep } from "./session/GroupSetupStep";
+import { ExerciseSetupStep } from "./session/ExerciseSetupStep";
 import { ARCSetupStep } from "./session/ARCSetupStep";
 import { SessionLiveStep } from "./session/SessionLiveStep";
-import { LaneAssignment, SessionStep } from "./session/types";
+import { LaneAssignment, ExerciseConfig, SessionStep } from "./session/types";
 import { ARCConfig } from "@/contexts/ARCContext";
+import { TARGETS } from "@/contexts/TargetsContext";
 
 const STEPS: { key: SessionStep; label: string; icon: React.ElementType }[] = [
   { key: "group", label: "Group Setup", icon: Users },
-  { key: "arc", label: "ARC", icon: Crosshair },
+  { key: "exercise", label: "Exercise", icon: Crosshair },
   { key: "live", label: "Session", icon: Radio },
 ];
 
@@ -19,9 +21,31 @@ const createEmptyLanes = (): LaneAssignment[] => [
   { laneId: 4, queue: [] },
 ];
 
+const createDefaultExercises = (): ExerciseConfig[] =>
+  [1, 2, 3, 4].map((laneId) => ({
+    laneId,
+    type: "custom" as const,
+    name: "",
+    practiceType: "grouping" as const,
+    weapon: "",
+    firingPosition: "",
+    range: 25,
+    rounds: 5,
+    timeOfDay: "day" as const,
+    visibility: 100,
+    targetType: TARGETS[0]?.id ?? "",
+    timeLimit: 30,
+    exposure: 3,
+    upTime: 3,
+    downTime: 5,
+    distance: 25,
+  }));
+
 export function SessionPage() {
   const [step, setStep] = useState<SessionStep>("group");
   const [lanes, setLanes] = useState<LaneAssignment[]>(createEmptyLanes());
+  const [exercises, setExercises] = useState<ExerciseConfig[]>(createDefaultExercises());
+  const [exerciseMode, setExerciseMode] = useState<"custom" | "arc">("custom");
   const [arcConfigs, setArcConfigs] = useState<Record<number, ARCConfig>>({});
 
   const stepIndex = STEPS.findIndex((s) => s.key === step);
@@ -73,10 +97,21 @@ export function SessionPage() {
           <GroupSetupStep
             lanes={lanes}
             onLanesChange={setLanes}
-            onNext={() => setStep("arc")}
+            onNext={() => setStep("exercise")}
           />
         )}
-        {step === "arc" && (
+        {step === "exercise" && exerciseMode === "custom" && (
+          <ExerciseSetupStep
+            lanes={lanes}
+            exercises={exercises}
+            onExercisesChange={setExercises}
+            onBack={() => setStep("group")}
+            onNext={() => setStep("live")}
+            exerciseMode={exerciseMode}
+            onModeChange={setExerciseMode}
+          />
+        )}
+        {step === "exercise" && exerciseMode === "arc" && (
           <ARCSetupStep
             lanes={lanes}
             onBack={() => setStep("group")}
@@ -84,13 +119,15 @@ export function SessionPage() {
               setArcConfigs(configs);
               setStep("live");
             }}
+            exerciseMode={exerciseMode}
+            onModeChange={setExerciseMode}
           />
         )}
         {step === "live" && (
           <SessionLiveStep
             lanes={lanes}
-            exercises={[]}
-            onBack={() => setStep("arc")}
+            exercises={exercises}
+            onBack={() => setStep("exercise")}
           />
         )}
       </div>

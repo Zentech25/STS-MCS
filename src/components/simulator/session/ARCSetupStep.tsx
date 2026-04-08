@@ -10,9 +10,11 @@ interface Props {
   lanes: LaneAssignment[];
   onBack: () => void;
   onNext: (configs: Record<number, ARCConfig>) => void;
+  exerciseMode: "custom" | "arc";
+  onModeChange: (mode: "custom" | "arc") => void;
 }
 
-export function ARCSetupStep({ lanes, onBack, onNext }: Props) {
+export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange }: Props) {
   const { weapons } = useTrainingAssets();
   const { fireMap, savedConfigs } = useARC();
 
@@ -76,6 +78,26 @@ export function ARCSetupStep({ lanes, onBack, onNext }: Props) {
         <button onClick={onBack} className={`${btnBase} glass-btn text-muted-foreground hover:text-foreground hover:scale-[1.03] active:scale-[0.97]`}>
           <ChevronLeft className="w-3.5 h-3.5" /> Back
         </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onModeChange("custom")}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all"
+            style={{ background: exerciseMode === "custom" ? "var(--gradient-primary)" : "var(--surface-inset)" }}
+          >
+            <Crosshair className={`w-3 h-3 ${exerciseMode === "custom" ? "text-primary-foreground" : "text-muted-foreground"}`} />
+            <span className={`text-[10px] font-semibold uppercase tracking-wider ${exerciseMode === "custom" ? "text-primary-foreground" : "text-muted-foreground"}`}>Custom</span>
+          </button>
+          <button
+            onClick={() => onModeChange("arc")}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all"
+            style={{ background: exerciseMode === "arc" ? "var(--gradient-primary)" : "var(--surface-inset)" }}
+          >
+            <Crosshair className={`w-3 h-3 ${exerciseMode === "arc" ? "text-primary-foreground" : "text-muted-foreground"}`} />
+            <span className={`text-[10px] font-semibold uppercase tracking-wider ${exerciseMode === "arc" ? "text-primary-foreground" : "text-muted-foreground"}`}>ARC</span>
+          </button>
+        </div>
+
         <button onClick={handleNext} disabled={!allConfigured} className={`${btnBase} text-primary-foreground shadow-lg hover:scale-[1.03] active:scale-[0.97]`} style={{ background: "var(--gradient-primary)" }}>
           Next <ChevronRight className="w-3.5 h-3.5" />
         </button>
