@@ -165,7 +165,7 @@ export function ARCToolPage() {
   };
 
   const handleReset = () => {
-    setConfig(defaultConfig());
+    setConfig(defaultARCConfig());
     cancelInlineAdd();
     toast({ title: "Form reset" });
   };
