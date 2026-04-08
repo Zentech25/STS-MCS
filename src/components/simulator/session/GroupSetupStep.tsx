@@ -67,13 +67,10 @@ interface Props {
 
 export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
   const [savedGroups, setSavedGroups] = useState<SavedGroup[]>(loadGroups());
-  const [showGroupPicker, setShowGroupPicker] = useState(false);
   const [showTraineeSearch, setShowTraineeSearch] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [saveGroupName, setSaveGroupName] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
-  const [editGroupName, setEditGroupName] = useState("");
 
   const assignedIds = new Set(lanes.flatMap((l) => l.queue.map((t) => t.id)));
   const availableTrainees = TRAINEE_POOL.filter(
