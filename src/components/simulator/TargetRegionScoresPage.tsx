@@ -147,6 +147,18 @@ export function TargetRegionScoresPage() {
             />
           </div>
 
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Zones</label>
+            <Input
+              type="number"
+              value={totalZones}
+              onChange={(e) => setTotalZones(e.target.value)}
+              min={1}
+              className="h-9 rounded-xl text-sm"
+              placeholder="8"
+            />
+          </div>
+
           <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Exercise Type</label>
             <div className="flex flex-wrap gap-2">
