@@ -309,6 +309,14 @@ export function TargetRegionScoresPage() {
         onSelectRow={setSelectedRowId}
         onTargetClick={handleTargetClick}
       />
+
+      <AddTargetDialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        onAdd={(data) => {
+          toast({ title: "Target added", description: `"${data.name}" with ${data.zones} zones has been added.` });
+        }}
+      />
     </div>
   );
 }
