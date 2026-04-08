@@ -39,9 +39,11 @@ interface Props {
   onExercisesChange: (exercises: ExerciseConfig[]) => void;
   onBack: () => void;
   onNext: () => void;
+  exerciseMode: "custom" | "arc";
+  onModeChange: (mode: "custom" | "arc") => void;
 }
 
-export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack, onNext }: Props) {
+export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack, onNext, exerciseMode, onModeChange }: Props) {
   const { weapons, positions } = useTrainingAssets();
   const [copyFromLane, setCopyFromLane] = useState<number | null>(null);
   const [presets, setPresets] = useState<SavedPreset[]>(loadPresets());
@@ -153,14 +155,22 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
         </button>
 
         <div className="ml-auto flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg" style={{ background: "var(--surface-inset)" }}>
-            <Crosshair className="w-3 h-3 text-primary" />
-            <span className="text-[10px] font-semibold text-foreground uppercase tracking-wider">Custom</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg opacity-40 cursor-not-allowed" style={{ background: "var(--surface-inset)" }}>
-            <Lock className="w-2.5 h-2.5 text-muted-foreground" />
-            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">ARC</span>
-          </div>
+          <button
+            onClick={() => onModeChange("custom")}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all"
+            style={{ background: exerciseMode === "custom" ? "var(--gradient-primary)" : "var(--surface-inset)" }}
+          >
+            <Crosshair className={`w-3 h-3 ${exerciseMode === "custom" ? "text-primary-foreground" : "text-muted-foreground"}`} />
+            <span className={`text-[10px] font-semibold uppercase tracking-wider ${exerciseMode === "custom" ? "text-primary-foreground" : "text-muted-foreground"}`}>Custom</span>
+          </button>
+          <button
+            onClick={() => onModeChange("arc")}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all"
+            style={{ background: exerciseMode === "arc" ? "var(--gradient-primary)" : "var(--surface-inset)" }}
+          >
+            <Crosshair className={`w-3 h-3 ${exerciseMode === "arc" ? "text-primary-foreground" : "text-muted-foreground"}`} />
+            <span className={`text-[10px] font-semibold uppercase tracking-wider ${exerciseMode === "arc" ? "text-primary-foreground" : "text-muted-foreground"}`}>ARC</span>
+          </button>
 
           <button
             onClick={onNext}

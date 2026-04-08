@@ -10,9 +10,11 @@ interface Props {
   lanes: LaneAssignment[];
   onBack: () => void;
   onNext: (configs: Record<number, ARCConfig>) => void;
+  exerciseMode: "custom" | "arc";
+  onModeChange: (mode: "custom" | "arc") => void;
 }
 
-export function ARCSetupStep({ lanes, onBack, onNext }: Props) {
+export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange }: Props) {
   const { weapons } = useTrainingAssets();
   const { fireMap, savedConfigs } = useARC();
 
