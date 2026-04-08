@@ -103,7 +103,6 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
 
   const loadGroup = (group: SavedGroup) => {
     onLanesChange(group.lanes);
-    setShowGroupPicker(false);
     toast.success(`Loaded group: ${group.name}`);
   };
 
@@ -121,23 +120,6 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
     toast.success(`Group "${saveGroupName}" saved successfully`);
     setSaveGroupName("");
     setShowSaveDialog(false);
-  };
-
-  const handleDeleteGroup = (id: string) => {
-    const updated = savedGroups.filter((g) => g.id !== id);
-    setSavedGroups(updated);
-    saveGroupsToStorage(updated);
-    toast.success("Group deleted");
-  };
-
-  const handleRenameGroup = (id: string) => {
-    if (!editGroupName.trim()) return;
-    const updated = savedGroups.map((g) => g.id === id ? { ...g, name: editGroupName.trim() } : g);
-    setSavedGroups(updated);
-    saveGroupsToStorage(updated);
-    setEditingGroupId(null);
-    setEditGroupName("");
-    toast.success("Group renamed");
   };
 
   const hasAnyTrainee = lanes.some((l) => l.queue.length > 0);
