@@ -44,8 +44,10 @@ export function ARCToolPage() {
     return ft?.practices ?? [];
   }, [fireTypesForWeapon, config.typeOfFire]);
 
-  /* Is the currently selected practice an existing one? */
-  const isExistingPractice = config.nameOfPractice !== "" && practicesForFire.includes(config.nameOfPractice);
+  /* Is there already a saved config for this practice? */
+  const isExistingPractice = config.nameOfPractice !== "" && savedConfigs.some(
+    (c) => c.weapon === config.weapon && c.typeOfFire === config.typeOfFire && c.nameOfPractice === config.nameOfPractice
+  );
 
   const patch = (p: Partial<ARCConfig>) => setConfig((prev) => ({ ...prev, ...p }));
   const patchClass = (p: Partial<ScoreClassification>) =>
