@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Plus, Save, Trash2, RotateCcw, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
 import { TARGETS } from "@/contexts/TargetsContext";
@@ -12,11 +13,27 @@ import { TARGETS } from "@/contexts/TargetsContext";
 const PRACTICE_TYPES = ["Grouping", "Application", "Timed", "Snap Shot"] as const;
 type PracticeType = (typeof PRACTICE_TYPES)[number];
 
-const TYPE_OF_FIRE_OPTIONS = [
-  "ALL Armed and Services(Recruits) - Basic MM(Classification)",
-  "Infantry - Advanced Marksmanship",
-  "Special Forces - CQB",
-];
+/* Hierarchical: weaponId → fireTypes[], each fireType → practices[] */
+interface FireTypeEntry {
+  id: string;
+  label: string;
+  practices: string[];
+}
+
+interface WeaponFireMap {
+  [weaponId: string]: FireTypeEntry[];
+}
+
+const DEFAULT_FIRE_MAP: WeaponFireMap = {
+  ak: [
+    { id: "basic-mm", label: "ALL Armed and Services(Recruits) - Basic MM(Classification)", practices: ["BM1(TRB)", "BM2(GRP)"] },
+    { id: "adv-marks", label: "Infantry - Advanced Marksmanship", practices: ["AM1(APP)", "AM2(TMD)"] },
+  ],
+  carbine: [
+    { id: "basic-mm", label: "ALL Armed and Services(Recruits) - Basic MM(Classification)", practices: ["BM1(TRB)"] },
+    { id: "sf-cqb", label: "Special Forces - CQB", practices: ["CQB1(SNP)"] },
+  ],
+};
 
 interface RegionRow {
   id: string;
@@ -89,9 +106,67 @@ const hasScoreClassification = (type: PracticeType) => type !== "Grouping";
 /* ── Component ────────────────────────────────────────── */
 
 export function ARCToolPage() {
-  const { weapons, positions } = useTrainingAssets();
+  const { weapons, setWeapons, positions } = useTrainingAssets();
   const [config, setConfig] = useState<ARCConfig>(defaultConfig());
   const [savedConfigs, setSavedConfigs] = useState<ARCConfig[]>([]);
+  const [fireMap, setFireMap] = useState<WeaponFireMap>(DEFAULT_FIRE_MAP);
+
+  /* ── Inline-add dialog state ── */
+  const [addDialogType, setAddDialogType] = useState<"weapon" | "fire" | "practice" | null>(null);
+  const [addDialogValue, setAddDialogValue] = useState("");
+
+  const fireTypesForWeapon = useMemo(
+    () => (config.weapon ? fireMap[config.weapon] ?? [] : []),
+    [config.weapon, fireMap]
+  );
+
+  const practicesForFire = useMemo(() => {
+    const ft = fireTypesForWeapon.find((f) => f.id === config.typeOfFire);
+    return ft?.practices ?? [];
+  }, [fireTypesForWeapon, config.typeOfFire]);
+
+  const handleAddEntry = () => {
+    const val = addDialogValue.trim();
+    if (!val) return;
+
+    if (addDialogType === "weapon") {
+      const id = val.toLowerCase().replace(/\s+/g, "-");
+      if (weapons.some((w) => w.id === id)) {
+        toast({ title: "Weapon already exists", variant: "destructive" });
+        return;
+      }
+      setWeapons((prev) => [...prev, { id, label: val }]);
+      patch({ weapon: id, typeOfFire: "", nameOfPractice: "" });
+      toast({ title: "Weapon added", description: `"${val}" added to weapons.` });
+    } else if (addDialogType === "fire") {
+      if (!config.weapon) { toast({ title: "Select a weapon first", variant: "destructive" }); return; }
+      const id = val.toLowerCase().replace(/\s+/g, "-");
+      setFireMap((prev) => {
+        const existing = prev[config.weapon] ?? [];
+        if (existing.some((f) => f.id === id)) return prev;
+        return { ...prev, [config.weapon]: [...existing, { id, label: val, practices: [] }] };
+      });
+      patch({ typeOfFire: id, nameOfPractice: "" });
+      toast({ title: "Type of Fire added" });
+    } else if (addDialogType === "practice") {
+      if (!config.weapon || !config.typeOfFire) { toast({ title: "Select weapon & fire type first", variant: "destructive" }); return; }
+      setFireMap((prev) => {
+        const entries = prev[config.weapon] ?? [];
+        return {
+          ...prev,
+          [config.weapon]: entries.map((f) =>
+            f.id === config.typeOfFire
+              ? { ...f, practices: f.practices.includes(val) ? f.practices : [...f.practices, val] }
+              : f
+          ),
+        };
+      });
+      patch({ nameOfPractice: val });
+      toast({ title: "Practice added" });
+    }
+    setAddDialogType(null);
+    setAddDialogValue("");
+  };
 
   const patch = (p: Partial<ARCConfig>) => setConfig((prev) => ({ ...prev, ...p }));
   const patchClass = (p: Partial<ScoreClassification>) =>
@@ -144,38 +219,80 @@ export function ARCToolPage() {
       <div className="flex-1 flex flex-col gap-4 min-w-0">
         {/* Common fields */}
         <FieldRow label="Weapon">
-          <Select value={config.weapon} onValueChange={(v) => patch({ weapon: v })}>
-            <SelectTrigger className="h-9 rounded-xl text-sm max-w-xs">
-              <SelectValue placeholder="Select weapon" />
-            </SelectTrigger>
-            <SelectContent>
-              {weapons.map((w) => (
-                <SelectItem key={w.id} value={w.id}>{w.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Select value={config.weapon} onValueChange={(v) => patch({ weapon: v, typeOfFire: "", nameOfPractice: "" })}>
+              <SelectTrigger className="h-9 rounded-xl text-sm max-w-xs">
+                <SelectValue placeholder="Select weapon" />
+              </SelectTrigger>
+              <SelectContent>
+                {weapons.map((w) => (
+                  <SelectItem key={w.id} value={w.id}>{w.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-9 w-9 p-0 rounded-xl shrink-0"
+              style={{ borderColor: `hsl(${ACCENT} / 0.4)`, color: `hsl(${ACCENT})` }}
+              onClick={() => { setAddDialogType("weapon"); setAddDialogValue(""); }}
+              title="Add new weapon"
+            >
+              <PlusCircle className="w-4 h-4" />
+            </Button>
+          </div>
         </FieldRow>
 
         <FieldRow label="Type of Fire">
-          <Select value={config.typeOfFire} onValueChange={(v) => patch({ typeOfFire: v })}>
-            <SelectTrigger className="h-9 rounded-xl text-sm max-w-md">
-              <SelectValue placeholder="Select type of fire" />
-            </SelectTrigger>
-            <SelectContent>
-              {TYPE_OF_FIRE_OPTIONS.map((o) => (
-                <SelectItem key={o} value={o}>{o}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Select value={config.typeOfFire} onValueChange={(v) => patch({ typeOfFire: v, nameOfPractice: "" })}>
+              <SelectTrigger className="h-9 rounded-xl text-sm max-w-md">
+                <SelectValue placeholder={config.weapon ? "Select type of fire" : "Select a weapon first"} />
+              </SelectTrigger>
+              <SelectContent>
+                {fireTypesForWeapon.map((f) => (
+                  <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-9 w-9 p-0 rounded-xl shrink-0"
+              style={{ borderColor: `hsl(${ACCENT} / 0.4)`, color: `hsl(${ACCENT})` }}
+              onClick={() => { setAddDialogType("fire"); setAddDialogValue(""); }}
+              title="Add new type of fire"
+              disabled={!config.weapon}
+            >
+              <PlusCircle className="w-4 h-4" />
+            </Button>
+          </div>
         </FieldRow>
 
         <FieldRow label="Name of Practice">
-          <Input
-            value={config.nameOfPractice}
-            onChange={(e) => patch({ nameOfPractice: e.target.value })}
-            className="h-9 rounded-xl text-sm max-w-xs"
-            placeholder="e.g. BM1(TRB)"
-          />
+          <div className="flex items-center gap-2">
+            <Select value={config.nameOfPractice} onValueChange={(v) => patch({ nameOfPractice: v })}>
+              <SelectTrigger className="h-9 rounded-xl text-sm max-w-xs">
+                <SelectValue placeholder={config.typeOfFire ? "Select practice" : "Select fire type first"} />
+              </SelectTrigger>
+              <SelectContent>
+                {practicesForFire.map((p) => (
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-9 w-9 p-0 rounded-xl shrink-0"
+              style={{ borderColor: `hsl(${ACCENT} / 0.4)`, color: `hsl(${ACCENT})` }}
+              onClick={() => { setAddDialogType("practice"); setAddDialogValue(""); }}
+              title="Add new practice"
+              disabled={!config.typeOfFire}
+            >
+              <PlusCircle className="w-4 h-4" />
+            </Button>
+          </div>
         </FieldRow>
 
         <FieldRow label="Firing Position">
@@ -490,6 +607,37 @@ export function ARCToolPage() {
           </div>
         )}
       </div>
+
+      {/* ── Add-entry dialog ── */}
+      <Dialog open={addDialogType !== null} onOpenChange={(open) => { if (!open) setAddDialogType(null); }}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-base">
+              {addDialogType === "weapon" && "Add New Weapon"}
+              {addDialogType === "fire" && "Add Type of Fire"}
+              {addDialogType === "practice" && "Add Name of Practice"}
+            </DialogTitle>
+          </DialogHeader>
+          <Input
+            autoFocus
+            value={addDialogValue}
+            onChange={(e) => setAddDialogValue(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAddEntry()}
+            placeholder={
+              addDialogType === "weapon" ? "e.g. M16A4" :
+              addDialogType === "fire" ? "e.g. Infantry - Advanced Marksmanship" :
+              "e.g. BM1(TRB)"
+            }
+            className="h-10 rounded-xl"
+          />
+          <DialogFooter>
+            <Button variant="outline" className="rounded-xl" onClick={() => setAddDialogType(null)}>Cancel</Button>
+            <Button className="rounded-xl" style={{ background: `hsl(${ACCENT})`, color: "#fff" }} onClick={handleAddEntry}>
+              <Plus className="w-4 h-4 mr-1" /> Add
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
