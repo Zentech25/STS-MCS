@@ -1,29 +1,10 @@
-import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Crosshair, Lock, Copy, Sun, Moon, Eye, Save, FolderOpen, X, Pencil, Check } from "lucide-react";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight, Crosshair, Copy, Sun, Moon, Eye } from "lucide-react";
 import { LaneAssignment, ExerciseConfig, PracticeType, TimeOfDay } from "./types";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
 import { TARGETS } from "@/contexts/TargetsContext";
-
-interface SavedPreset {
-  id: string;
-  name: string;
-  createdAt: string;
-  exercises: Omit<ExerciseConfig, "laneId">[];
-}
-
-const PRESETS_KEY = "simulator_exercise_presets";
-
-function loadPresets(): SavedPreset[] {
-  try {
-    return JSON.parse(localStorage.getItem(PRESETS_KEY) || "[]");
-  } catch { return []; }
-}
-
-function savePresetsToStorage(presets: SavedPreset[]) {
-  localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
-}
 
 const PRACTICE_TYPES: { id: PracticeType; label: string }[] = [
   { id: "grouping", label: "Grouping" },
