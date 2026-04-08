@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Crosshair, Clock, Eye, Target, Zap } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronLeft, ChevronRight, Crosshair, Copy, Sun, Moon, Eye, Clock, Target, Zap } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
 import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
 import { useARC, ARCConfig } from "@/contexts/ARCContext";
-import { getTargetById } from "@/contexts/TargetsContext";
+import { getTargetById, TARGETS } from "@/contexts/TargetsContext";
 import { LaneAssignment } from "./types";
 
 interface Props {
@@ -20,18 +21,18 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
 
   const activeLanes = lanes.filter((l) => l.queue.length > 0);
 
-  /* Per-lane selections */
   const [laneSelections, setLaneSelections] = useState<
     Record<number, { weapon: string; fireType: string; practice: string }>
   >(() =>
     Object.fromEntries(activeLanes.map((l) => [l.laneId, { weapon: "", fireType: "", practice: "" }]))
   );
 
+  const [copyFromLane, setCopyFromLane] = useState<number | null>(null);
+
   const patchLane = (laneId: number, p: Partial<{ weapon: string; fireType: string; practice: string }>) => {
     setLaneSelections((prev) => {
       const cur = prev[laneId] || { weapon: "", fireType: "", practice: "" };
       const next = { ...cur, ...p };
-      // Reset children on parent change
       if (p.weapon !== undefined) { next.fireType = ""; next.practice = ""; }
       if (p.fireType !== undefined && p.weapon === undefined) { next.practice = ""; }
       return { ...prev, [laneId]: next };
@@ -47,7 +48,6 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
   const getConfig = (weaponId: string, fireTypeId: string, practice: string): ARCConfig | undefined =>
     savedConfigs.find((c) => c.weapon === weaponId && c.typeOfFire === fireTypeId && c.nameOfPractice === practice);
 
-  /* Available weapons = only those that have fire types configured */
   const availableWeapons = useMemo(
     () => weapons.filter((w) => (fireMap[w.id]?.length ?? 0) > 0),
     [weapons, fireMap]
@@ -68,18 +68,45 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
     onNext(configs);
   };
 
-  const btnBase =
-    "h-10 px-5 rounded-xl font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-25 disabled:pointer-events-none";
+  const copyToLane = (fromLaneId: number, toLaneId: number) => {
+    const source = laneSelections[fromLaneId];
+    if (!source) return;
+    setLaneSelections((prev) => ({ ...prev, [toLaneId]: { ...source } }));
+    toast({ title: `Copied to Lane ${toLaneId}`, description: `ARC config copied from Lane ${fromLaneId}` });
+    setCopyFromLane(null);
+  };
+
+  const copyToAllLanes = (fromLaneId: number, targetLaneIds: number[]) => {
+    const source = laneSelections[fromLaneId];
+    if (!source) return;
+    setLaneSelections((prev) => {
+      const next = { ...prev };
+      for (const id of targetLaneIds) next[id] = { ...source };
+      return next;
+    });
+    toast({ title: `Copied to all lanes`, description: `ARC config copied from Lane ${fromLaneId}` });
+    setCopyFromLane(null);
+  };
+
+  const PRACTICE_TYPE_LABELS: Record<string, string> = {
+    Grouping: "Grouping",
+    Application: "Application",
+    Timed: "Timed",
+    "Snap Shot": "Snap Shot",
+  };
 
   return (
-    <div className="flex flex-col h-full gap-4">
-      {/* Nav */}
-      <div className="flex items-center justify-between shrink-0">
-        <button onClick={onBack} className={`${btnBase} glass-btn text-muted-foreground hover:text-foreground hover:scale-[1.03] active:scale-[0.97]`}>
-          <ChevronLeft className="w-3.5 h-3.5" /> Back
+    <div className="flex flex-col h-full gap-3">
+      {/* Top bar — matches Custom */}
+      <div className="flex items-center gap-3 shrink-0">
+        <button
+          onClick={onBack}
+          className="h-9 px-4 rounded-xl font-semibold text-[10px] uppercase tracking-wider flex items-center gap-2 glass-btn text-muted-foreground hover:text-foreground hover:scale-[1.03] active:scale-[0.97] transition-all duration-200"
+        >
+          <ChevronLeft className="w-3 h-3" /> Back
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2">
           <button
             onClick={() => onModeChange("custom")}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all"
@@ -96,178 +123,321 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
             <Crosshair className={`w-3 h-3 ${exerciseMode === "arc" ? "text-primary-foreground" : "text-muted-foreground"}`} />
             <span className={`text-[10px] font-semibold uppercase tracking-wider ${exerciseMode === "arc" ? "text-primary-foreground" : "text-muted-foreground"}`}>ARC</span>
           </button>
-        </div>
 
-        <button onClick={handleNext} disabled={!allConfigured} className={`${btnBase} text-primary-foreground shadow-lg hover:scale-[1.03] active:scale-[0.97]`} style={{ background: "var(--gradient-primary)" }}>
-          Next <ChevronRight className="w-3.5 h-3.5" />
-        </button>
+          <button
+            onClick={handleNext}
+            disabled={!allConfigured}
+            className="h-9 px-5 rounded-xl font-semibold text-[10px] uppercase tracking-wider flex items-center gap-2 transition-all duration-200 disabled:opacity-30 disabled:pointer-events-none text-primary-foreground hover:scale-[1.03] active:scale-[0.97]"
+            style={{ background: "var(--gradient-primary)" }}
+          >
+            Start Session <ChevronRight className="w-3 h-3" />
+          </button>
+        </div>
       </div>
 
-      {/* Lane cards */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {activeLanes.map((lane) => {
+      {/* Lane cards — 4 col grid matching Custom */}
+      <div className="flex-1 min-h-0">
+        <div className="grid grid-cols-4 gap-3 h-full auto-rows-fr">
+          {lanes.map((lane) => {
+            const activeTrainee = lane.queue[0];
+            const isEmpty = lane.queue.length === 0;
+
+            if (isEmpty) {
+              return (
+                <div key={lane.laneId} className="glass-panel flex flex-col items-center justify-center opacity-40">
+                  <p className="text-xs text-muted-foreground font-medium">Lane {lane.laneId}</p>
+                  <p className="text-[10px] text-muted-foreground">No trainees</p>
+                </div>
+              );
+            }
+
             const sel = laneSelections[lane.laneId] || { weapon: "", fireType: "", practice: "" };
             const fireTypes = getFireTypes(sel.weapon);
             const practices = getPractices(sel.weapon, sel.fireType);
             const cfg = sel.practice ? getConfig(sel.weapon, sel.fireType, sel.practice) : undefined;
             const target = cfg ? getTargetById(cfg.typeOfTarget) : undefined;
+            const otherActiveLanes = activeLanes.filter((l) => l.laneId !== lane.laneId);
+            const isCopySource = copyFromLane === lane.laneId;
 
             return (
-              <div
-                key={lane.laneId}
-                className="glass-panel rounded-2xl p-4 flex flex-col gap-3"
-              >
+              <div key={lane.laneId} className="glass-panel flex flex-col overflow-hidden">
                 {/* Lane header */}
-                <div className="flex items-center gap-2 pb-2" style={{ borderBottom: "1px solid var(--divider)" }}>
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-primary-foreground"
-                    style={{ background: "var(--gradient-primary)" }}
-                  >
-                    L{lane.laneId}
+                <div
+                  className="px-3 py-2 shrink-0 flex items-center gap-2"
+                  style={{ background: "var(--surface-glass-hover)", borderBottom: "1px solid var(--divider)" }}
+                >
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
+                    {lane.laneId}
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-foreground">Lane {lane.laneId}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {lane.queue.map((t) => t.name).join(", ")}
-                    </p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-semibold text-foreground truncate">{activeTrainee.name}</p>
+                    <p className="text-[8px] font-mono text-muted-foreground">{activeTrainee.id}</p>
                   </div>
-                </div>
-
-                {/* Weapon */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Weapon</label>
-                  <Select value={sel.weapon} onValueChange={(v) => patchLane(lane.laneId, { weapon: v })}>
-                    <SelectTrigger className="h-9 rounded-xl text-sm">
-                      <SelectValue placeholder="Select weapon" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableWeapons.map((w) => (
-                        <SelectItem key={w.id} value={w.id}>{w.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Type of Fire – only visible after weapon */}
-                {sel.weapon && (
-                  <div className="space-y-1 animate-fade-in">
-                    <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Type of Fire</label>
-                    <Select value={sel.fireType} onValueChange={(v) => patchLane(lane.laneId, { fireType: v })}>
-                      <SelectTrigger className="h-9 rounded-xl text-sm">
-                        <SelectValue placeholder="Select type of fire" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {fireTypes.map((f) => (
-                          <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                {/* Name of Practice – only visible after fire type */}
-                {sel.weapon && sel.fireType && (
-                  <div className="space-y-1 animate-fade-in">
-                    <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Name of Practice</label>
-                    <Select value={sel.practice} onValueChange={(v) => patchLane(lane.laneId, { practice: v })}>
-                      <SelectTrigger className="h-9 rounded-xl text-sm">
-                        <SelectValue placeholder="Select practice" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {practices.map((p) => (
-                          <SelectItem key={p} value={p}>{p}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                {/* Config details – shown after practice selected */}
-                {cfg && (
-                  <div className="animate-fade-in mt-1 space-y-3">
-                    <div className="h-px w-full" style={{ background: "var(--divider)" }} />
-
-                    {/* Target preview */}
-                    {target && (
-                      <div className="flex justify-center">
+                  {lane.queue.length > 1 && (
+                    <span className="text-[8px] text-muted-foreground shrink-0">+{lane.queue.length - 1}</span>
+                  )}
+                  {otherActiveLanes.length > 0 && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setCopyFromLane(isCopySource ? null : lane.laneId)}
+                        className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${
+                          isCopySource ? "bg-primary text-primary-foreground" : "hover:bg-muted/50 text-muted-foreground"
+                        }`}
+                        title="Copy config to other lanes"
+                      >
+                        <Copy className="w-3 h-3" />
+                      </button>
+                      {isCopySource && (
                         <div
-                          className="w-28 h-28 rounded-xl overflow-hidden flex items-center justify-center"
-                          style={{ background: "var(--surface-inset)" }}
+                          className="absolute top-full right-0 mt-1 z-50 rounded-lg p-1.5 flex flex-col gap-0.5 min-w-[100px]"
+                          style={{ background: "var(--surface-glass)", border: "1px solid var(--divider)", backdropFilter: "blur(16px)" }}
                         >
-                          <img
-                            src={target.image}
-                            alt={target.label}
-                            className="max-w-full max-h-full object-contain"
-                          />
+                          <p className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold px-2 py-0.5">Copy to</p>
+                          {otherActiveLanes.map((ol) => (
+                            <button
+                              key={ol.laneId}
+                              onClick={() => copyToLane(lane.laneId, ol.laneId)}
+                              className="text-[10px] text-foreground font-medium px-2 py-1 rounded-md hover:bg-muted/50 text-left transition-colors"
+                            >
+                              Lane {ol.laneId}
+                            </button>
+                          ))}
+                          <button
+                            onClick={() => copyToAllLanes(lane.laneId, otherActiveLanes.map((ol) => ol.laneId))}
+                            className="text-[10px] text-primary font-semibold px-2 py-1 rounded-md hover:bg-primary/10 text-left transition-colors border-t border-[var(--divider)] mt-0.5 pt-1.5"
+                          >
+                            All Lanes
+                          </button>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Details grid */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <DetailChip icon={<Crosshair className="w-3 h-3" />} label="Position" value={cfg.firingPosition || "—"} />
-                      <DetailChip icon={<Target className="w-3 h-3" />} label="Range" value={`${cfg.firingRange}m`} />
-                      <DetailChip icon={<Zap className="w-3 h-3" />} label="Rounds" value={String(cfg.roundsAllotted)} />
-                      <DetailChip icon={<Eye className="w-3 h-3" />} label="Practice" value={cfg.practiceType} />
-                      <DetailChip icon={<Clock className="w-3 h-3" />} label="Time" value={cfg.timeOfPractice === "day" ? "Day" : "Night"} />
-                      {cfg.practiceType === "Grouping" && (
-                        <DetailChip icon={<Target className="w-3 h-3" />} label="Group Size" value={`${cfg.acceptingGroupSize}cm`} />
-                      )}
-                      {cfg.practiceType === "Timed" && (
-                        <DetailChip icon={<Clock className="w-3 h-3" />} label="Time Limit" value={`${cfg.timeSec}s`} />
-                      )}
-                      {cfg.practiceType === "Snap Shot" && (
-                        <>
-                          <DetailChip icon={<Zap className="w-3 h-3" />} label="Exposures" value={String(cfg.exposures)} />
-                          <DetailChip icon={<Clock className="w-3 h-3" />} label="Up/Down" value={`${cfg.upTime}s/${cfg.downTime}s`} />
-                        </>
                       )}
                     </div>
+                  )}
+                </div>
 
-                    {/* Score Classification */}
-                    {cfg.practiceType !== "Grouping" && (
-                      <div className="p-2 rounded-xl" style={{ background: "var(--surface-elevated)", border: "1px solid var(--divider)" }}>
-                        <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Score Classification</p>
-                        <div className="grid grid-cols-4 gap-1 text-center">
-                          {[
-                            { label: "Max", value: cfg.scoreClassification.maxScore },
-                            { label: "Marksman", value: cfg.scoreClassification.marksMan },
-                            { label: "1st Class", value: cfg.scoreClassification.firstClass },
-                            { label: "Standard", value: cfg.scoreClassification.standardShot },
-                          ].map((s) => (
-                            <div key={s.label}>
-                              <p className="text-[9px] text-muted-foreground">{s.label}</p>
-                              <p className="text-xs font-bold font-mono text-foreground">{s.value}</p>
+                {/* Form */}
+                <div className="flex-1 p-3 flex flex-col gap-2 overflow-y-auto">
+                  {/* Weapon */}
+                  <div>
+                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Weapon</label>
+                    <select
+                      value={sel.weapon}
+                      onChange={(e) => patchLane(lane.laneId, { weapon: e.target.value })}
+                      className="sys-input h-8 text-xs w-full rounded-md px-2"
+                    >
+                      <option value="">Select...</option>
+                      {availableWeapons.map((w) => (
+                        <option key={w.id} value={w.id}>{w.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Type of Fire */}
+                  {sel.weapon && (
+                    <div className="animate-fade-in">
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Type of Fire</label>
+                      <select
+                        value={sel.fireType}
+                        onChange={(e) => patchLane(lane.laneId, { fireType: e.target.value })}
+                        className="sys-input h-8 text-xs w-full rounded-md px-2"
+                      >
+                        <option value="">Select...</option>
+                        {fireTypes.map((f) => (
+                          <option key={f.id} value={f.id}>{f.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Name of Practice */}
+                  {sel.weapon && sel.fireType && (
+                    <div className="animate-fade-in">
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Name of Practice</label>
+                      <select
+                        value={sel.practice}
+                        onChange={(e) => patchLane(lane.laneId, { practice: e.target.value })}
+                        className="sys-input h-8 text-xs w-full rounded-md px-2"
+                      >
+                        <option value="">Select...</option>
+                        {practices.map((p) => (
+                          <option key={p} value={p}>{p}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Loaded config details */}
+                  {cfg && (
+                    <div className="animate-fade-in flex flex-col gap-2 mt-1">
+                      <div className="h-px w-full" style={{ background: "var(--divider)" }} />
+
+                      {/* Practice type — read-only pill */}
+                      <div>
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Practice Type</label>
+                        <div className="grid grid-cols-4 gap-0.5 p-0.5 rounded-lg" style={{ background: "var(--surface-inset)" }}>
+                          {["Grouping", "Application", "Timed", "Snap Shot"].map((pt) => (
+                            <div
+                              key={pt}
+                              className={`text-[10px] text-center font-semibold py-1.5 rounded-md transition-all ${
+                                cfg.practiceType === pt
+                                  ? "text-primary-foreground shadow-sm"
+                                  : "text-muted-foreground/40"
+                              }`}
+                              style={cfg.practiceType === pt ? { background: "var(--gradient-primary)" } : undefined}
+                            >
+                              {pt}
                             </div>
                           ))}
                         </div>
                       </div>
-                    )}
-                  </div>
-                )}
+
+                      {/* Details grid — matches Custom layout */}
+                      <div className="grid grid-cols-2 gap-x-2.5 gap-y-1.5">
+                        <div>
+                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Position</label>
+                          <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                            {cfg.firingPosition || "—"}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Range (m)</label>
+                          <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                            {cfg.firingRange}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Rounds</label>
+                          <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                            {cfg.roundsAllotted}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Max Score/Hit</label>
+                          <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                            {cfg.maxScorePerHit}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Time of Day — read-only */}
+                      <div>
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Time of Day</label>
+                        <div className="grid grid-cols-2 gap-0.5 p-0.5 rounded-lg" style={{ background: "var(--surface-inset)" }}>
+                          <div
+                            className={`flex items-center justify-center gap-1.5 text-[11px] font-semibold py-1.5 rounded-md transition-all ${
+                              cfg.timeOfPractice === "day" ? "bg-amber-500/90 text-white shadow-sm" : "text-muted-foreground/40"
+                            }`}
+                          >
+                            <Sun className="w-3.5 h-3.5" /> Day
+                          </div>
+                          <div
+                            className={`flex items-center justify-center gap-1.5 text-[11px] font-semibold py-1.5 rounded-md transition-all ${
+                              cfg.timeOfPractice === "night" ? "bg-indigo-600/90 text-white shadow-sm" : "text-muted-foreground/40"
+                            }`}
+                          >
+                            <Moon className="w-3.5 h-3.5" /> Night
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Grouping-specific */}
+                      {cfg.practiceType === "Grouping" && (
+                        <div>
+                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Group Size (cm)</label>
+                          <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                            {cfg.acceptingGroupSize}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Timed-specific */}
+                      {cfg.practiceType === "Timed" && (
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Time Limit (sec)</label>
+                            <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                              {cfg.timeSec}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Bonus Point</label>
+                            <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                              {cfg.isBonusPoint ? "Yes" : "No"}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Snap Shot-specific */}
+                      {cfg.practiceType === "Snap Shot" && (
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Exposures</label>
+                            <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                              {cfg.exposures}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Up (sec)</label>
+                            <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                              {cfg.upTime}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Down (sec)</label>
+                            <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                              {cfg.downTime}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Score Classification — for non-Grouping */}
+                      {cfg.practiceType !== "Grouping" && (
+                        <div className="p-2 rounded-xl" style={{ background: "var(--surface-elevated)", border: "1px solid var(--divider)" }}>
+                          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Score Classification</p>
+                          <div className="grid grid-cols-4 gap-1 text-center">
+                            {[
+                              { label: "Max", value: cfg.scoreClassification.maxScore },
+                              { label: "Marksman", value: cfg.scoreClassification.marksMan },
+                              { label: "1st Class", value: cfg.scoreClassification.firstClass },
+                              { label: "Standard", value: cfg.scoreClassification.standardShot },
+                            ].map((s) => (
+                              <div key={s.label}>
+                                <p className="text-[9px] text-muted-foreground">{s.label}</p>
+                                <p className="text-xs font-bold font-mono text-foreground">{s.value}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Target — at bottom with preview */}
+                      <div className="flex-1 flex flex-col min-h-0">
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block shrink-0">Target</label>
+                        <div className="sys-input h-7 text-[10px] w-full rounded-md px-2 flex items-center text-foreground/70 shrink-0 mb-1.5">
+                          {target?.label || cfg.typeOfTarget}
+                        </div>
+                        {target && (
+                          <div
+                            className="flex-1 rounded-lg flex items-center justify-center min-h-[80px] overflow-hidden"
+                            style={{ background: "var(--surface-inset)", border: "1px solid var(--divider)" }}
+                          >
+                            <img
+                              src={target.image}
+                              alt={target.label}
+                              className="max-w-full max-h-full object-contain p-1"
+                              loading="lazy"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
-
-        {activeLanes.length === 0 && (
-          <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-            No lanes have trainees assigned. Go back to Group Setup.
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function DetailChip({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "var(--surface-elevated)", border: "1px solid var(--divider)" }}>
-      <span className="text-muted-foreground">{icon}</span>
-      <div className="min-w-0">
-        <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{label}</p>
-        <p className="text-[11px] font-semibold text-foreground truncate">{value}</p>
       </div>
     </div>
   );
