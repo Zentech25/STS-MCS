@@ -6,102 +6,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/hooks/use-toast";
 import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
 import { TARGETS } from "@/contexts/TargetsContext";
-
-/* ── Types ────────────────────────────────────────────── */
-
-const PRACTICE_TYPES = ["Grouping", "Application", "Timed", "Snap Shot"] as const;
-type PracticeType = (typeof PRACTICE_TYPES)[number];
-
-interface FireTypeEntry {
-  id: string;
-  label: string;
-  practices: string[];
-}
-
-interface WeaponFireMap {
-  [weaponId: string]: FireTypeEntry[];
-}
-
-const DEFAULT_FIRE_MAP: WeaponFireMap = {
-  ak: [
-    { id: "basic-mm", label: "ALL Armed and Services(Recruits) - Basic MM(Classification)", practices: ["BM1(TRB)", "BM2(GRP)"] },
-    { id: "adv-marks", label: "Infantry - Advanced Marksmanship", practices: ["AM1(APP)", "AM2(TMD)"] },
-  ],
-  carbine: [
-    { id: "basic-mm", label: "ALL Armed and Services(Recruits) - Basic MM(Classification)", practices: ["BM1(TRB)"] },
-    { id: "sf-cqb", label: "Special Forces - CQB", practices: ["CQB1(SNP)"] },
-  ],
-};
-
-interface RegionRow {
-  id: string;
-  regionNo: number;
-  fromSector: number;
-  toSector: number;
-  score: number;
-}
-
-interface ScoreClassification {
-  maxScore: number;
-  marksMan: number;
-  firstClass: number;
-  standardShot: number;
-}
-
-interface ARCConfig {
-  weapon: string;
-  typeOfFire: string;
-  nameOfPractice: string;
-  firingPosition: string;
-  firingRange: number;
-  typeOfTarget: string;
-  practiceType: PracticeType;
-  roundsAllotted: number;
-  timeOfPractice: "day" | "night";
-  acceptingGroupSize: number;
-  timeSec: number;
-  isBonusPoint: boolean;
-  exposures: number;
-  upTime: number;
-  downTime: number;
-  maxScorePerHit: number;
-  scoreClassification: ScoreClassification;
-  regions: RegionRow[];
-}
-
-const ACCENT = "340 75% 55%";
-
-const defaultConfig = (): ARCConfig => ({
-  weapon: "",
-  typeOfFire: "",
-  nameOfPractice: "",
-  firingPosition: "",
-  firingRange: 50,
-  typeOfTarget: TARGETS[0]?.id ?? "",
-  practiceType: "Grouping",
-  roundsAllotted: 4,
-  timeOfPractice: "day",
-  acceptingGroupSize: 0,
-  timeSec: 10,
-  isBonusPoint: false,
-  exposures: 0,
-  upTime: 0,
-  downTime: 0,
-  maxScorePerHit: 1,
-  scoreClassification: { maxScore: 4, marksMan: 3, firstClass: 2, standardShot: 1 },
-  regions: [{ id: "reg1", regionNo: 1, fromSector: 1, toSector: 7, score: 1 }],
-});
+import {
+  useARC,
+  PRACTICE_TYPES,
+  type PracticeType,
+  type FireTypeEntry,
+  type WeaponFireMap,
+  type RegionRow,
+  type ScoreClassification,
+  type ARCConfig,
+  defaultARCConfig,
+} from "@/contexts/ARCContext";
 
 const hasSectorTable = (type: PracticeType) => type !== "Grouping";
 const hasScoreClassification = (type: PracticeType) => type !== "Grouping";
+
+const ACCENT = "340 75% 55%";
 
 /* ── Component ────────────────────────────────────────── */
 
 export function ARCToolPage() {
   const { weapons, setWeapons, positions } = useTrainingAssets();
-  const [config, setConfig] = useState<ARCConfig>(defaultConfig());
-  const [savedConfigs, setSavedConfigs] = useState<ARCConfig[]>([]);
-  const [fireMap, setFireMap] = useState<WeaponFireMap>(DEFAULT_FIRE_MAP);
+  const { fireMap, setFireMap, savedConfigs, setSavedConfigs } = useARC();
+  const [config, setConfig] = useState<ARCConfig>(defaultARCConfig());
 
   /* ── Inline add mode: which field is in "text input" mode ── */
   const [addingField, setAddingField] = useState<"weapon" | "fire" | "practice" | null>(null);
