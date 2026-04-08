@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Users, Plus, Save, FolderOpen, X, ChevronRight, Search, UserPlus, Trash2, Pencil, Check } from "lucide-react";
+import { useState } from "react";
+import { Save, FolderOpen, X, ChevronRight, Search, UserPlus } from "lucide-react";
 import { LaneAssignment, SavedGroup, Trainee } from "./types";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -67,13 +67,10 @@ interface Props {
 
 export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
   const [savedGroups, setSavedGroups] = useState<SavedGroup[]>(loadGroups());
-  const [showGroupPicker, setShowGroupPicker] = useState(false);
   const [showTraineeSearch, setShowTraineeSearch] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [saveGroupName, setSaveGroupName] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
-  const [editGroupName, setEditGroupName] = useState("");
 
   const assignedIds = new Set(lanes.flatMap((l) => l.queue.map((t) => t.id)));
   const availableTrainees = TRAINEE_POOL.filter(
@@ -106,7 +103,6 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
 
   const loadGroup = (group: SavedGroup) => {
     onLanesChange(group.lanes);
-    setShowGroupPicker(false);
     toast.success(`Loaded group: ${group.name}`);
   };
 
@@ -126,35 +122,31 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
     setShowSaveDialog(false);
   };
 
-  const handleDeleteGroup = (id: string) => {
-    const updated = savedGroups.filter((g) => g.id !== id);
-    setSavedGroups(updated);
-    saveGroupsToStorage(updated);
-    toast.success("Group deleted");
-  };
-
-  const handleRenameGroup = (id: string) => {
-    if (!editGroupName.trim()) return;
-    const updated = savedGroups.map((g) => g.id === id ? { ...g, name: editGroupName.trim() } : g);
-    setSavedGroups(updated);
-    saveGroupsToStorage(updated);
-    setEditingGroupId(null);
-    setEditGroupName("");
-    toast.success("Group renamed");
-  };
-
   const hasAnyTrainee = lanes.some((l) => l.queue.length > 0);
 
   return (
     <div className="flex flex-col h-full gap-5">
       {/* Top actions */}
       <div className="flex items-center gap-3 shrink-0">
-        <button
-          onClick={() => setShowGroupPicker(!showGroupPicker)}
-          className="h-10 px-5 rounded-xl font-semibold text-[11px] uppercase tracking-wider flex items-center gap-2 glass-btn text-primary hover:scale-[1.03] active:scale-[0.97] transition-all duration-200"
-        >
-          <FolderOpen className="w-3.5 h-3.5" /> Load Group
-        </button>
+        <div className="relative">
+          <select
+            value=""
+            onChange={(e) => {
+              const group = savedGroups.find((g) => g.id === e.target.value);
+              if (group) loadGroup(group);
+            }}
+            className="sys-input h-10 pl-10 pr-5 rounded-xl font-semibold text-[11px] uppercase tracking-wider appearance-none cursor-pointer text-primary"
+            style={{ minWidth: 180 }}
+          >
+            <option value="" disabled>Load Group</option>
+            {savedGroups.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name} ({g.lanes.reduce((a, l) => a + l.queue.length, 0)} trainees)
+              </option>
+            ))}
+          </select>
+          <FolderOpen className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-primary pointer-events-none" />
+        </div>
         {hasAnyTrainee && (
           <button
             onClick={() => setShowSaveDialog(true)}
@@ -191,77 +183,6 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
           />
           <button onClick={handleSaveGroup} className="h-9 px-4 rounded-lg text-[11px] font-semibold uppercase tracking-wider text-primary-foreground transition-all hover:scale-[1.03]" style={{ background: "var(--gradient-primary)" }}>Save</button>
           <button onClick={() => setShowSaveDialog(false)} className="h-9 px-3 rounded-lg text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-all">Cancel</button>
-        </div>
-      )}
-
-      {/* Group picker overlay */}
-      {showGroupPicker && (
-        <div className="glass-panel p-4 shrink-0 animate-fade-in">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-foreground">Saved Groups</span>
-            <button onClick={() => setShowGroupPicker(false)} className="text-muted-foreground hover:text-foreground transition-colors">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-          {savedGroups.length === 0 ? (
-            <p className="text-[11px] text-muted-foreground py-3 text-center">No saved groups yet.</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {savedGroups.map((g) => (
-                <div
-                  key={g.id}
-                  className="p-3.5 rounded-xl flex items-center gap-2 transition-all duration-200 hover:scale-[1.01] group/card"
-                  style={{
-                    background: "var(--surface-elevated)",
-                    border: "1px solid var(--divider)",
-                  }}
-                >
-                  {editingGroupId === g.id ? (
-                    <div className="flex-1 flex items-center gap-2 min-w-0">
-                      <Input
-                        autoFocus
-                        value={editGroupName}
-                        onChange={(e) => setEditGroupName(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleRenameGroup(g.id)}
-                        className="h-8 text-xs flex-1"
-                      />
-                      <button onClick={() => handleRenameGroup(g.id)} className="text-primary hover:scale-110 transition-all shrink-0">
-                        <Check className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => setEditingGroupId(null)} className="text-muted-foreground hover:text-foreground transition-all shrink-0">
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => loadGroup(g)}
-                        className="flex-1 text-left min-w-0"
-                      >
-                        <p className="text-sm font-semibold text-foreground truncate">{g.name}</p>
-                        <p className="text-[10px] text-muted-foreground mt-1">
-                          {g.lanes.reduce((a, l) => a + l.queue.length, 0)} trainees · {g.lanes.filter((l) => l.queue.length > 0).length} lanes · Created {g.createdAt}
-                        </p>
-                      </button>
-                      <button
-                        onClick={() => { setEditingGroupId(g.id); setEditGroupName(g.name); }}
-                        className="opacity-0 group-hover/card:opacity-100 text-muted-foreground hover:text-primary transition-all shrink-0"
-                        title="Rename"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteGroup(g.id)}
-                        className="opacity-0 group-hover/card:opacity-100 text-muted-foreground hover:text-destructive transition-all shrink-0"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
 
