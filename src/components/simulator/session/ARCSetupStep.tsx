@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Crosshair, Copy, Sun, Moon, Eye, Clock, Target, Zap } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { ChevronLeft, ChevronRight, Crosshair, Copy, Sun, Moon, Eye } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
 import { useARC, ARCConfig } from "@/contexts/ARCContext";
@@ -14,6 +13,13 @@ interface Props {
   exerciseMode: "custom" | "arc";
   onModeChange: (mode: "custom" | "arc") => void;
 }
+
+const PRACTICE_TYPES = [
+  { id: "Grouping", label: "Grouping" },
+  { id: "Application", label: "Application" },
+  { id: "Timed", label: "Timed" },
+  { id: "Snap Shot", label: "Snap Shot" },
+];
 
 export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange }: Props) {
   const { weapons } = useTrainingAssets();
@@ -88,16 +94,9 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
     setCopyFromLane(null);
   };
 
-  const PRACTICE_TYPE_LABELS: Record<string, string> = {
-    Grouping: "Grouping",
-    Application: "Application",
-    Timed: "Timed",
-    "Snap Shot": "Snap Shot",
-  };
-
   return (
     <div className="flex flex-col h-full gap-3">
-      {/* Top bar — matches Custom */}
+      {/* Top bar */}
       <div className="flex items-center gap-3 shrink-0">
         <button
           onClick={onBack}
@@ -135,7 +134,7 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
         </div>
       </div>
 
-      {/* Lane cards — 4 col grid matching Custom */}
+      {/* Lane cards */}
       <div className="flex-1 min-h-0">
         <div className="grid grid-cols-4 gap-3 h-full auto-rows-fr">
           {lanes.map((lane) => {
@@ -158,6 +157,7 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
             const target = cfg ? getTargetById(cfg.typeOfTarget) : undefined;
             const otherActiveLanes = activeLanes.filter((l) => l.laneId !== lane.laneId);
             const isCopySource = copyFromLane === lane.laneId;
+            const positionLabel = cfg?.firingPosition || "";
 
             return (
               <div key={lane.laneId} className="glass-panel flex flex-col overflow-hidden">
@@ -214,9 +214,9 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
                   )}
                 </div>
 
-                {/* Form */}
+                {/* Form content */}
                 <div className="flex-1 p-3 flex flex-col gap-2 overflow-y-auto">
-                  {/* Weapon */}
+                  {/* ARC Selection: Weapon → Fire Type → Practice (cascading) */}
                   <div>
                     <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Weapon</label>
                     <select
@@ -231,7 +231,6 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
                     </select>
                   </div>
 
-                  {/* Type of Fire */}
                   {sel.weapon && (
                     <div className="animate-fade-in">
                       <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Type of Fire</label>
@@ -248,7 +247,6 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
                     </div>
                   )}
 
-                  {/* Name of Practice */}
                   {sel.weapon && sel.fireType && (
                     <div className="animate-fade-in">
                       <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Name of Practice</label>
@@ -265,37 +263,43 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
                     </div>
                   )}
 
-                  {/* Loaded config details */}
+                  {/* Once a practice is selected, show loaded config exactly like Custom tab */}
                   {cfg && (
                     <div className="animate-fade-in flex flex-col gap-2 mt-1">
                       <div className="h-px w-full" style={{ background: "var(--divider)" }} />
 
-                      {/* Practice type — read-only pill */}
+                      {/* Practice Type — read-only pills */}
                       <div>
                         <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Practice Type</label>
                         <div className="grid grid-cols-4 gap-0.5 p-0.5 rounded-lg" style={{ background: "var(--surface-inset)" }}>
-                          {["Grouping", "Application", "Timed", "Snap Shot"].map((pt) => (
+                          {PRACTICE_TYPES.map((pt) => (
                             <div
-                              key={pt}
+                              key={pt.id}
                               className={`text-[10px] text-center font-semibold py-1.5 rounded-md transition-all ${
-                                cfg.practiceType === pt
+                                cfg.practiceType === pt.id
                                   ? "text-primary-foreground shadow-sm"
                                   : "text-muted-foreground/40"
                               }`}
-                              style={cfg.practiceType === pt ? { background: "var(--gradient-primary)" } : undefined}
+                              style={cfg.practiceType === pt.id ? { background: "var(--gradient-primary)" } : undefined}
                             >
-                              {pt}
+                              {pt.label}
                             </div>
                           ))}
                         </div>
                       </div>
 
-                      {/* Details grid — matches Custom layout */}
+                      {/* Weapon & Position — 2 col like Custom */}
                       <div className="grid grid-cols-2 gap-x-2.5 gap-y-1.5">
+                        <div>
+                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Weapon</label>
+                          <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                            {weapons.find((w) => w.id === cfg.weapon)?.label || cfg.weapon}
+                          </div>
+                        </div>
                         <div>
                           <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Position</label>
                           <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
-                            {cfg.firingPosition || "—"}
+                            {positionLabel || "—"}
                           </div>
                         </div>
                         <div>
@@ -310,15 +314,9 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
                             {cfg.roundsAllotted}
                           </div>
                         </div>
-                        <div>
-                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Max Score/Hit</label>
-                          <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
-                            {cfg.maxScorePerHit}
-                          </div>
-                        </div>
                       </div>
 
-                      {/* Time of Day — read-only */}
+                      {/* Time of Day — read-only toggle matching Custom */}
                       <div>
                         <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Time of Day</label>
                         <div className="grid grid-cols-2 gap-0.5 p-0.5 rounded-lg" style={{ background: "var(--surface-inset)" }}>
@@ -339,39 +337,21 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
                         </div>
                       </div>
 
-                      {/* Grouping-specific */}
-                      {cfg.practiceType === "Grouping" && (
-                        <div>
-                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Group Size (cm)</label>
-                          <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
-                            {cfg.acceptingGroupSize}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Timed-specific */}
+                      {/* Timed-specific: Time Limit */}
                       {cfg.practiceType === "Timed" && (
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Time Limit (sec)</label>
-                            <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
-                              {cfg.timeSec}
-                            </div>
-                          </div>
-                          <div>
-                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Bonus Point</label>
-                            <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
-                              {cfg.isBonusPoint ? "Yes" : "No"}
-                            </div>
+                        <div>
+                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Time Limit (sec)</label>
+                          <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
+                            {cfg.timeSec}
                           </div>
                         </div>
                       )}
 
-                      {/* Snap Shot-specific */}
+                      {/* Snap Shot-specific: Exposure, Up, Down */}
                       {cfg.practiceType === "Snap Shot" && (
                         <div className="grid grid-cols-3 gap-2">
                           <div>
-                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Exposures</label>
+                            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">Exposure</label>
                             <div className="sys-input h-8 text-xs w-full rounded-md px-2 flex items-center text-foreground/70">
                               {cfg.exposures}
                             </div>
@@ -391,27 +371,7 @@ export function ARCSetupStep({ lanes, onBack, onNext, exerciseMode, onModeChange
                         </div>
                       )}
 
-                      {/* Score Classification — for non-Grouping */}
-                      {cfg.practiceType !== "Grouping" && (
-                        <div className="p-2 rounded-xl" style={{ background: "var(--surface-elevated)", border: "1px solid var(--divider)" }}>
-                          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Score Classification</p>
-                          <div className="grid grid-cols-4 gap-1 text-center">
-                            {[
-                              { label: "Max", value: cfg.scoreClassification.maxScore },
-                              { label: "Marksman", value: cfg.scoreClassification.marksMan },
-                              { label: "1st Class", value: cfg.scoreClassification.firstClass },
-                              { label: "Standard", value: cfg.scoreClassification.standardShot },
-                            ].map((s) => (
-                              <div key={s.label}>
-                                <p className="text-[9px] text-muted-foreground">{s.label}</p>
-                                <p className="text-xs font-bold font-mono text-foreground">{s.value}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Target — at bottom with preview */}
+                      {/* Target — dropdown (read-only) + preview, matching Custom */}
                       <div className="flex-1 flex flex-col min-h-0">
                         <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block shrink-0">Target</label>
                         <div className="sys-input h-7 text-[10px] w-full rounded-md px-2 flex items-center text-foreground/70 shrink-0 mb-1.5">
