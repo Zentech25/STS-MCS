@@ -27,6 +27,7 @@ const ACCENT = "4 80% 58%";
 export function TargetRegionScoresPage() {
   const [selectedTarget, setSelectedTarget] = useState<string>(TARGETS[0].id);
   const [range, setRange] = useState("100");
+  const [totalZones, setTotalZones] = useState("8");
   const [exerciseType, setExerciseType] = useState<string>(EXERCISE_TYPES[0]);
   const [rows, setRows] = useState<ZoneRow[]>([
     { id: "r1", zone: 1, score: 10 },
@@ -103,7 +104,7 @@ export function TargetRegionScoresPage() {
     <div className="flex-1 flex flex-col lg:flex-row gap-6 p-6 overflow-y-auto animate-fade-in">
       {/* Left: controls + table */}
       <div className="flex-1 flex flex-col gap-5 min-w-0">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Target</label>
             <div className="flex gap-2">
@@ -143,6 +144,18 @@ export function TargetRegionScoresPage() {
               min={1}
               className="h-9 rounded-xl text-sm"
               placeholder="100"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Zones</label>
+            <Input
+              type="number"
+              value={totalZones}
+              onChange={(e) => setTotalZones(e.target.value)}
+              min={1}
+              className="h-9 rounded-xl text-sm"
+              placeholder="8"
             />
           </div>
 
