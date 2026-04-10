@@ -124,6 +124,7 @@ export function SessionPage({ mode, onModeChange }: SessionPageProps) {
           );
         })}
       </div>
+      )}
 
       {/* Step content */}
       <div className="flex-1 overflow-hidden">
