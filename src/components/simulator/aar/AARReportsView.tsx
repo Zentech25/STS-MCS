@@ -47,7 +47,7 @@ export function AARReportsView({ records, onSelectRecord, isReplayPicker }: Prop
       return (
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())} className="gap-1.5 hover:bg-muted/50">
+            <Button variant="ghost" size="sm" onClick={() => setViewingGroup(false)} className="gap-1.5 hover:bg-muted/50">
               ← Back to selection
             </Button>
             <h2 className="text-lg font-bold text-foreground">Group Report</h2>
