@@ -59,7 +59,7 @@ export function AARPage() {
               <AARReportsView records={filtered} onSelectRecord={setSelectedRecord} isReplayPicker />
             </>
           ) : (
-            <AARReplayView record={selectedRecord} onBack={() => setSelectedRecord(null)} />
+            <AARReplayView record={selectedRecord} onBack={() => setSelectedRecord(null)} records={filtered} onNavigate={setSelectedRecord} />
           )}
         </TabsContent>
 
