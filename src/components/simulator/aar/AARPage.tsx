@@ -34,7 +34,7 @@ export function AARPage() {
     return true;
   });
 
-  const showDateRange = !!(filters.traineeId || filters.name || filters.practiceType || filters.company);
+  
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
