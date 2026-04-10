@@ -6,8 +6,9 @@ import { EngineerDashboard } from "./EngineerDashboard";
 import { SessionPage, SessionMode } from "./SessionPage";
 import { ConfigurePage } from "./ConfigurePage";
 import { LeaderboardPage } from "./LeaderboardPage";
+import { AARPage } from "./aar/AARPage";
 
-type Tab = "session" | "leaderboard" | "configure";
+type Tab = "session" | "leaderboard" | "configure" | "aar";
 
 export function Dashboard() {
   const { user } = useAuth();
