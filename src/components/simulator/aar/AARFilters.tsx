@@ -20,10 +20,9 @@ export interface AARFilterValues {
 interface Props {
   filters: AARFilterValues;
   onChange: (f: AARFilterValues) => void;
-  showDateRange: boolean;
 }
 
-export function AARFilters({ filters, onChange, showDateRange }: Props) {
+export function AARFilters({ filters, onChange }: Props) {
   const set = (k: keyof AARFilterValues, v: any) => onChange({ ...filters, [k]: v });
 
   return (
