@@ -127,15 +127,23 @@ export function SessionPage({ mode, onModeChange }: SessionPageProps) {
       )}
 
       {/* Step content */}
-      <div className="flex-1 overflow-hidden">
-        {step === "group" && (
+      <div className={`flex-1 overflow-hidden relative ${isFirer ? "pointer-events-none" : ""}`}>
+        {isFirer && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl" style={{ background: "var(--surface-glass)", backdropFilter: "blur(2px)" }}>
+            <Gamepad2 className="w-10 h-10 text-muted-foreground/40" />
+            <p className="text-sm font-semibold text-muted-foreground/60 uppercase tracking-wider">Firer Mode</p>
+            <p className="text-xs text-muted-foreground/40 max-w-xs text-center">Session is controlled by FPE. Trainee and exercise data will be received automatically.</p>
+          </div>
+        )}
+
+        {!isFirer && step === "group" && (
           <GroupSetupStep
             lanes={lanes}
             onLanesChange={setLanes}
             onNext={() => setStep("exercise")}
           />
         )}
-        {step === "exercise" && exerciseMode === "custom" && (
+        {!isFirer && step === "exercise" && exerciseMode === "custom" && (
           <ExerciseSetupStep
             lanes={lanes}
             exercises={exercises}
@@ -146,7 +154,7 @@ export function SessionPage({ mode, onModeChange }: SessionPageProps) {
             onModeChange={setExerciseMode}
           />
         )}
-        {step === "exercise" && exerciseMode === "arc" && (
+        {!isFirer && step === "exercise" && exerciseMode === "arc" && (
           <ARCSetupStep
             lanes={lanes}
             onBack={() => setStep("group")}
@@ -158,7 +166,7 @@ export function SessionPage({ mode, onModeChange }: SessionPageProps) {
             onModeChange={setExerciseMode}
           />
         )}
-        {step === "live" && (
+        {(isFirer || step === "live") && !isFirer && (
           <SessionLiveStep
             lanes={lanes}
             exercises={exercises}
