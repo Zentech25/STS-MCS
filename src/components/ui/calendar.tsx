@@ -1,11 +1,37 @@
 import * as React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+
+type CalendarDropdownProps = React.ComponentPropsWithoutRef<"select"> & {
+  caption?: React.ReactNode;
+};
+
+function CalendarDropdown({
+  className,
+  children,
+  caption: _caption,
+  style,
+  ...props
+}: CalendarDropdownProps) {
+  return (
+    <div className={cn("relative", className)} style={style}>
+      <select
+        {...props}
+        className={cn(
+          "h-9 w-full appearance-none rounded-lg border border-border/60 bg-popover px-3 pr-9 text-xs font-semibold text-foreground shadow-sm transition-colors outline-none hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-60",
+        )}
+      >
+        {children}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+    </div>
+  );
+}
 
 function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
   return (
@@ -15,18 +41,18 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium",
-        caption_dropdowns: "flex justify-center gap-1 items-center",
-        dropdown_month: "relative inline-flex items-center",
-        dropdown_year: "relative inline-flex items-center",
-        dropdown:
-          "absolute inset-0 w-full opacity-0 cursor-pointer z-10 text-sm",
-        vhidden: "hidden",
-        nav: "space-x-1 flex items-center",
+        caption: "relative flex items-center justify-center pt-1",
+        caption_label: "text-sm font-semibold text-foreground",
+        caption_dropdowns: "flex w-full items-center justify-center gap-2 px-8",
+        dropdown_month: "min-w-[8.5rem]",
+        dropdown_year: "min-w-[6.25rem]",
+        dropdown: "h-9 w-full appearance-none bg-transparent",
+        dropdown_icon: "hidden",
+        vhidden: "sr-only",
+        nav: "flex items-center gap-1",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+          "h-7 w-7 rounded-md bg-background/80 p-0 opacity-80 shadow-sm hover:opacity-100",
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
@@ -53,6 +79,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         ...classNames,
       }}
       components={{
+        Dropdown: CalendarDropdown,
         IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
       }}
