@@ -48,7 +48,7 @@ export function AARPage() {
         </div>
 
         <TabsContent value="reports" className="flex-1 overflow-auto px-6 pb-4">
-          <AARFilters filters={filters} onChange={setFilters} showDateRange={showDateRange} />
+          <AARFilters filters={filters} onChange={setFilters} />
           <AARReportsView records={filtered} onSelectRecord={(r) => { setSelectedRecord(r); setSubTab("replay"); }} />
         </TabsContent>
 
