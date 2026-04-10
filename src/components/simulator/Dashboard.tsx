@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { HeaderBar } from "./HeaderBar";
 import { AdministratorDashboard } from "./AdministratorDashboard";
 import { EngineerDashboard } from "./EngineerDashboard";
-import { SessionPage } from "./SessionPage";
+import { SessionPage, SessionMode } from "./SessionPage";
 import { ConfigurePage } from "./ConfigurePage";
 import { LeaderboardPage } from "./LeaderboardPage";
 
@@ -12,6 +12,7 @@ type Tab = "session" | "leaderboard" | "configure";
 export function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("session");
+  const [sessionMode, setSessionMode] = useState<SessionMode>("master");
 
   const isInstructor = user?.role === "instructor";
 
@@ -53,7 +54,7 @@ export function Dashboard() {
         ) : isInstructor && activeTab === "leaderboard" ? (
           <LeaderboardPage />
         ) : isInstructor && activeTab === "session" ? (
-          <SessionPage />
+          <SessionPage mode={sessionMode} onModeChange={setSessionMode} />
         ) : (
           <>
             {user?.role === "administrator" && <AdministratorDashboard />}
