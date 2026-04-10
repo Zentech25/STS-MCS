@@ -166,7 +166,7 @@ export function SessionPage({ mode, onModeChange }: SessionPageProps) {
             onModeChange={setExerciseMode}
           />
         )}
-        {(isFirer || step === "live") && !isFirer && (
+        {(isFirer || step === "live") && (
           <SessionLiveStep
             lanes={lanes}
             exercises={exercises}
