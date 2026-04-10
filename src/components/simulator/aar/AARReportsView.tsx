@@ -89,7 +89,7 @@ export function AARReportsView({ records, onSelectRecord, isReplayPicker }: Prop
               variant={mode === "single" ? "default" : "ghost"}
               size="sm"
               className="h-8 text-xs gap-1.5"
-              onClick={() => { setMode("single"); setSelectedIds(new Set()); setViewingRecord(null); }}
+              onClick={() => { setMode("single"); setSelectedIds(new Set()); setViewingRecord(null); setViewingGroup(false); }}
             >
               <User className="w-3.5 h-3.5" /> Single Report
             </Button>
