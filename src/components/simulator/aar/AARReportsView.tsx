@@ -103,7 +103,7 @@ export function AARReportsView({ records, onSelectRecord, isReplayPicker }: Prop
             </Button>
           </div>
           {mode === "group" && selectedIds.size > 0 && (
-            <Button size="sm" className="gap-1.5">
+            <Button size="sm" className="gap-1.5" onClick={() => setViewingGroup(true)}>
               <Eye className="w-3.5 h-3.5" /> View Group Report ({selectedIds.size})
             </Button>
           )}
