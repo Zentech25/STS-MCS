@@ -10,22 +10,20 @@ import { TARGETS } from "@/contexts/TargetsContext";
 
 export type SessionMode = "master" | "firer";
 
+const TOTAL_LANES = 10;
+
 const STEPS: { key: SessionStep; label: string; icon: React.ElementType }[] = [
   { key: "group", label: "Group Setup", icon: Users },
   { key: "exercise", label: "Exercise", icon: Crosshair },
   { key: "live", label: "Session", icon: Radio },
 ];
 
-const createEmptyLanes = (): LaneAssignment[] => [
-  { laneId: 1, queue: [] },
-  { laneId: 2, queue: [] },
-  { laneId: 3, queue: [] },
-  { laneId: 4, queue: [] },
-];
+const createEmptyLanes = (): LaneAssignment[] =>
+  Array.from({ length: TOTAL_LANES }, (_, i) => ({ laneId: i + 1, queue: [] }));
 
 const createDefaultExercises = (): ExerciseConfig[] =>
-  [1, 2, 3, 4].map((laneId) => ({
-    laneId,
+  Array.from({ length: TOTAL_LANES }, (_, i) => ({
+    laneId: i + 1,
     type: "custom" as const,
     name: "",
     practiceType: "grouping" as const,

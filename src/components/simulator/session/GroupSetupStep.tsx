@@ -188,7 +188,7 @@ export function GroupSetupStep({ lanes, onLanesChange, onNext }: Props) {
 
       {/* Lane cards */}
       <div className="flex-1 overflow-hidden">
-        <div className="grid grid-cols-4 gap-4 h-full">
+      <div className="grid grid-cols-5 gap-3 h-full auto-rows-fr overflow-y-auto">
           {lanes.map((lane) => (
             <div
               key={lane.laneId}

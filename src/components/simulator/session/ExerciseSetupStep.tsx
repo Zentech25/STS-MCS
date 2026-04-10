@@ -105,7 +105,7 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
 
       {/* Exercise cards per lane */}
       <div className="flex-1 min-h-0">
-        <div className="grid grid-cols-4 gap-3 h-full auto-rows-fr">
+        <div className="grid grid-cols-5 gap-3 h-full auto-rows-fr overflow-y-auto">
           {lanes.map((lane) => {
             const exercise = exercises.find((e) => e.laneId === lane.laneId);
             const activeTrainee = lane.queue[0];
