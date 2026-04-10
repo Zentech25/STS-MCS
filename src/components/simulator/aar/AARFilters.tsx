@@ -28,7 +28,7 @@ export function AARFilters({ filters, onChange, showDateRange }: Props) {
 
   return (
     <div className="my-4 space-y-3">
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
         <div className="flex flex-col gap-1">
           <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Trainee ID</label>
           <Input placeholder="e.g. T001" value={filters.traineeId} onChange={(e) => set("traineeId", e.target.value)} className="h-9 text-sm" />
@@ -73,6 +73,34 @@ export function AARFilters({ filters, onChange, showDateRange }: Props) {
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar mode="single" selected={filters.date} onSelect={(d) => set("date", d)} className="p-3 pointer-events-auto" />
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">From Date</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn("h-9 text-sm justify-start font-normal", !filters.fromDate && "text-muted-foreground")}>
+                <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                {filters.fromDate ? format(filters.fromDate, "PP") : "From"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={filters.fromDate} onSelect={(d) => set("fromDate", d)} className="p-3 pointer-events-auto" />
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">To Date</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn("h-9 text-sm justify-start font-normal", !filters.toDate && "text-muted-foreground")}>
+                <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                {filters.toDate ? format(filters.toDate, "PP") : "To"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={filters.toDate} onSelect={(d) => set("toDate", d)} className="p-3 pointer-events-auto" />
             </PopoverContent>
           </Popover>
         </div>
