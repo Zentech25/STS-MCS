@@ -32,9 +32,9 @@ export function SystemActionsPage() {
     toast({ title: "FPE Shut Down", description: `${units.find((u) => u.id === id)?.label} has been shut down.` });
   };
 
-  const handleReconnect = (id: string) => {
+  const handleRestart = (id: string) => {
     setUnits((prev) => prev.map((u) => (u.id === id ? { ...u, status: "online" as const } : u)));
-    toast({ title: "FPE Reconnected", description: `${units.find((u) => u.id === id)?.label} is now online.` });
+    toast({ title: "FPE Restarted", description: `${units.find((u) => u.id === id)?.label} has been restarted.` });
   };
 
   const handleShutdownAll = () => {
@@ -226,10 +226,10 @@ export function SystemActionsPage() {
                   variant="outline"
                   className="flex-1 rounded-xl gap-1.5 text-xs"
                   disabled={unit.status === "online"}
-                  onClick={() => handleReconnect(unit.id)}
+                  onClick={() => handleRestart(unit.id)}
                 >
-                  <Plug className="w-3.5 h-3.5" />
-                  Reconnect
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Restart
                 </Button>
               </div>
             </div>
