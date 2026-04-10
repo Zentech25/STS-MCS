@@ -1,6 +1,6 @@
 import { AARSessionRecord } from "./aarTypes";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Target, Crosshair } from "lucide-react";
+import { ArrowLeft, Target, Crosshair, ChevronLeft, ChevronRight } from "lucide-react";
 import { getTargetById } from "@/contexts/TargetsContext";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -8,11 +8,17 @@ import { format } from "date-fns";
 interface Props {
   record: AARSessionRecord;
   onBack: () => void;
+  records?: AARSessionRecord[];
+  onNavigate?: (record: AARSessionRecord) => void;
 }
 
-export function AARReplayView({ record, onBack }: Props) {
+export function AARReplayView({ record, onBack, records, onNavigate }: Props) {
   const target = getTargetById(record.targetType);
   const accuracy = record.bulletsAllotted > 0 ? Math.round((record.bulletsHit / record.bulletsAllotted) * 100) : 0;
+
+  const currentIndex = records?.findIndex((r) => r.id === record.id) ?? -1;
+  const hasPrev = currentIndex > 0;
+  const hasNext = records ? currentIndex < records.length - 1 : false;
 
   return (
     <div className="py-4 space-y-4">
@@ -22,6 +28,17 @@ export function AARReplayView({ record, onBack }: Props) {
         </Button>
         <h2 className="text-lg font-bold">{record.traineeName} — Session Replay</h2>
         <Badge variant="secondary" className="capitalize">{record.practiceType}</Badge>
+        {records && records.length > 1 && (
+          <div className="ml-auto flex items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">{currentIndex + 1} / {records.length}</span>
+            <Button variant="outline" size="icon" className="h-8 w-8" disabled={!hasPrev} onClick={() => hasPrev && onNavigate?.(records[currentIndex - 1])}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" size="icon" className="h-8 w-8" disabled={!hasNext} onClick={() => hasNext && onNavigate?.(records[currentIndex + 1])}>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
