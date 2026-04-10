@@ -6,8 +6,9 @@ import { EngineerDashboard } from "./EngineerDashboard";
 import { SessionPage, SessionMode } from "./SessionPage";
 import { ConfigurePage } from "./ConfigurePage";
 import { LeaderboardPage } from "./LeaderboardPage";
+import { AARPage } from "./aar/AARPage";
 
-type Tab = "session" | "leaderboard" | "configure";
+type Tab = "session" | "leaderboard" | "configure" | "aar";
 
 export function Dashboard() {
   const { user } = useAuth();
@@ -29,11 +30,11 @@ export function Dashboard() {
           WebkitBackdropFilter: "blur(16px)",
           borderBottom: `1px solid var(--divider)`,
         }}>
-          {(["session", "leaderboard", "configure"] as Tab[]).map((tab) => (
+          {(["session", "leaderboard", "configure", "aar"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2.5 text-[12px] font-semibold capitalize tracking-wide transition-all duration-300 border-b-2 ${
+              className={`px-5 py-2.5 text-[12px] font-semibold uppercase tracking-wide transition-all duration-300 border-b-2 ${
                 activeTab === tab
                   ? "text-primary border-primary"
                   : "text-muted-foreground border-transparent hover:text-foreground"
@@ -42,7 +43,7 @@ export function Dashboard() {
                 textShadow: "0 0 20px hsl(230 80% 60% / 0.3)",
               } : undefined}
             >
-              {tab}
+              {tab === "aar" ? "AAR" : tab}
             </button>
           ))}
         </div>
@@ -53,6 +54,8 @@ export function Dashboard() {
           <ConfigurePage />
         ) : isInstructor && activeTab === "leaderboard" ? (
           <LeaderboardPage />
+        ) : isInstructor && activeTab === "aar" ? (
+          <AARPage />
         ) : isInstructor && activeTab === "session" ? (
           <SessionPage mode={sessionMode} onModeChange={setSessionMode} />
         ) : (
