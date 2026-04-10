@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
-import { Play, Pause, Square, ChevronLeft, Pin, PinOff, Target, Crosshair, Zap, Shield, Eye, Layers, X, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { Play, Pause, Square, ChevronLeft, Pin, PinOff, Target, Crosshair, Zap, Shield, Eye, Layers, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { LaneAssignment, ExerciseConfig } from "./types";
 import { getTargetById } from "@/contexts/TargetsContext";
 
@@ -12,17 +12,19 @@ interface Props {
   onBack: () => void;
 }
 
-/* ── Pinned Lane Card (full detail) ── */
+/* ── Pinned Lane Card ── */
 function PinnedCard({
   lane,
   exercise,
   onUnpin,
   sessionState,
+  cardCount,
 }: {
   lane: LaneAssignment;
   exercise: ExerciseConfig | undefined;
   onUnpin: () => void;
   sessionState: "idle" | "running" | "paused";
+  cardCount: number;
 }) {
   const activeTrainee = lane.queue[0];
   const target = exercise ? getTargetById(exercise.targetType) : null;
@@ -33,203 +35,141 @@ function PinnedCard({
   return (
     <motion.div
       layout
-      className="rounded-2xl flex flex-col overflow-hidden relative group"
+      className="rounded-2xl flex flex-col overflow-hidden relative h-full"
       style={{
         background: "var(--surface-glass)",
-        border: "1px solid hsl(var(--primary) / 0.3)",
+        border: "1px solid hsl(var(--primary) / 0.25)",
         backdropFilter: "blur(28px) saturate(200%)",
         WebkitBackdropFilter: "blur(28px) saturate(200%)",
-        boxShadow: "0 0 40px hsl(var(--primary) / 0.15), 0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)",
+        boxShadow: "0 0 40px hsl(var(--primary) / 0.12), 0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)",
       }}
-      initial={{ opacity: 0, scale: 0.85, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.85, y: 20 }}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
       transition={{ type: "spring", stiffness: 400, damping: 35 }}
     >
       {/* Glow */}
-      <motion.div
+      <div
         className="absolute inset-0 rounded-2xl pointer-events-none z-0"
         style={{
-          background: "linear-gradient(135deg, hsl(var(--primary) / 0.06) 0%, hsl(var(--accent) / 0.04) 100%)",
-          boxShadow: "inset 0 0 60px hsl(var(--primary) / 0.05)",
+          background: "linear-gradient(135deg, hsl(var(--primary) / 0.05) 0%, hsl(var(--accent) / 0.03) 100%)",
         }}
       />
 
-      {/* Header: lane number + trainee info + unpin */}
+      {/* Top bar: lane# + trainee + status + unpin */}
       <div
-        className="px-3 py-2 flex items-center gap-2.5 shrink-0 relative z-10"
+        className="px-3 py-1.5 flex items-center gap-2 shrink-0 relative z-10"
         style={{
-          background: "linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--accent) / 0.05))",
+          background: "linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--accent) / 0.04))",
           borderBottom: "1px solid var(--divider)",
         }}
       >
         <motion.div
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold text-primary-foreground shrink-0"
-          style={{
-            background: "var(--gradient-primary)",
-            boxShadow: "0 2px 8px hsl(var(--primary) / 0.3)",
-          }}
-          animate={sessionState === "running" ? { boxShadow: ["0 2px 8px hsl(var(--primary) / 0.3)", "0 2px 16px hsl(var(--primary) / 0.6)", "0 2px 8px hsl(var(--primary) / 0.3)"] } : undefined}
+          className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0"
+          style={{ background: "var(--gradient-primary)", boxShadow: "0 2px 8px hsl(var(--primary) / 0.3)" }}
+          animate={sessionState === "running" ? { boxShadow: ["0 2px 8px hsl(var(--primary) / 0.3)", "0 2px 14px hsl(var(--primary) / 0.6)", "0 2px 8px hsl(var(--primary) / 0.3)"] } : undefined}
           transition={{ repeat: Infinity, duration: 2 }}
         >
           {lane.laneId}
         </motion.div>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-semibold text-foreground truncate">{activeTrainee?.name || "—"}</p>
-          <p className="text-[8px] text-muted-foreground font-mono truncate">{activeTrainee?.id} · {activeTrainee?.rank}</p>
+          <p className="text-[10px] font-semibold text-foreground truncate leading-tight">{activeTrainee?.name || "—"}</p>
+          <p className="text-[7px] text-muted-foreground font-mono truncate">{activeTrainee?.id} · {activeTrainee?.rank}</p>
         </div>
         <motion.span
-          className={`w-2 h-2 rounded-full shrink-0 ${
-            sessionState === "running" ? "bg-success" :
-            sessionState === "paused" ? "bg-warning" :
-            "bg-muted-foreground/30"
-          }`}
+          className={`w-2 h-2 rounded-full shrink-0 ${sessionState === "running" ? "bg-success" : sessionState === "paused" ? "bg-warning" : "bg-muted-foreground/30"}`}
           animate={sessionState === "running" ? { scale: [1, 1.4, 1] } : undefined}
           transition={{ repeat: Infinity, duration: 1.5 }}
         />
         <motion.button
           onClick={onUnpin}
-          className="p-1.5 rounded-lg text-primary shrink-0"
-          style={{
-            background: "hsl(var(--primary) / 0.15)",
-            border: "1px solid hsl(var(--primary) / 0.3)",
-          }}
-          whileHover={{ scale: 1.2 }}
+          className="p-1 rounded-md text-primary shrink-0"
+          style={{ background: "hsl(var(--primary) / 0.12)", border: "1px solid hsl(var(--primary) / 0.2)" }}
+          whileHover={{ scale: 1.15 }}
           whileTap={{ scale: 0.85 }}
-          title="Unpin lane"
         >
-          <Pin className="w-3 h-3" />
+          <Pin className="w-2.5 h-2.5" />
         </motion.button>
       </div>
 
-      {/* Body */}
-      <div className="p-3 flex flex-col gap-3 relative z-10 flex-1">
-        {/* Target image (replaces live feed) */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-xl overflow-hidden relative flex items-center justify-center"
-          style={{
-            background: "rgba(255,255,255,0.92)",
-            border: "1px solid var(--divider)",
-            minHeight: 160,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-          }}
+      {/* Main body: target image (hero) + stats side strip */}
+      <div className="flex-1 flex relative z-10 min-h-0">
+        {/* Target image — takes most space */}
+        <div className="flex-1 flex items-center justify-center p-2 relative overflow-hidden min-h-0"
+          style={{ background: "rgba(255,255,255,0.92)" }}
         >
           {target ? (
-            <img src={target.image} alt={target.label} className="w-full h-full object-contain p-2" style={{ maxHeight: 180 }} />
+            <img src={target.image} alt={target.label} className="max-w-full max-h-full object-contain" />
           ) : (
-            <div className="text-center py-8">
-              <Crosshair className="w-8 h-8 text-muted-foreground/30 mx-auto mb-1" />
-              <p className="text-[9px] text-muted-foreground/50">No target assigned</p>
-            </div>
+            <Crosshair className="w-12 h-12 text-muted-foreground/20" />
           )}
-          {/* Scanning line when running */}
           {sessionState === "running" && (
             <motion.div
               className="absolute left-0 right-0 h-px pointer-events-none"
-              style={{ background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.6), transparent)" }}
-              animate={{ top: ["10%", "90%", "10%"] }}
+              style={{ background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent)" }}
+              animate={{ top: ["5%", "95%", "5%"] }}
               transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
             />
           )}
-        </motion.div>
+        </div>
 
-        {/* Stats grid */}
-        <div className="grid grid-cols-4 gap-2">
+        {/* Stats strip on right */}
+        <div className="w-[72px] shrink-0 flex flex-col gap-1 p-1.5 justify-center"
+          style={{ borderLeft: "1px solid var(--divider)", background: "var(--surface-inset)" }}
+        >
           {[
             { label: "Hits", value: String(shots.hits), color: "text-success", icon: Zap },
             { label: "Miss", value: String(shots.misses), color: "text-destructive", icon: Target },
-            { label: "Accuracy", value: `${accuracy}%`, color: "text-primary", icon: Eye },
-            { label: "Rounds", value: `${shots.total}/${exercise?.rounds || 0}`, color: "text-foreground", icon: Shield },
-          ].map((item, i) => (
-            <motion.div
-              key={item.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 + i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
-              className="rounded-xl p-2 text-center"
-              style={{
-                background: "var(--surface-elevated)",
-                border: "1px solid var(--divider)",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-              }}
+            { label: "Acc", value: `${accuracy}%`, color: "text-primary", icon: Eye },
+            { label: "Rds", value: `${shots.total}/${exercise?.rounds || 0}`, color: "text-foreground", icon: Shield },
+          ].map((item) => (
+            <div key={item.label} className="rounded-lg p-1.5 text-center"
+              style={{ background: "var(--surface-elevated)", border: "1px solid var(--divider)" }}
             >
-              <item.icon className={`w-3 h-3 mx-auto ${item.color} mb-0.5 opacity-60`} />
-              <p className={`text-sm font-mono font-bold ${item.color}`}>{item.value}</p>
-              <p className="text-[7px] uppercase tracking-widest text-muted-foreground font-semibold">{item.label}</p>
-            </motion.div>
+              <item.icon className={`w-2.5 h-2.5 mx-auto ${item.color} mb-0.5 opacity-60`} />
+              <p className={`text-[11px] font-mono font-bold leading-tight ${item.color}`}>{item.value}</p>
+              <p className="text-[6px] uppercase tracking-widest text-muted-foreground font-semibold">{item.label}</p>
+            </div>
           ))}
         </div>
-
-        {/* Exercise config */}
-        {exercise && (
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { label: "Exercise", value: exercise.name || "Custom" },
-              { label: "Distance", value: `${exercise.distance}m` },
-              { label: "Time Limit", value: `${exercise.timeLimit}s` },
-              { label: "Weapon", value: exercise.weapon || "—" },
-              { label: "Position", value: exercise.firingPosition || "—" },
-              { label: "Visibility", value: `${exercise.visibility}%` },
-            ].map((item, i) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, x: -6 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.25 + i * 0.03 }}
-              >
-                <p className="text-[7px] uppercase tracking-widest text-muted-foreground font-semibold">{item.label}</p>
-                <p className="text-[10px] font-mono text-foreground font-medium truncate">{item.value}</p>
-              </motion.div>
-            ))}
-          </div>
-        )}
-
-        {/* Queue */}
-        {lane.queue.length > 1 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.35 }}
-            className="rounded-xl p-2.5"
-            style={{ background: "var(--surface-inset)", border: "1px solid var(--divider)" }}
-          >
-            <p className="text-[7px] uppercase tracking-widest text-muted-foreground font-bold mb-1.5">
-              Queue ({lane.queue.length - 1} waiting)
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {lane.queue.slice(1, 6).map((t) => (
-                <span key={t.id} className="text-[8px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">{t.name}</span>
-              ))}
-            </div>
-          </motion.div>
-        )}
       </div>
+
+      {/* Bottom bar: exercise info */}
+      {exercise && (
+        <div className="px-3 py-1.5 flex items-center gap-3 shrink-0 relative z-10"
+          style={{ borderTop: "1px solid var(--divider)", background: "var(--surface-glass-hover)" }}
+        >
+          {[
+            { l: "Ex", v: exercise.name || "Custom" },
+            { l: "Dist", v: `${exercise.distance}m` },
+            { l: "Time", v: `${exercise.timeLimit}s` },
+            { l: "Wpn", v: exercise.weapon || "—" },
+            { l: "Pos", v: exercise.firingPosition || "—" },
+          ].map((item) => (
+            <div key={item.l} className="flex-1 min-w-0">
+              <p className="text-[6px] uppercase tracking-widest text-muted-foreground font-semibold">{item.l}</p>
+              <p className="text-[9px] font-mono text-foreground font-medium truncate">{item.v}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 }
 
-/* ── Drawer Thumbnail (unpinned lane) ── */
+/* ── Drawer Thumbnail ── */
 function DrawerThumbnail({
   lane,
   exercise,
   onPin,
   canPin,
   sessionState,
-  onHoverStart,
-  onHoverEnd,
-  isHovered,
 }: {
   lane: LaneAssignment;
   exercise: ExerciseConfig | undefined;
   onPin: () => void;
   canPin: boolean;
   sessionState: "idle" | "running" | "paused";
-  onHoverStart: () => void;
-  onHoverEnd: () => void;
-  isHovered: boolean;
 }) {
   const activeTrainee = lane.queue[0];
   const isEmpty = lane.queue.length === 0;
@@ -239,319 +179,207 @@ function DrawerThumbnail({
 
   return (
     <motion.div
-      layout
-      onHoverStart={onHoverStart}
-      onHoverEnd={onHoverEnd}
-      className="rounded-xl flex items-center gap-2.5 p-2.5 cursor-pointer relative group"
+      className="rounded-xl flex items-center gap-2 p-2 cursor-pointer relative group"
       style={{
-        background: isHovered ? "var(--surface-glass-hover)" : "var(--surface-glass)",
-        border: `1px solid ${isHovered ? "hsl(var(--primary) / 0.3)" : "var(--surface-glass-border)"}`,
-        backdropFilter: "blur(20px) saturate(180%)",
-        boxShadow: isHovered ? "0 0 20px hsl(var(--primary) / 0.1)" : "none",
-        transition: "all 0.3s ease",
+        background: "var(--surface-glass)",
+        border: "1px solid var(--surface-glass-border)",
+        transition: "all 0.25s ease",
       }}
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: isEmpty ? 0.4 : 1, x: 0 }}
+      initial={{ opacity: 0, x: 16 }}
+      animate={{ opacity: isEmpty ? 0.35 : 1, x: 0 }}
+      whileHover={{
+        scale: 1.02,
+        borderColor: "hsl(var(--primary) / 0.3)",
+        boxShadow: "0 0 16px hsl(var(--primary) / 0.1)",
+      }}
       transition={{ type: "spring", stiffness: 400, damping: 35 }}
-      whileHover={{ scale: 1.02 }}
     >
-      {/* Lane number */}
-      <div
-        className="w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-bold text-primary-foreground shrink-0"
-        style={{
-          background: "var(--gradient-primary)",
-          boxShadow: "0 2px 6px hsl(var(--primary) / 0.25)",
-        }}
+      <div className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold text-primary-foreground shrink-0"
+        style={{ background: "var(--gradient-primary)" }}
       >
         {lane.laneId}
       </div>
-
-      {/* Target thumbnail */}
-      <div
-        className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0"
+      <div className="w-7 h-7 rounded-md overflow-hidden flex items-center justify-center shrink-0"
         style={{ background: "rgba(255,255,255,0.9)", border: "1px solid var(--divider)" }}
       >
-        {target ? (
-          <img src={target.image} alt={target.label} className="w-full h-full object-contain" />
-        ) : (
-          <Target className="w-3 h-3 text-muted-foreground/40" />
+        {target ? <img src={target.image} alt="" className="w-full h-full object-contain" /> : <Target className="w-3 h-3 text-muted-foreground/30" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[9px] font-semibold text-foreground truncate">{activeTrainee?.name || "Empty"}</p>
+        {!isEmpty && (
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="text-[7px] font-mono text-success font-bold">{shots.hits}H</span>
+            <span className="text-[7px] font-mono text-destructive font-bold">{shots.misses}M</span>
+          </div>
         )}
       </div>
-
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <p className="text-[10px] font-semibold text-foreground truncate">{activeTrainee?.name || "Empty"}</p>
-        <div className="flex items-center gap-2 mt-0.5">
-          {!isEmpty && (
-            <>
-              <span className="text-[8px] font-mono text-success font-bold">{shots.hits}H</span>
-              <span className="text-[8px] font-mono text-destructive font-bold">{shots.misses}M</span>
-            </>
-          )}
-          <motion.span
-            className={`w-1.5 h-1.5 rounded-full ${
-              sessionState === "running" ? "bg-success" :
-              sessionState === "paused" ? "bg-warning" :
-              "bg-muted-foreground/30"
-            }`}
-            animate={sessionState === "running" ? { scale: [1, 1.3, 1] } : undefined}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-          />
-        </div>
-      </div>
-
-      {/* Pin button */}
       <motion.button
         onClick={(e) => { e.stopPropagation(); onPin(); }}
-        className="p-1.5 rounded-lg text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-all duration-200 shrink-0"
+        className="p-1 rounded-md text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
         style={{ background: "var(--surface-glass)" }}
         whileHover={{ scale: 1.2 }}
         whileTap={{ scale: 0.85 }}
         disabled={!canPin}
-        title={canPin ? "Pin lane" : "Max 4 pins reached"}
       >
-        <Pin className="w-3 h-3" />
+        <Pin className="w-2.5 h-2.5" />
       </motion.button>
     </motion.div>
   );
 }
 
-/* ── Main Component ── */
+/* ── Main ── */
 export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
   const [sessionState, setSessionState] = useState<"idle" | "running" | "paused">("idle");
   const [pinnedLanes, setPinnedLanes] = useState<Set<number>>(new Set());
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [hoveredDrawerLane, setHoveredDrawerLane] = useState<number | null>(null);
 
   const togglePin = useCallback((laneId: number) => {
     setPinnedLanes((prev) => {
       const next = new Set(prev);
-      if (next.has(laneId)) {
-        next.delete(laneId);
-      } else {
-        if (next.size >= MAX_PINS) return prev;
-        next.add(laneId);
-      }
+      if (next.has(laneId)) next.delete(laneId);
+      else if (next.size < MAX_PINS) next.add(laneId);
       return next;
     });
   }, []);
 
-  const pinnedLanesList = lanes.filter((l) => pinnedLanes.has(l.laneId)).sort((a, b) => a.laneId - b.laneId);
-  const unpinnedLanesList = lanes.filter((l) => !pinnedLanes.has(l.laneId)).sort((a, b) => a.laneId - b.laneId);
+  const pinnedList = lanes.filter((l) => pinnedLanes.has(l.laneId)).sort((a, b) => a.laneId - b.laneId);
+  const unpinnedList = lanes.filter((l) => !pinnedLanes.has(l.laneId)).sort((a, b) => a.laneId - b.laneId);
 
-  const btnBase =
-    "h-10 px-5 rounded-xl font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-25 disabled:pointer-events-none";
-
-  const gridCols = pinnedLanesList.length <= 2 ? pinnedLanesList.length : pinnedLanesList.length <= 4 ? 2 : 2;
+  const btnBase = "h-9 px-4 rounded-xl font-semibold text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-300 disabled:opacity-25 disabled:pointer-events-none";
 
   return (
-    <div className="flex flex-col h-full gap-4 relative">
-      {/* Controls */}
-      <div className="flex items-center gap-3 shrink-0">
-        <button
-          onClick={onBack}
-          disabled={sessionState !== "idle"}
-          className={`${btnBase} glass-btn text-muted-foreground hover:text-foreground`}
-        >
-          <ChevronLeft className="w-3.5 h-3.5" /> Back
+    <div className="flex flex-col h-full gap-3">
+      {/* Top controls */}
+      <div className="flex items-center gap-2 shrink-0 flex-wrap">
+        <button onClick={onBack} disabled={sessionState !== "idle"} className={`${btnBase} glass-btn text-muted-foreground hover:text-foreground`}>
+          <ChevronLeft className="w-3 h-3" /> Back
         </button>
-
         {sessionState === "running" ? (
           <button onClick={() => setSessionState("paused")} className={`${btnBase} glass-btn text-warning`}>
-            <Pause className="w-3.5 h-3.5" /> Pause
+            <Pause className="w-3 h-3" /> Pause
           </button>
         ) : (
           <button onClick={() => setSessionState("running")} className={`${btnBase} glass-btn text-success`}>
-            <Play className="w-3.5 h-3.5" /> {sessionState === "paused" ? "Resume" : "Start"}
+            <Play className="w-3 h-3" /> {sessionState === "paused" ? "Resume" : "Start"}
           </button>
         )}
-
-        <button
-          onClick={() => setSessionState("idle")}
-          disabled={sessionState === "idle"}
-          className={`${btnBase} glass-btn text-destructive`}
-        >
-          <Square className="w-3.5 h-3.5" /> Stop
+        <button onClick={() => setSessionState("idle")} disabled={sessionState === "idle"} className={`${btnBase} glass-btn text-destructive`}>
+          <Square className="w-3 h-3" /> Stop
         </button>
 
-        <div className="ml-3 flex items-center gap-2">
+        <div className="ml-2 flex items-center gap-1.5">
           <motion.span
-            className={`w-2.5 h-2.5 rounded-full ${
-              sessionState === "running" ? "bg-success" : sessionState === "paused" ? "bg-warning" : "bg-muted-foreground/30"
-            }`}
-            animate={sessionState === "running" ? {
-              boxShadow: ["0 0 4px hsl(var(--success) / 0.3)", "0 0 16px hsl(var(--success) / 0.7)", "0 0 4px hsl(var(--success) / 0.3)"],
-            } : undefined}
+            className={`w-2 h-2 rounded-full ${sessionState === "running" ? "bg-success" : sessionState === "paused" ? "bg-warning" : "bg-muted-foreground/30"}`}
+            animate={sessionState === "running" ? { boxShadow: ["0 0 4px hsl(var(--success) / 0.3)", "0 0 14px hsl(var(--success) / 0.7)", "0 0 4px hsl(var(--success) / 0.3)"] } : undefined}
             transition={{ repeat: Infinity, duration: 1.5 }}
           />
-          <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
             {sessionState === "idle" ? "Standby" : sessionState === "running" ? "Live" : "Paused"}
           </span>
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <span className="text-[10px] text-muted-foreground font-mono">
-            {pinnedLanes.size}/{MAX_PINS} pinned
-          </span>
+          <span className="text-[9px] text-muted-foreground font-mono">{pinnedLanes.size}/{MAX_PINS}</span>
           {pinnedLanes.size > 0 && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              onClick={() => setPinnedLanes(new Set())}
-              className={`${btnBase} glass-btn text-muted-foreground hover:text-foreground`}
-            >
-              <PinOff className="w-3.5 h-3.5" /> Unpin All
+            <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+              onClick={() => setPinnedLanes(new Set())} className={`${btnBase} glass-btn text-muted-foreground hover:text-foreground`}>
+              <PinOff className="w-3 h-3" /> Clear
             </motion.button>
           )}
-          {/* Drawer toggle */}
           <motion.button
             onClick={() => setDrawerOpen(!drawerOpen)}
             className={`${btnBase} glass-btn ${drawerOpen ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-            style={drawerOpen ? { background: "hsl(var(--primary) / 0.1)", border: "1px solid hsl(var(--primary) / 0.3)" } : {}}
+            style={drawerOpen ? { background: "hsl(var(--primary) / 0.1)", border: "1px solid hsl(var(--primary) / 0.25)" } : {}}
             whileTap={{ scale: 0.95 }}
           >
-            <Layers className="w-3.5 h-3.5" />
-            All Lanes
-            {unpinnedLanesList.length > 0 && (
-              <span className="ml-1 w-5 h-5 rounded-full bg-primary/20 text-primary text-[9px] font-bold flex items-center justify-center">
-                {unpinnedLanesList.length}
+            <Layers className="w-3 h-3" />
+            Lanes
+            {unpinnedList.length > 0 && (
+              <span className="w-4 h-4 rounded-full bg-primary/20 text-primary text-[8px] font-bold flex items-center justify-center">
+                {unpinnedList.length}
               </span>
             )}
           </motion.button>
         </div>
       </div>
 
-      {/* Main content area */}
-      <div className="flex-1 flex gap-3 overflow-hidden">
-        {/* Pinned cards grid */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-1">
+      {/* Main area: pinned cards side-by-side + drawer */}
+      <div className="flex-1 flex gap-3 min-h-0">
+        {/* Pinned cards — fills available space, side by side */}
+        <div className="flex-1 min-h-0 min-w-0">
           <AnimatePresence mode="popLayout">
-            {pinnedLanesList.length === 0 ? (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center h-full gap-3"
+            {pinnedList.length === 0 ? (
+              <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center h-full gap-2"
               >
-                <motion.div
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                >
-                  <Pin className="w-10 h-10 text-muted-foreground/20" />
+                <motion.div animate={{ y: [0, -6, 0] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}>
+                  <Pin className="w-8 h-8 text-muted-foreground/15" />
                 </motion.div>
-                <p className="text-sm text-muted-foreground/50 font-medium">No lanes pinned</p>
-                <p className="text-[10px] text-muted-foreground/30">
-                  Open <strong>All Lanes</strong> and pin up to {MAX_PINS} lanes to monitor
-                </p>
+                <p className="text-xs text-muted-foreground/40 font-medium">No lanes pinned</p>
+                <p className="text-[9px] text-muted-foreground/25">Open <strong>Lanes</strong> panel to pin up to {MAX_PINS}</p>
               </motion.div>
             ) : (
-              <motion.div
-                layout
-                className="grid gap-3 h-full"
-                style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}
-              >
-                {pinnedLanesList.map((lane) => {
-                  const exercise = exercises.find((e) => e.laneId === lane.laneId);
-                  return (
+              <div className="flex gap-3 h-full">
+                {pinnedList.map((lane) => (
+                  <div key={lane.laneId} className="flex-1 min-w-0 h-full">
                     <PinnedCard
-                      key={lane.laneId}
                       lane={lane}
-                      exercise={exercise}
+                      exercise={exercises.find((e) => e.laneId === lane.laneId)}
                       onUnpin={() => togglePin(lane.laneId)}
                       sessionState={sessionState}
+                      cardCount={pinnedList.length}
                     />
-                  );
-                })}
-              </motion.div>
+                  </div>
+                ))}
+              </div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Drawer panel (slides in from right) */}
+        {/* Drawer panel */}
         <AnimatePresence>
           {drawerOpen && (
             <motion.div
               initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 280, opacity: 1 }}
+              animate={{ width: 240, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ type: "spring", stiffness: 400, damping: 35 }}
-              className="shrink-0 overflow-hidden flex flex-col rounded-2xl"
+              className="shrink-0 overflow-hidden flex flex-col rounded-2xl h-full"
               style={{
                 background: "var(--surface-glass)",
                 border: "1px solid var(--surface-glass-border)",
                 backdropFilter: "blur(28px) saturate(200%)",
-                WebkitBackdropFilter: "blur(28px) saturate(200%)",
-                boxShadow: "0 8px 40px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.08)",
+                boxShadow: "0 8px 40px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.06)",
               }}
             >
-              {/* Drawer header */}
-              <div
-                className="px-3 py-2.5 flex items-center justify-between shrink-0"
+              <div className="px-3 py-2 flex items-center justify-between shrink-0"
                 style={{ borderBottom: "1px solid var(--divider)", background: "var(--surface-glass-hover)" }}
               >
-                <div className="flex items-center gap-2">
-                  <Layers className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-foreground">All Lanes</span>
+                <div className="flex items-center gap-1.5">
+                  <Layers className="w-3 h-3 text-primary" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-foreground">All Lanes</span>
                 </div>
-                <motion.button
-                  onClick={() => setDrawerOpen(false)}
-                  className="p-1 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <X className="w-3.5 h-3.5" />
+                <motion.button onClick={() => setDrawerOpen(false)} className="p-1 rounded-md text-muted-foreground hover:text-foreground"
+                  whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                  <X className="w-3 h-3" />
                 </motion.button>
               </div>
-
-              {/* Drawer content */}
-              <div className="flex-1 overflow-y-auto p-2 flex flex-col gap-1.5">
-                {/* Pinned lanes section */}
-                {pinnedLanesList.length > 0 && (
+              <div className="flex-1 overflow-y-auto p-1.5 flex flex-col gap-1">
+                {pinnedList.length > 0 && (
                   <>
-                    <p className="text-[8px] uppercase tracking-widest text-primary font-bold px-1 pt-1">
-                      Pinned ({pinnedLanesList.length})
-                    </p>
-                    {pinnedLanesList.map((lane) => {
-                      const exercise = exercises.find((e) => e.laneId === lane.laneId);
-                      return (
-                        <DrawerThumbnail
-                          key={lane.laneId}
-                          lane={lane}
-                          exercise={exercise}
-                          onPin={() => togglePin(lane.laneId)}
-                          canPin={true}
-                          sessionState={sessionState}
-                          onHoverStart={() => setHoveredDrawerLane(lane.laneId)}
-                          onHoverEnd={() => setHoveredDrawerLane(null)}
-                          isHovered={hoveredDrawerLane === lane.laneId}
-                        />
-                      );
-                    })}
-                    <div className="h-px my-1" style={{ background: "var(--divider)" }} />
+                    <p className="text-[7px] uppercase tracking-widest text-primary font-bold px-1 pt-1">Pinned</p>
+                    {pinnedList.map((lane) => (
+                      <DrawerThumbnail key={lane.laneId} lane={lane} exercise={exercises.find((e) => e.laneId === lane.laneId)}
+                        onPin={() => togglePin(lane.laneId)} canPin={true} sessionState={sessionState} />
+                    ))}
+                    <div className="h-px my-0.5" style={{ background: "var(--divider)" }} />
                   </>
                 )}
-
-                {/* Unpinned lanes */}
-                <p className="text-[8px] uppercase tracking-widest text-muted-foreground font-bold px-1 pt-1">
-                  Available ({unpinnedLanesList.length})
-                </p>
-                {unpinnedLanesList.map((lane) => {
-                  const exercise = exercises.find((e) => e.laneId === lane.laneId);
-                  return (
-                    <DrawerThumbnail
-                      key={lane.laneId}
-                      lane={lane}
-                      exercise={exercise}
-                      onPin={() => togglePin(lane.laneId)}
-                      canPin={pinnedLanes.size < MAX_PINS}
-                      sessionState={sessionState}
-                      onHoverStart={() => setHoveredDrawerLane(lane.laneId)}
-                      onHoverEnd={() => setHoveredDrawerLane(null)}
-                      isHovered={hoveredDrawerLane === lane.laneId}
-                    />
-                  );
-                })}
+                <p className="text-[7px] uppercase tracking-widest text-muted-foreground font-bold px-1 pt-0.5">Available</p>
+                {unpinnedList.map((lane) => (
+                  <DrawerThumbnail key={lane.laneId} lane={lane} exercise={exercises.find((e) => e.laneId === lane.laneId)}
+                    onPin={() => togglePin(lane.laneId)} canPin={pinnedLanes.size < MAX_PINS} sessionState={sessionState} />
+                ))}
               </div>
             </motion.div>
           )}
