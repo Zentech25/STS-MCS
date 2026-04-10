@@ -52,28 +52,29 @@
     --sidebar-ring: 230 80% 60%;
 
     /* Theme-specific surface tokens */
-    --surface-glass: rgba(255, 255, 255, 0.7);
-    --surface-glass-hover: rgba(255, 255, 255, 0.85);
-    --surface-glass-border: rgba(255, 255, 255, 0.55);
-    --surface-elevated: rgba(255, 255, 255, 0.55);
-    --surface-inset: rgba(0, 0, 0, 0.03);
-    --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.06);
-    --shadow-glow: 0 8px 32px rgba(79, 70, 229, 0.1);
-    --shadow-hover: 0 12px 40px rgba(79, 70, 229, 0.15);
-    --text-secondary: rgba(0, 0, 0, 0.5);
-    --divider: rgba(0, 0, 0, 0.06);
+    --surface-glass: rgba(255, 255, 255, 0.55);
+    --surface-glass-hover: rgba(255, 255, 255, 0.75);
+    --surface-glass-border: rgba(255, 255, 255, 0.45);
+    --surface-elevated: rgba(255, 255, 255, 0.45);
+    --surface-inset: rgba(0, 0, 0, 0.025);
+    --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+    --shadow-glow: 0 8px 40px rgba(79, 70, 229, 0.12), 0 0 0 1px rgba(79, 70, 229, 0.04);
+    --shadow-hover: 0 20px 60px rgba(79, 70, 229, 0.18), 0 0 0 1px rgba(79, 70, 229, 0.06);
+    --text-secondary: rgba(0, 0, 0, 0.45);
+    --divider: rgba(0, 0, 0, 0.05);
     --gradient-mesh: linear-gradient(135deg,
-      hsl(225 30% 96%) 0%,
-      hsl(240 25% 95%) 25%,
-      hsl(260 20% 96%) 50%,
-      hsl(225 25% 96%) 75%,
-      hsl(220 30% 97%) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(230 80% 60%), hsl(280 65% 60%));
-    --gradient-warm: linear-gradient(135deg, hsl(340 75% 58%), hsl(30 90% 58%));
-    --gradient-cool: linear-gradient(135deg, hsl(190 80% 45%), hsl(230 80% 60%));
-    --orb-1: hsl(230 80% 60% / 0.1);
-    --orb-2: hsl(280 65% 60% / 0.08);
-    --orb-3: hsl(340 75% 58% / 0.06);
+      hsl(225 35% 97%) 0%,
+      hsl(240 30% 96%) 20%,
+      hsl(260 25% 97%) 40%,
+      hsl(280 15% 97%) 60%,
+      hsl(225 30% 96%) 80%,
+      hsl(220 35% 97%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(230 80% 60%), hsl(260 70% 58%), hsl(280 65% 60%));
+    --gradient-warm: linear-gradient(135deg, hsl(340 75% 58%), hsl(20 90% 58%), hsl(40 90% 55%));
+    --gradient-cool: linear-gradient(135deg, hsl(190 80% 45%), hsl(210 80% 55%), hsl(230 80% 60%));
+    --orb-1: hsl(230 80% 60% / 0.08);
+    --orb-2: hsl(280 65% 60% / 0.06);
+    --orb-3: hsl(340 75% 58% / 0.05);
   }
 
   .dark {
@@ -120,28 +121,29 @@
     --sidebar-border: 224 20% 18%;
     --sidebar-ring: 230 80% 65%;
 
-    --surface-glass: rgba(30, 33, 48, 0.72);
-    --surface-glass-hover: rgba(38, 42, 60, 0.85);
-    --surface-glass-border: rgba(255, 255, 255, 0.08);
-    --surface-elevated: rgba(255, 255, 255, 0.04);
-    --surface-inset: rgba(0, 0, 0, 0.2);
-    --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.3);
-    --shadow-glow: 0 8px 32px rgba(99, 102, 241, 0.15);
-    --shadow-hover: 0 12px 40px rgba(99, 102, 241, 0.2);
-    --text-secondary: rgba(255, 255, 255, 0.45);
-    --divider: rgba(255, 255, 255, 0.06);
+    --surface-glass: rgba(18, 20, 36, 0.65);
+    --surface-glass-hover: rgba(28, 32, 52, 0.8);
+    --surface-glass-border: rgba(255, 255, 255, 0.07);
+    --surface-elevated: rgba(255, 255, 255, 0.035);
+    --surface-inset: rgba(0, 0, 0, 0.25);
+    --shadow-soft: 0 4px 30px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-glow: 0 8px 48px rgba(99, 102, 241, 0.2), 0 0 0 1px rgba(99, 102, 241, 0.08);
+    --shadow-hover: 0 20px 60px rgba(99, 102, 241, 0.25), 0 0 0 1px rgba(99, 102, 241, 0.1);
+    --text-secondary: rgba(255, 255, 255, 0.4);
+    --divider: rgba(255, 255, 255, 0.05);
     --gradient-mesh: linear-gradient(135deg,
-      hsl(224 30% 8%) 0%,
-      hsl(240 25% 10%) 25%,
-      hsl(260 20% 9%) 50%,
-      hsl(224 28% 9%) 75%,
-      hsl(220 30% 8%) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(230 80% 65%), hsl(280 65% 65%));
-    --gradient-warm: linear-gradient(135deg, hsl(340 75% 55%), hsl(30 90% 55%));
-    --gradient-cool: linear-gradient(135deg, hsl(190 80% 42%), hsl(230 80% 62%));
-    --orb-1: hsl(230 80% 65% / 0.12);
-    --orb-2: hsl(280 65% 65% / 0.1);
-    --orb-3: hsl(340 75% 58% / 0.08);
+      hsl(224 35% 7%) 0%,
+      hsl(240 30% 9%) 20%,
+      hsl(260 25% 8%) 40%,
+      hsl(280 20% 8%) 60%,
+      hsl(224 32% 8%) 80%,
+      hsl(220 35% 7%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(230 80% 65%), hsl(260 70% 62%), hsl(280 65% 65%));
+    --gradient-warm: linear-gradient(135deg, hsl(340 75% 55%), hsl(20 90% 55%), hsl(40 90% 52%));
+    --gradient-cool: linear-gradient(135deg, hsl(190 80% 42%), hsl(210 80% 52%), hsl(230 80% 62%));
+    --orb-1: hsl(230 80% 65% / 0.1);
+    --orb-2: hsl(280 65% 65% / 0.08);
+    --orb-3: hsl(340 75% 58% / 0.06);
   }
 }
 
