@@ -18,6 +18,7 @@ export function AARReportsView({ records, onSelectRecord, isReplayPicker }: Prop
   const [mode, setMode] = useState<"single" | "group">("single");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [viewingRecord, setViewingRecord] = useState<AARSessionRecord | null>(null);
+  const [viewingGroup, setViewingGroup] = useState(false);
 
   if (records.length === 0) {
     return (
