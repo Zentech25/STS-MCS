@@ -55,7 +55,7 @@ export function AARPage() {
         <TabsContent value="replay" className="flex-1 overflow-auto px-6 pb-4">
           {!selectedRecord ? (
             <>
-              <AARFilters filters={filters} onChange={setFilters} showDateRange={showDateRange} />
+              <AARFilters filters={filters} onChange={setFilters} />
               <AARReportsView records={filtered} onSelectRecord={setSelectedRecord} isReplayPicker />
             </>
           ) : (
@@ -64,7 +64,7 @@ export function AARPage() {
         </TabsContent>
 
         <TabsContent value="graphs" className="flex-1 overflow-auto px-6 pb-4">
-          <AARFilters filters={filters} onChange={setFilters} showDateRange={showDateRange} />
+          <AARFilters filters={filters} onChange={setFilters} />
           <AARGraphsView records={filtered} />
         </TabsContent>
       </Tabs>
