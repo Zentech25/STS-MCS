@@ -41,7 +41,7 @@ export function AARReportsView({ records, onSelectRecord, isReplayPicker }: Prop
   }
 
   // Group report view
-  if (!isReplayPicker && mode === "group" && selectedIds.size > 0) {
+  if (!isReplayPicker && mode === "group" && viewingGroup && selectedIds.size > 0) {
     const selectedRecords = records.filter((r) => selectedIds.has(r.id));
     if (selectedRecords.length > 0) {
       return (
