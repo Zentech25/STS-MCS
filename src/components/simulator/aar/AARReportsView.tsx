@@ -18,6 +18,7 @@ export function AARReportsView({ records, onSelectRecord, isReplayPicker }: Prop
   const [mode, setMode] = useState<"single" | "group">("single");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [viewingRecord, setViewingRecord] = useState<AARSessionRecord | null>(null);
+  const [viewingGroup, setViewingGroup] = useState(false);
 
   if (records.length === 0) {
     return (
@@ -40,13 +41,13 @@ export function AARReportsView({ records, onSelectRecord, isReplayPicker }: Prop
   }
 
   // Group report view
-  if (!isReplayPicker && mode === "group" && selectedIds.size > 0) {
+  if (!isReplayPicker && mode === "group" && viewingGroup && selectedIds.size > 0) {
     const selectedRecords = records.filter((r) => selectedIds.has(r.id));
     if (selectedRecords.length > 0) {
       return (
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())} className="gap-1.5 hover:bg-muted/50">
+            <Button variant="ghost" size="sm" onClick={() => setViewingGroup(false)} className="gap-1.5 hover:bg-muted/50">
               ← Back to selection
             </Button>
             <h2 className="text-lg font-bold text-foreground">Group Report</h2>
@@ -88,7 +89,7 @@ export function AARReportsView({ records, onSelectRecord, isReplayPicker }: Prop
               variant={mode === "single" ? "default" : "ghost"}
               size="sm"
               className="h-8 text-xs gap-1.5"
-              onClick={() => { setMode("single"); setSelectedIds(new Set()); setViewingRecord(null); }}
+              onClick={() => { setMode("single"); setSelectedIds(new Set()); setViewingRecord(null); setViewingGroup(false); }}
             >
               <User className="w-3.5 h-3.5" /> Single Report
             </Button>
@@ -102,7 +103,7 @@ export function AARReportsView({ records, onSelectRecord, isReplayPicker }: Prop
             </Button>
           </div>
           {mode === "group" && selectedIds.size > 0 && (
-            <Button size="sm" className="gap-1.5">
+            <Button size="sm" className="gap-1.5" onClick={() => setViewingGroup(true)}>
               <Eye className="w-3.5 h-3.5" /> View Group Report ({selectedIds.size})
             </Button>
           )}
