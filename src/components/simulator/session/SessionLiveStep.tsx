@@ -212,11 +212,10 @@ function StripThumbnail({
   return (
     <div className="relative shrink-0">
       <motion.button
-        onClick={onPin}
-        disabled={!canPin && !isPinned}
+        onClick={() => { if (canPin || isPinned) onPin(); }}
         onMouseEnter={onHoverLane}
         onMouseLeave={onLeaveLane}
-        className="rounded-xl flex items-center gap-2 px-2.5 py-2 cursor-pointer relative group shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+        className={`rounded-xl flex items-center gap-2 px-2.5 py-2 relative group shrink-0 ${canPin || isPinned ? "cursor-pointer" : "cursor-default"}`}
         style={{
           background: isPinned
             ? "hsl(var(--primary) / 0.15)"
