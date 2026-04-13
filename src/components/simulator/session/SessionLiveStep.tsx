@@ -164,66 +164,55 @@ function DrawerThumbnail({
   onPin,
   canPin,
   sessionState,
+  isPinned,
 }: {
   lane: LaneAssignment;
   exercise: ExerciseConfig | undefined;
   onPin: () => void;
   canPin: boolean;
   sessionState: "idle" | "running" | "paused";
+  isPinned?: boolean;
 }) {
   const activeTrainee = lane.queue[0];
   const isEmpty = lane.queue.length === 0;
   const target = exercise ? getTargetById(exercise.targetType) : null;
-  const shots = { hits: Math.floor(Math.random() * 5), misses: Math.floor(Math.random() * 3), total: 0 };
-  shots.total = shots.hits + shots.misses;
 
   return (
-    <motion.div
-      className="rounded-xl flex items-center gap-2 p-2 cursor-pointer relative group"
+    <motion.button
+      onClick={onPin}
+      disabled={!canPin && !isPinned}
+      className="rounded-lg flex items-center gap-1.5 px-2 py-1.5 cursor-pointer relative group shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
       style={{
-        background: "var(--surface-glass)",
-        border: "1px solid var(--surface-glass-border)",
-        transition: "all 0.25s ease",
+        background: isPinned ? "hsl(var(--primary) / 0.12)" : "var(--surface-elevated)",
+        border: isPinned ? "1px solid hsl(var(--primary) / 0.3)" : "1px solid var(--divider)",
+        minWidth: 120,
       }}
-      initial={{ opacity: 0, x: 16 }}
-      animate={{ opacity: isEmpty ? 0.35 : 1, x: 0 }}
       whileHover={{
-        scale: 1.02,
-        borderColor: "hsl(var(--primary) / 0.3)",
-        boxShadow: "0 0 16px hsl(var(--primary) / 0.1)",
+        scale: 1.04,
+        boxShadow: "0 0 20px hsl(var(--primary) / 0.15)",
       }}
-      transition={{ type: "spring", stiffness: 400, damping: 35 }}
+      whileTap={{ scale: 0.97 }}
+      layout
     >
       <div className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold text-primary-foreground shrink-0"
         style={{ background: "var(--gradient-primary)" }}
       >
         {lane.laneId}
       </div>
-      <div className="w-7 h-7 rounded-md overflow-hidden flex items-center justify-center shrink-0"
+      <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center shrink-0"
         style={{ background: "rgba(255,255,255,0.9)", border: "1px solid var(--divider)" }}
       >
         {target ? <img src={target.image} alt="" className="w-full h-full object-contain" /> : <Target className="w-3 h-3 text-muted-foreground/30" />}
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[9px] font-semibold text-foreground truncate">{activeTrainee?.name || "Empty"}</p>
-        {!isEmpty && (
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="text-[7px] font-mono text-success font-bold">{shots.hits}H</span>
-            <span className="text-[7px] font-mono text-destructive font-bold">{shots.misses}M</span>
-          </div>
-        )}
+      <div className="flex-1 min-w-0 text-left">
+        <p className="text-[8px] font-semibold text-foreground truncate">{activeTrainee?.name || "Empty"}</p>
       </div>
-      <motion.button
-        onClick={(e) => { e.stopPropagation(); onPin(); }}
-        className="p-1 rounded-md text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-        style={{ background: "var(--surface-glass)" }}
-        whileHover={{ scale: 1.2 }}
-        whileTap={{ scale: 0.85 }}
-        disabled={!canPin}
-      >
-        <Pin className="w-2.5 h-2.5" />
-      </motion.button>
-    </motion.div>
+      {isPinned ? (
+        <Pin className="w-2.5 h-2.5 text-primary shrink-0" />
+      ) : (
+        <PinOff className="w-2.5 h-2.5 text-muted-foreground/30 group-hover:text-primary shrink-0 transition-colors" />
+      )}
+    </motion.button>
   );
 }
 
@@ -231,7 +220,6 @@ function DrawerThumbnail({
 export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
   const [sessionState, setSessionState] = useState<"idle" | "running" | "paused">("idle");
   const [pinnedLanes, setPinnedLanes] = useState<Set<number>>(new Set());
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const togglePin = useCallback((laneId: number) => {
     setPinnedLanes((prev) => {
@@ -248,7 +236,7 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
   const btnBase = "h-9 px-4 rounded-xl font-semibold text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-300 disabled:opacity-25 disabled:pointer-events-none";
 
   return (
-    <div className="flex flex-col h-full gap-3">
+    <div className="flex flex-col h-full gap-2">
       {/* Top controls */}
       <div className="flex items-center gap-2 shrink-0 flex-wrap">
         <button onClick={onBack} disabled={sessionState !== "idle"} className={`${btnBase} glass-btn text-muted-foreground hover:text-foreground`}>
@@ -266,7 +254,6 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
         <button onClick={() => setSessionState("idle")} disabled={sessionState === "idle"} className={`${btnBase} glass-btn text-destructive`}>
           <Square className="w-3 h-3" /> Stop
         </button>
-
         <div className="ml-2 flex items-center gap-1.5">
           <motion.span
             className={`w-2 h-2 rounded-full ${sessionState === "running" ? "bg-success" : sessionState === "paused" ? "bg-warning" : "bg-muted-foreground/30"}`}
@@ -277,36 +264,21 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
             {sessionState === "idle" ? "Standby" : sessionState === "running" ? "Live" : "Paused"}
           </span>
         </div>
-
         <div className="ml-auto flex items-center gap-2">
-          <span className="text-[9px] text-muted-foreground font-mono">{pinnedLanes.size}/{MAX_PINS}</span>
+          <span className="text-[9px] text-muted-foreground font-mono">{pinnedLanes.size}/{MAX_PINS} pinned</span>
           {pinnedLanes.size > 0 && (
             <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
               onClick={() => setPinnedLanes(new Set())} className={`${btnBase} glass-btn text-muted-foreground hover:text-foreground`}>
               <PinOff className="w-3 h-3" /> Clear
             </motion.button>
           )}
-          <motion.button
-            onClick={() => setDrawerOpen(!drawerOpen)}
-            className={`${btnBase} glass-btn ${drawerOpen ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-            style={drawerOpen ? { background: "hsl(var(--primary) / 0.1)", border: "1px solid hsl(var(--primary) / 0.25)" } : {}}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Layers className="w-3 h-3" />
-            Lanes
-            {unpinnedList.length > 0 && (
-              <span className="w-4 h-4 rounded-full bg-primary/20 text-primary text-[8px] font-bold flex items-center justify-center">
-                {unpinnedList.length}
-              </span>
-            )}
-          </motion.button>
         </div>
       </div>
 
-      {/* Main area: pinned cards side-by-side + drawer */}
-      <div className="flex-1 flex gap-3 min-h-0">
-        {/* Pinned cards — fills available space, side by side */}
-        <div className="flex-1 min-h-0 min-w-0">
+      {/* Main area: pinned cards on top, all lanes strip at bottom */}
+      <div className="flex-1 flex flex-col gap-2 min-h-0">
+        {/* Pinned cards — big, side by side */}
+        <div className="flex-1 min-h-0">
           <AnimatePresence mode="popLayout">
             {pinnedList.length === 0 ? (
               <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -316,7 +288,7 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
                   <Pin className="w-8 h-8 text-muted-foreground/15" />
                 </motion.div>
                 <p className="text-xs text-muted-foreground/40 font-medium">No lanes pinned</p>
-                <p className="text-[9px] text-muted-foreground/25">Open <strong>Lanes</strong> panel to pin up to {MAX_PINS}</p>
+                <p className="text-[9px] text-muted-foreground/25">Click a lane below to pin it (up to {MAX_PINS})</p>
               </motion.div>
             ) : (
               <div className="flex gap-3 h-full">
@@ -336,54 +308,31 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
           </AnimatePresence>
         </div>
 
-        {/* Drawer panel */}
-        <AnimatePresence>
-          {drawerOpen && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 240, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 400, damping: 35 }}
-              className="shrink-0 overflow-hidden flex flex-col rounded-2xl h-full"
-              style={{
-                background: "var(--surface-glass)",
-                border: "1px solid var(--surface-glass-border)",
-                backdropFilter: "blur(28px) saturate(200%)",
-                boxShadow: "0 8px 40px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.06)",
-              }}
-            >
-              <div className="px-3 py-2 flex items-center justify-between shrink-0"
-                style={{ borderBottom: "1px solid var(--divider)", background: "var(--surface-glass-hover)" }}
-              >
-                <div className="flex items-center gap-1.5">
-                  <Layers className="w-3 h-3 text-primary" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-foreground">All Lanes</span>
-                </div>
-                <motion.button onClick={() => setDrawerOpen(false)} className="p-1 rounded-md text-muted-foreground hover:text-foreground"
-                  whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                  <X className="w-3 h-3" />
-                </motion.button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-1.5 flex flex-col gap-1">
-                {pinnedList.length > 0 && (
-                  <>
-                    <p className="text-[7px] uppercase tracking-widest text-primary font-bold px-1 pt-1">Pinned</p>
-                    {pinnedList.map((lane) => (
-                      <DrawerThumbnail key={lane.laneId} lane={lane} exercise={exercises.find((e) => e.laneId === lane.laneId)}
-                        onPin={() => togglePin(lane.laneId)} canPin={true} sessionState={sessionState} />
-                    ))}
-                    <div className="h-px my-0.5" style={{ background: "var(--divider)" }} />
-                  </>
-                )}
-                <p className="text-[7px] uppercase tracking-widest text-muted-foreground font-bold px-1 pt-0.5">Available</p>
-                {unpinnedList.map((lane) => (
-                  <DrawerThumbnail key={lane.laneId} lane={lane} exercise={exercises.find((e) => e.laneId === lane.laneId)}
-                    onPin={() => togglePin(lane.laneId)} canPin={pinnedLanes.size < MAX_PINS} sessionState={sessionState} />
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* All lanes strip — always visible */}
+        <div className="shrink-0 rounded-xl p-1.5"
+          style={{
+            background: "var(--surface-glass)",
+            border: "1px solid var(--surface-glass-border)",
+            backdropFilter: "blur(20px)",
+          }}
+        >
+          <div className="flex gap-1.5 overflow-x-auto">
+            {lanes.map((lane) => {
+              const isPinned = pinnedLanes.has(lane.laneId);
+              return (
+                <DrawerThumbnail
+                  key={lane.laneId}
+                  lane={lane}
+                  exercise={exercises.find((e) => e.laneId === lane.laneId)}
+                  onPin={() => togglePin(lane.laneId)}
+                  canPin={isPinned || pinnedLanes.size < MAX_PINS}
+                  sessionState={sessionState}
+                  isPinned={isPinned}
+                />
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
