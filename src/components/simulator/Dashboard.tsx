@@ -3,10 +3,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { HeaderBar } from "./HeaderBar";
 import { AdministratorDashboard } from "./AdministratorDashboard";
 import { EngineerDashboard } from "./EngineerDashboard";
-import { SessionPage, SessionMode } from "./SessionPage";
+import { SessionPage } from "./SessionPage";
 import { ConfigurePage } from "./ConfigurePage";
 import { LeaderboardPage } from "./LeaderboardPage";
 import { AARPage } from "./aar/AARPage";
+import { SessionMode } from "./HeaderBar";
 
 type Tab = "session" | "leaderboard" | "configure" | "aar";
 
@@ -14,6 +15,7 @@ export function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("session");
   const [sessionMode, setSessionMode] = useState<SessionMode>("master");
+  const [isLive, setIsLive] = useState(false);
 
   const isInstructor = user?.role === "instructor";
 
@@ -21,9 +23,13 @@ export function Dashboard() {
     <div className="w-full h-screen flex flex-col" style={{
       background: "var(--gradient-mesh)",
     }}>
-      <HeaderBar />
+      <HeaderBar
+        sessionMode={isInstructor ? sessionMode : undefined}
+        onSessionModeChange={isInstructor ? setSessionMode : undefined}
+        showModeToggle={isInstructor && activeTab === "session"}
+      />
 
-      {isInstructor && (
+      {isInstructor && !isLive && (
         <div className="shrink-0 flex items-center gap-1 px-6 pt-1" style={{
           background: "var(--surface-glass)",
           backdropFilter: "blur(16px)",
@@ -57,7 +63,7 @@ export function Dashboard() {
         ) : isInstructor && activeTab === "aar" ? (
           <AARPage />
         ) : isInstructor && activeTab === "session" ? (
-          <SessionPage mode={sessionMode} onModeChange={setSessionMode} />
+          <SessionPage mode={sessionMode} onModeChange={setSessionMode} onLiveChange={setIsLive} />
         ) : (
           <>
             {user?.role === "administrator" && <AdministratorDashboard />}
