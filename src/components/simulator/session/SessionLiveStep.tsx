@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { Play, Pause, Square, ChevronLeft, Pin, PinOff, Target, Crosshair, Zap, Shield, Eye } from "lucide-react";
+import { useState, useCallback, useMemo } from "react";
+import { Play, Pause, Square, ChevronLeft, Pin, PinOff, Target, Crosshair, Zap, Shield, Eye, CheckCircle2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LaneAssignment, ExerciseConfig } from "./types";
 import { getTargetById } from "@/contexts/TargetsContext";
@@ -11,6 +11,17 @@ interface Props {
   lanes: LaneAssignment[];
   exercises: ExerciseConfig[];
   onBack: () => void;
+}
+
+/* ── Mock shot data (stable per lane) ── */
+function useLaneShots(laneId: number) {
+  return useMemo(() => {
+    const hits = ((laneId * 7 + 3) % 8) + 1;
+    const misses = ((laneId * 3 + 1) % 5);
+    const total = hits + misses;
+    const accuracy = total > 0 ? Math.round((hits / total) * 100) : 0;
+    return { hits, misses, total, accuracy };
+  }, [laneId]);
 }
 
 /* ── Pinned Lane Card ── */
@@ -33,9 +44,7 @@ function PinnedCard({
 }) {
   const activeTrainee = lane.queue[0];
   const target = exercise ? getTargetById(exercise.targetType) : null;
-  const shots = { hits: Math.floor(Math.random() * 5), misses: Math.floor(Math.random() * 3), total: 0 };
-  shots.total = shots.hits + shots.misses;
-  const accuracy = shots.total > 0 ? Math.round((shots.hits / shots.total) * 100) : 0;
+  const shots = useLaneShots(lane.laneId);
 
   return (
     <motion.div
@@ -66,9 +75,7 @@ function PinnedCard({
       {/* Glow overlay on hover */}
       <motion.div
         className="absolute inset-0 rounded-2xl pointer-events-none z-0"
-        animate={{
-          opacity: isHovered ? 1 : 0,
-        }}
+        animate={{ opacity: isHovered ? 1 : 0 }}
         transition={{ duration: 0.4 }}
         style={{
           background: "linear-gradient(135deg, hsl(var(--primary) / 0.08) 0%, hsl(var(--accent) / 0.05) 50%, hsl(var(--primary) / 0.03) 100%)",
@@ -138,7 +145,7 @@ function PinnedCard({
           {[
             { label: "Hits", value: String(shots.hits), color: "text-success", icon: Zap },
             { label: "Miss", value: String(shots.misses), color: "text-destructive", icon: Target },
-            { label: "Acc", value: `${accuracy}%`, color: "text-primary", icon: Eye },
+            { label: "Acc", value: `${shots.accuracy}%`, color: "text-primary", icon: Eye },
             { label: "Rds", value: `${shots.total}/${exercise?.rounds || 0}`, color: "text-foreground", icon: Shield },
           ].map((item) => (
             <div key={item.label} className="rounded-lg p-1.5 text-center"
@@ -175,81 +182,6 @@ function PinnedCard({
   );
 }
 
-/* ── Hover Preview Popup ── */
-function LanePreviewPopup({
-  lane,
-  exercise,
-}: {
-  lane: LaneAssignment;
-  exercise: ExerciseConfig | undefined;
-}) {
-  const activeTrainee = lane.queue[0];
-  const target = exercise ? getTargetById(exercise.targetType) : null;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8, scale: 0.92 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 8, scale: 0.92 }}
-      transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 w-56 rounded-xl overflow-hidden pointer-events-none"
-      style={{
-        background: "var(--surface-glass)",
-        border: "1px solid hsl(var(--primary) / 0.3)",
-        backdropFilter: "blur(24px) saturate(180%)",
-        boxShadow: "0 0 40px hsl(var(--primary) / 0.2), 0 12px 40px rgba(0,0,0,0.2)",
-      }}
-    >
-      {/* Target preview */}
-      <div className="h-24 flex items-center justify-center" style={{ background: "rgba(255,255,255,0.9)" }}>
-        {target ? (
-          <img src={target.image} alt={target.label} className="max-w-full max-h-full object-contain p-2" />
-        ) : (
-          <Crosshair className="w-8 h-8 text-muted-foreground/20" />
-        )}
-      </div>
-
-      {/* Info */}
-      <div className="p-2.5 space-y-1.5">
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold text-primary-foreground"
-            style={{ background: "var(--gradient-primary)" }}
-          >
-            {lane.laneId}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-semibold text-foreground truncate">{activeTrainee?.name || "Empty"}</p>
-            <p className="text-[7px] text-muted-foreground font-mono">{activeTrainee?.rank || "—"}</p>
-          </div>
-        </div>
-
-        {exercise && (
-          <div className="grid grid-cols-3 gap-1">
-            {[
-              { l: "Target", v: target?.label || "—" },
-              { l: "Distance", v: `${exercise.distance}m` },
-              { l: "Rounds", v: String(exercise.rounds) },
-              { l: "Weapon", v: exercise.weapon || "—" },
-              { l: "Position", v: exercise.firingPosition || "—" },
-              { l: "Time", v: `${exercise.timeLimit}s` },
-            ].map((item) => (
-              <div key={item.l}>
-                <p className="text-[6px] uppercase tracking-widest text-muted-foreground/60 font-semibold">{item.l}</p>
-                <p className="text-[8px] font-mono text-foreground truncate">{item.v}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Arrow */}
-      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45"
-        style={{ background: "var(--surface-glass)", borderRight: "1px solid hsl(var(--primary) / 0.3)", borderBottom: "1px solid hsl(var(--primary) / 0.3)" }}
-      />
-    </motion.div>
-  );
-}
-
 /* ── Lane Strip Thumbnail ── */
 function StripThumbnail({
   lane,
@@ -259,6 +191,8 @@ function StripThumbnail({
   sessionState,
   isPinned,
   isHighlighted,
+  onHoverLane,
+  onLeaveLane,
 }: {
   lane: LaneAssignment;
   exercise: ExerciseConfig | undefined;
@@ -267,24 +201,21 @@ function StripThumbnail({
   sessionState: "idle" | "running" | "paused";
   isPinned: boolean;
   isHighlighted: boolean;
+  onHoverLane: () => void;
+  onLeaveLane: () => void;
 }) {
-  const [showPreview, setShowPreview] = useState(false);
   const activeTrainee = lane.queue[0];
-  const target = exercise ? getTargetById(exercise.targetType) : null;
+  const shots = useLaneShots(lane.laneId);
+  const isCompleted = shots.total >= (exercise?.rounds || 0) && (exercise?.rounds || 0) > 0;
+  const isInProgress = sessionState === "running" && !isCompleted;
 
   return (
     <div className="relative shrink-0">
-      <AnimatePresence>
-        {showPreview && !isPinned && (
-          <LanePreviewPopup lane={lane} exercise={exercise} />
-        )}
-      </AnimatePresence>
-
       <motion.button
         onClick={onPin}
         disabled={!canPin && !isPinned}
-        onMouseEnter={() => setShowPreview(true)}
-        onMouseLeave={() => setShowPreview(false)}
+        onMouseEnter={onHoverLane}
+        onMouseLeave={onLeaveLane}
         className="rounded-xl flex items-center gap-2 px-2.5 py-2 cursor-pointer relative group shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
         style={{
           background: isPinned
@@ -297,7 +228,7 @@ function StripThumbnail({
             : isHighlighted
             ? "1px solid hsl(var(--primary) / 0.3)"
             : "1px solid var(--divider)",
-          minWidth: 110,
+          minWidth: 120,
           boxShadow: isHighlighted
             ? "0 0 20px hsl(var(--primary) / 0.2), 0 0 40px hsl(var(--primary) / 0.1)"
             : isPinned
@@ -325,15 +256,19 @@ function StripThumbnail({
         >
           {lane.laneId}
         </div>
-        <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center shrink-0"
-          style={{ background: "rgba(255,255,255,0.9)", border: "1px solid var(--divider)" }}
-        >
-          {target ? <img src={target.image} alt="" className="w-full h-full object-contain" /> : <Target className="w-3 h-3 text-muted-foreground/30" />}
-        </div>
         <div className="flex-1 min-w-0 text-left">
           <p className="text-[8px] font-semibold text-foreground truncate">{activeTrainee?.name || "Empty"}</p>
         </div>
-        <ConnectionStatusRow laneId={lane.laneId} compact />
+        {/* Status indicator */}
+        {isCompleted ? (
+          <CheckCircle2 className="w-3 h-3 text-success shrink-0" />
+        ) : isInProgress ? (
+          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
+            <Loader2 className="w-3 h-3 text-warning shrink-0" />
+          </motion.div>
+        ) : (
+          <span className="w-2 h-2 rounded-full bg-muted-foreground/20 shrink-0" />
+        )}
         {isPinned ? (
           <Pin className="w-2.5 h-2.5 text-primary shrink-0" />
         ) : (
@@ -344,11 +279,135 @@ function StripThumbnail({
   );
 }
 
+/* ── Hover Overlay Card (shows over pinned area) ── */
+function HoverOverlayCard({
+  lane,
+  exercise,
+  sessionState,
+}: {
+  lane: LaneAssignment;
+  exercise: ExerciseConfig | undefined;
+  sessionState: "idle" | "running" | "paused";
+}) {
+  const activeTrainee = lane.queue[0];
+  const target = exercise ? getTargetById(exercise.targetType) : null;
+  const shots = useLaneShots(lane.laneId);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 500, damping: 35 }}
+      className="absolute inset-0 z-50 rounded-2xl overflow-hidden flex flex-col"
+      style={{
+        background: "var(--surface-glass)",
+        border: "2px solid hsl(var(--primary) / 0.5)",
+        backdropFilter: "blur(30px) saturate(200%)",
+        WebkitBackdropFilter: "blur(30px) saturate(200%)",
+        boxShadow: "0 0 80px hsl(var(--primary) / 0.3), 0 0 120px hsl(var(--primary) / 0.15), 0 20px 60px rgba(0,0,0,0.25)",
+      }}
+    >
+      {/* Header */}
+      <div
+        className="px-4 py-2 flex items-center gap-3 shrink-0"
+        style={{
+          background: "linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--accent) / 0.06))",
+          borderBottom: "1px solid var(--divider)",
+        }}
+      >
+        <motion.div
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-primary-foreground"
+          style={{ background: "var(--gradient-primary)", boxShadow: "0 2px 12px hsl(var(--primary) / 0.4)" }}
+        >
+          {lane.laneId}
+        </motion.div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-foreground truncate">{activeTrainee?.name || "—"}</p>
+          <p className="text-[8px] text-muted-foreground font-mono">{activeTrainee?.id} · {activeTrainee?.rank}</p>
+        </div>
+        <ConnectionStatusRow laneId={lane.laneId} />
+        <motion.span
+          className={`w-2.5 h-2.5 rounded-full ${sessionState === "running" ? "bg-success" : sessionState === "paused" ? "bg-warning" : "bg-muted-foreground/30"}`}
+          animate={sessionState === "running" ? { scale: [1, 1.4, 1] } : undefined}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+        />
+        <span className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md text-primary"
+          style={{ background: "hsl(var(--primary) / 0.1)", border: "1px solid hsl(var(--primary) / 0.2)" }}
+        >
+          Preview
+        </span>
+      </div>
+
+      {/* Body: target + stats */}
+      <div className="flex-1 flex min-h-0">
+        <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden"
+          style={{ background: "rgba(255,255,255,0.92)" }}
+        >
+          {target ? (
+            <img src={target.image} alt={target.label} className="max-w-full max-h-full object-contain" />
+          ) : (
+            <Crosshair className="w-16 h-16 text-muted-foreground/20" />
+          )}
+          {sessionState === "running" && (
+            <motion.div
+              className="absolute left-0 right-0 h-px pointer-events-none"
+              style={{ background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent)" }}
+              animate={{ top: ["5%", "95%", "5%"] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+            />
+          )}
+        </div>
+
+        <div className="w-[90px] shrink-0 flex flex-col gap-1.5 p-2 justify-center"
+          style={{ borderLeft: "1px solid var(--divider)", background: "var(--surface-inset)" }}
+        >
+          {[
+            { label: "Hits", value: String(shots.hits), color: "text-success", icon: Zap },
+            { label: "Miss", value: String(shots.misses), color: "text-destructive", icon: Target },
+            { label: "Acc", value: `${shots.accuracy}%`, color: "text-primary", icon: Eye },
+            { label: "Rds", value: `${shots.total}/${exercise?.rounds || 0}`, color: "text-foreground", icon: Shield },
+          ].map((item) => (
+            <div key={item.label} className="rounded-lg p-2 text-center"
+              style={{ background: "var(--surface-elevated)", border: "1px solid var(--divider)" }}
+            >
+              <item.icon className={`w-3 h-3 mx-auto ${item.color} mb-0.5 opacity-60`} />
+              <p className={`text-xs font-mono font-bold leading-tight ${item.color}`}>{item.value}</p>
+              <p className="text-[7px] uppercase tracking-widest text-muted-foreground font-semibold">{item.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer: exercise info */}
+      {exercise && (
+        <div className="px-4 py-2 flex items-center gap-4 shrink-0"
+          style={{ borderTop: "1px solid var(--divider)", background: "var(--surface-glass-hover)" }}
+        >
+          {[
+            { l: "Exercise", v: exercise.name || "Custom" },
+            { l: "Distance", v: `${exercise.distance}m` },
+            { l: "Time", v: `${exercise.timeLimit}s` },
+            { l: "Weapon", v: exercise.weapon || "—" },
+            { l: "Position", v: exercise.firingPosition || "—" },
+          ].map((item) => (
+            <div key={item.l} className="flex-1 min-w-0">
+              <p className="text-[7px] uppercase tracking-widest text-muted-foreground font-semibold">{item.l}</p>
+              <p className="text-[10px] font-mono text-foreground font-medium truncate">{item.v}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
 /* ── Main ── */
 export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
   const [sessionState, setSessionState] = useState<"idle" | "running" | "paused">("idle");
   const [pinnedLanes, setPinnedLanes] = useState<Set<number>>(new Set());
   const [hoveredPinnedLane, setHoveredPinnedLane] = useState<number | null>(null);
+  const [hoveredStripLane, setHoveredStripLane] = useState<number | null>(null);
 
   const togglePin = useCallback((laneId: number) => {
     setPinnedLanes((prev) => {
@@ -360,6 +419,11 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
   }, []);
 
   const pinnedList = lanes.filter((l) => pinnedLanes.has(l.laneId)).sort((a, b) => a.laneId - b.laneId);
+
+  // The lane to show as overlay (only non-pinned lanes trigger overlay)
+  const overlayLane = hoveredStripLane !== null && !pinnedLanes.has(hoveredStripLane)
+    ? lanes.find((l) => l.laneId === hoveredStripLane)
+    : null;
 
   const btnBase = "h-9 px-4 rounded-xl font-semibold text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-300 disabled:opacity-25 disabled:pointer-events-none";
 
@@ -405,8 +469,8 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
 
       {/* Main area */}
       <div className="flex-1 flex flex-col gap-2 min-h-0">
-        {/* Pinned cards */}
-        <div className="flex-1 min-h-0">
+        {/* Pinned cards + hover overlay */}
+        <div className="flex-1 min-h-0 relative">
           <AnimatePresence mode="popLayout">
             {pinnedList.length === 0 ? (
               <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -436,6 +500,18 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
               </div>
             )}
           </AnimatePresence>
+
+          {/* Hover overlay from strip */}
+          <AnimatePresence>
+            {overlayLane && (
+              <HoverOverlayCard
+                key={`overlay-${overlayLane.laneId}`}
+                lane={overlayLane}
+                exercise={exercises.find((e) => e.laneId === overlayLane.laneId)}
+                sessionState={sessionState}
+              />
+            )}
+          </AnimatePresence>
         </div>
 
         {/* All lanes strip */}
@@ -459,6 +535,8 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
                   sessionState={sessionState}
                   isPinned={isPinned}
                   isHighlighted={hoveredPinnedLane === lane.laneId}
+                  onHoverLane={() => setHoveredStripLane(lane.laneId)}
+                  onLeaveLane={() => setHoveredStripLane(null)}
                 />
               );
             })}
