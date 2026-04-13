@@ -1,9 +1,18 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useEffect, useState, useRef } from "react";
-import { LogOut, Wifi, Bell, Search, Sun, Moon, User, ChevronDown } from "lucide-react";
+import { LogOut, Bell, Search, Sun, Moon, ChevronDown, Monitor, Gamepad2 } from "lucide-react";
+import { motion } from "framer-motion";
 
-export function HeaderBar() {
+export type SessionMode = "master" | "firer";
+
+interface HeaderBarProps {
+  sessionMode?: SessionMode;
+  onSessionModeChange?: (mode: SessionMode) => void;
+  showModeToggle?: boolean;
+}
+
+export function HeaderBar({ sessionMode, onSessionModeChange, showModeToggle }: HeaderBarProps) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [time, setTime] = useState(new Date());
@@ -48,6 +57,49 @@ export function HeaderBar() {
             <span className="text-[9px] text-muted-foreground font-mono">v2.4.1</span>
           </div>
         </div>
+
+        {/* Mode Toggle in header */}
+        {showModeToggle && sessionMode && onSessionModeChange && (
+          <div className="ml-4 flex items-center">
+            <div className="flex items-center rounded-full overflow-hidden p-0.5" style={{
+              background: "var(--surface-inset)",
+              border: "1px solid var(--divider)",
+              boxShadow: "inset 0 2px 6px rgba(0,0,0,0.15)",
+            }}>
+              {(["master", "firer"] as SessionMode[]).map((m) => {
+                const isActive = sessionMode === m;
+                const Icon = m === "master" ? Monitor : Gamepad2;
+                return (
+                  <motion.button
+                    key={m}
+                    onClick={() => onSessionModeChange(m)}
+                    className={`relative flex items-center gap-1.5 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-full transition-colors duration-200 ${
+                      isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    whileHover={!isActive ? { scale: 1.03 } : undefined}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="mode-pill"
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: m === "master" ? "var(--gradient-primary)" : "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)))",
+                          boxShadow: `0 2px 12px hsl(var(--primary) / 0.4)`,
+                        }}
+                        transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center gap-1.5">
+                      <Icon className="w-3 h-3" />
+                      {m}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-4">
@@ -96,7 +148,6 @@ export function HeaderBar() {
             <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-300 ${profileOpen ? "rotate-180" : ""}`} />
           </button>
 
-          {/* Dropdown */}
           {profileOpen && (
             <div className="absolute right-0 top-[calc(100%+8px)] w-56 glass-panel-glow p-2 z-50 animate-scale-in" style={{
               transformOrigin: "top right",
@@ -107,7 +158,6 @@ export function HeaderBar() {
               </div>
               <div style={{ borderTop: `1px solid var(--divider)` }} className="pt-1 mb-1" />
 
-              {/* Theme toggle */}
               <div className="flex items-center justify-between px-3 py-2 rounded-lg interactive-row">
                 <div className="flex items-center gap-2 text-[11px] text-foreground">
                   {theme === "dark" ? <Moon className="w-3.5 h-3.5 text-accent" /> : <Sun className="w-3.5 h-3.5 text-warning" />}

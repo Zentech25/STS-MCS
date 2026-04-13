@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Users, Crosshair, Radio, Monitor, Gamepad2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Users, Crosshair, Radio } from "lucide-react";
 import { GroupSetupStep } from "./session/GroupSetupStep";
 import { ExerciseSetupStep } from "./session/ExerciseSetupStep";
 import { ARCSetupStep } from "./session/ARCSetupStep";
@@ -7,8 +7,7 @@ import { SessionLiveStep } from "./session/SessionLiveStep";
 import { LaneAssignment, ExerciseConfig, SessionStep } from "./session/types";
 import { ARCConfig } from "@/contexts/ARCContext";
 import { TARGETS } from "@/contexts/TargetsContext";
-
-export type SessionMode = "master" | "firer";
+import { SessionMode } from "./HeaderBar";
 
 const TOTAL_LANES = 10;
 
@@ -44,9 +43,10 @@ const createDefaultExercises = (): ExerciseConfig[] =>
 interface SessionPageProps {
   mode: SessionMode;
   onModeChange: (mode: SessionMode) => void;
+  onLiveChange?: (isLive: boolean) => void;
 }
 
-export function SessionPage({ mode, onModeChange }: SessionPageProps) {
+export function SessionPage({ mode, onModeChange, onLiveChange }: SessionPageProps) {
   const [step, setStep] = useState<SessionStep>(mode === "firer" ? "live" : "group");
   const [lanes, setLanes] = useState<LaneAssignment[]>(createEmptyLanes());
   const [exercises, setExercises] = useState<ExerciseConfig[]>(createDefaultExercises());
@@ -55,82 +55,62 @@ export function SessionPage({ mode, onModeChange }: SessionPageProps) {
 
   const isFirer = mode === "firer";
   const stepIndex = STEPS.findIndex((s) => s.key === step);
+  const isLive = step === "live";
+
+  // Notify parent when live state changes
+  useEffect(() => {
+    onLiveChange?.(isLive || isFirer);
+  }, [isLive, isFirer, onLiveChange]);
 
   return (
     <div className="flex flex-col h-full p-5 gap-4">
-      {/* Mode selector */}
-      <div className="flex items-center justify-center gap-2 shrink-0">
-        <div className="flex items-center rounded-xl overflow-hidden" style={{ background: "var(--surface-glass)", border: "1px solid var(--divider)" }}>
-          {(["master", "firer"] as SessionMode[]).map((m) => {
-            const isActive = mode === m;
-            const Icon = m === "master" ? Monitor : Gamepad2;
+      {/* Stepper – hidden in firer mode and live step */}
+      {!isFirer && !isLive && (
+        <div className="flex items-center justify-center gap-1 shrink-0">
+          {STEPS.map((s, i) => {
+            const isActive = s.key === step;
+            const isDone = i < stepIndex;
+            const Icon = s.icon;
+
             return (
-              <button
-                key={m}
-                onClick={() => onModeChange(m)}
-                className={`flex items-center gap-2 px-5 py-2 text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ${
-                  isActive
-                    ? "text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-                style={isActive ? { background: "var(--gradient-primary)" } : undefined}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {m}
-              </button>
+              <div key={s.key} className="flex items-center gap-1">
+                {i > 0 && (
+                  <div
+                    className="w-12 h-px mx-1 transition-all duration-500"
+                    style={{
+                      background: isDone ? "hsl(var(--primary))" : "var(--divider)",
+                    }}
+                  />
+                )}
+                <button
+                  onClick={() => {
+                    if (isDone) setStep(s.key);
+                  }}
+                  disabled={!isDone && !isActive}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ${
+                    isActive
+                      ? "text-primary-foreground shadow-lg"
+                      : isDone
+                      ? "text-primary glass-btn cursor-pointer hover:scale-[1.03]"
+                      : "text-muted-foreground/40 cursor-default"
+                  }`}
+                  style={isActive ? { background: "var(--gradient-primary)" } : undefined}
+                >
+                  <Icon className="w-4 h-4" />
+                  {s.label}
+                </button>
+              </div>
             );
           })}
         </div>
-      </div>
-
-      {/* Stepper – hidden in firer mode */}
-      {!isFirer && (
-      <div className="flex items-center justify-center gap-1 shrink-0">
-        {STEPS.map((s, i) => {
-          const isActive = s.key === step;
-          const isDone = i < stepIndex;
-          const Icon = s.icon;
-
-          return (
-            <div key={s.key} className="flex items-center gap-1">
-              {i > 0 && (
-                <div
-                  className="w-12 h-px mx-1 transition-all duration-500"
-                  style={{
-                    background: isDone ? "hsl(var(--primary))" : "var(--divider)",
-                  }}
-                />
-              )}
-              <button
-                onClick={() => {
-                  if (isDone) setStep(s.key);
-                }}
-                disabled={!isDone && !isActive}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-semibold uppercase tracking-wider transition-all duration-300 ${
-                  isActive
-                    ? "text-primary-foreground shadow-lg"
-                    : isDone
-                    ? "text-primary glass-btn cursor-pointer hover:scale-[1.03]"
-                    : "text-muted-foreground/40 cursor-default"
-                }`}
-                style={isActive ? { background: "var(--gradient-primary)" } : undefined}
-              >
-                <Icon className="w-4 h-4" />
-                {s.label}
-              </button>
-            </div>
-          );
-        })}
-      </div>
       )}
 
       {/* Step content */}
-      <div className={`flex-1 overflow-hidden relative ${isFirer ? "pointer-events-none" : ""}`}>
-        {isFirer && (
+      <div className={`flex-1 overflow-hidden relative ${isFirer && !isLive ? "pointer-events-none" : ""}`}>
+        {isFirer && !isLive && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl" style={{ background: "var(--surface-glass)", backdropFilter: "blur(2px)" }}>
-            <Gamepad2 className="w-10 h-10 text-muted-foreground/40" />
             <p className="text-sm font-semibold text-muted-foreground/60 uppercase tracking-wider">Firer Mode</p>
-            <p className="text-xs text-muted-foreground/40 max-w-xs text-center">Session is controlled by FPE. Trainee and exercise data will be received automatically.</p>
+            <p className="text-xs text-muted-foreground/40 max-w-xs text-center">Session is controlled by FPE.</p>
           </div>
         )}
 

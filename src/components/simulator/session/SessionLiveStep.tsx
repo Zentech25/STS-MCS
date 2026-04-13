@@ -18,13 +18,17 @@ function PinnedCard({
   exercise,
   onUnpin,
   sessionState,
-  cardCount,
+  isHovered,
+  onHoverStart,
+  onHoverEnd,
 }: {
   lane: LaneAssignment;
   exercise: ExerciseConfig | undefined;
   onUnpin: () => void;
   sessionState: "idle" | "running" | "paused";
-  cardCount: number;
+  isHovered: boolean;
+  onHoverStart: () => void;
+  onHoverEnd: () => void;
 }) {
   const activeTrainee = lane.queue[0];
   const target = exercise ? getTargetById(exercise.targetType) : null;
@@ -38,25 +42,39 @@ function PinnedCard({
       className="rounded-2xl flex flex-col overflow-hidden relative h-full"
       style={{
         background: "var(--surface-glass)",
-        border: "1px solid hsl(var(--primary) / 0.25)",
+        border: isHovered ? "1px solid hsl(var(--primary) / 0.6)" : "1px solid hsl(var(--primary) / 0.2)",
         backdropFilter: "blur(28px) saturate(200%)",
         WebkitBackdropFilter: "blur(28px) saturate(200%)",
-        boxShadow: "0 0 40px hsl(var(--primary) / 0.12), 0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)",
+        boxShadow: isHovered
+          ? "0 0 60px hsl(var(--primary) / 0.3), 0 0 100px hsl(var(--primary) / 0.15), 0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)"
+          : "0 0 20px hsl(var(--primary) / 0.08), 0 4px 16px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.08)",
+        transition: "box-shadow 0.4s ease, border-color 0.4s ease",
       }}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+      animate={{
+        opacity: 1,
+        scale: isHovered ? 1.02 : 1,
+        y: 0,
+        zIndex: isHovered ? 10 : 1,
+      }}
+      exit={{ opacity: 0, scale: 0.9, y: 20 }}
       transition={{ type: "spring", stiffness: 400, damping: 35 }}
+      onMouseEnter={onHoverStart}
+      onMouseLeave={onHoverEnd}
     >
-      {/* Glow */}
-      <div
+      {/* Glow overlay on hover */}
+      <motion.div
         className="absolute inset-0 rounded-2xl pointer-events-none z-0"
+        animate={{
+          opacity: isHovered ? 1 : 0,
+        }}
+        transition={{ duration: 0.4 }}
         style={{
-          background: "linear-gradient(135deg, hsl(var(--primary) / 0.05) 0%, hsl(var(--accent) / 0.03) 100%)",
+          background: "linear-gradient(135deg, hsl(var(--primary) / 0.08) 0%, hsl(var(--accent) / 0.05) 50%, hsl(var(--primary) / 0.03) 100%)",
         }}
       />
 
-      {/* Top bar: lane# + trainee + status + unpin */}
+      {/* Top bar */}
       <div
         className="px-3 py-1.5 flex items-center gap-2 shrink-0 relative z-10"
         style={{
@@ -92,9 +110,8 @@ function PinnedCard({
         </motion.button>
       </div>
 
-      {/* Main body: target image (hero) + stats side strip */}
+      {/* Main body: target + stats */}
       <div className="flex-1 flex relative z-10 min-h-0">
-        {/* Target image — takes most space */}
         <div className="flex-1 flex items-center justify-center p-2 relative overflow-hidden min-h-0"
           style={{ background: "rgba(255,255,255,0.92)" }}
         >
@@ -113,7 +130,6 @@ function PinnedCard({
           )}
         </div>
 
-        {/* Stats strip on right */}
         <div className="w-[72px] shrink-0 flex flex-col gap-1 p-1.5 justify-center"
           style={{ borderLeft: "1px solid var(--divider)", background: "var(--surface-inset)" }}
         >
@@ -157,62 +173,171 @@ function PinnedCard({
   );
 }
 
-/* ── Drawer Thumbnail ── */
-function DrawerThumbnail({
+/* ── Hover Preview Popup ── */
+function LanePreviewPopup({
+  lane,
+  exercise,
+}: {
+  lane: LaneAssignment;
+  exercise: ExerciseConfig | undefined;
+}) {
+  const activeTrainee = lane.queue[0];
+  const target = exercise ? getTargetById(exercise.targetType) : null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8, scale: 0.92 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 8, scale: 0.92 }}
+      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 w-56 rounded-xl overflow-hidden pointer-events-none"
+      style={{
+        background: "var(--surface-glass)",
+        border: "1px solid hsl(var(--primary) / 0.3)",
+        backdropFilter: "blur(24px) saturate(180%)",
+        boxShadow: "0 0 40px hsl(var(--primary) / 0.2), 0 12px 40px rgba(0,0,0,0.2)",
+      }}
+    >
+      {/* Target preview */}
+      <div className="h-24 flex items-center justify-center" style={{ background: "rgba(255,255,255,0.9)" }}>
+        {target ? (
+          <img src={target.image} alt={target.label} className="max-w-full max-h-full object-contain p-2" />
+        ) : (
+          <Crosshair className="w-8 h-8 text-muted-foreground/20" />
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="p-2.5 space-y-1.5">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold text-primary-foreground"
+            style={{ background: "var(--gradient-primary)" }}
+          >
+            {lane.laneId}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-semibold text-foreground truncate">{activeTrainee?.name || "Empty"}</p>
+            <p className="text-[7px] text-muted-foreground font-mono">{activeTrainee?.rank || "—"}</p>
+          </div>
+        </div>
+
+        {exercise && (
+          <div className="grid grid-cols-3 gap-1">
+            {[
+              { l: "Target", v: target?.label || "—" },
+              { l: "Distance", v: `${exercise.distance}m` },
+              { l: "Rounds", v: String(exercise.rounds) },
+              { l: "Weapon", v: exercise.weapon || "—" },
+              { l: "Position", v: exercise.firingPosition || "—" },
+              { l: "Time", v: `${exercise.timeLimit}s` },
+            ].map((item) => (
+              <div key={item.l}>
+                <p className="text-[6px] uppercase tracking-widest text-muted-foreground/60 font-semibold">{item.l}</p>
+                <p className="text-[8px] font-mono text-foreground truncate">{item.v}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Arrow */}
+      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45"
+        style={{ background: "var(--surface-glass)", borderRight: "1px solid hsl(var(--primary) / 0.3)", borderBottom: "1px solid hsl(var(--primary) / 0.3)" }}
+      />
+    </motion.div>
+  );
+}
+
+/* ── Lane Strip Thumbnail ── */
+function StripThumbnail({
   lane,
   exercise,
   onPin,
   canPin,
   sessionState,
   isPinned,
+  isHighlighted,
 }: {
   lane: LaneAssignment;
   exercise: ExerciseConfig | undefined;
   onPin: () => void;
   canPin: boolean;
   sessionState: "idle" | "running" | "paused";
-  isPinned?: boolean;
+  isPinned: boolean;
+  isHighlighted: boolean;
 }) {
+  const [showPreview, setShowPreview] = useState(false);
   const activeTrainee = lane.queue[0];
-  const isEmpty = lane.queue.length === 0;
   const target = exercise ? getTargetById(exercise.targetType) : null;
 
   return (
-    <motion.button
-      onClick={onPin}
-      disabled={!canPin && !isPinned}
-      className="rounded-lg flex items-center gap-1.5 px-2 py-1.5 cursor-pointer relative group shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
-      style={{
-        background: isPinned ? "hsl(var(--primary) / 0.12)" : "var(--surface-elevated)",
-        border: isPinned ? "1px solid hsl(var(--primary) / 0.3)" : "1px solid var(--divider)",
-        minWidth: 120,
-      }}
-      whileHover={{
-        scale: 1.04,
-        boxShadow: "0 0 20px hsl(var(--primary) / 0.15)",
-      }}
-      whileTap={{ scale: 0.97 }}
-      layout
-    >
-      <div className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold text-primary-foreground shrink-0"
-        style={{ background: "var(--gradient-primary)" }}
+    <div className="relative shrink-0">
+      <AnimatePresence>
+        {showPreview && !isPinned && (
+          <LanePreviewPopup lane={lane} exercise={exercise} />
+        )}
+      </AnimatePresence>
+
+      <motion.button
+        onClick={onPin}
+        disabled={!canPin && !isPinned}
+        onMouseEnter={() => setShowPreview(true)}
+        onMouseLeave={() => setShowPreview(false)}
+        className="rounded-xl flex items-center gap-2 px-2.5 py-2 cursor-pointer relative group shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+        style={{
+          background: isPinned
+            ? "hsl(var(--primary) / 0.15)"
+            : isHighlighted
+            ? "hsl(var(--primary) / 0.08)"
+            : "var(--surface-elevated)",
+          border: isPinned
+            ? "1px solid hsl(var(--primary) / 0.4)"
+            : isHighlighted
+            ? "1px solid hsl(var(--primary) / 0.3)"
+            : "1px solid var(--divider)",
+          minWidth: 110,
+          boxShadow: isHighlighted
+            ? "0 0 20px hsl(var(--primary) / 0.2), 0 0 40px hsl(var(--primary) / 0.1)"
+            : isPinned
+            ? "0 0 12px hsl(var(--primary) / 0.1)"
+            : "none",
+          transition: "box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease",
+        }}
+        whileHover={{
+          scale: 1.06,
+          boxShadow: "0 0 24px hsl(var(--primary) / 0.2)",
+        }}
+        whileTap={{ scale: 0.95 }}
+        animate={isHighlighted ? {
+          boxShadow: [
+            "0 0 20px hsl(var(--primary) / 0.2)",
+            "0 0 30px hsl(var(--primary) / 0.35)",
+            "0 0 20px hsl(var(--primary) / 0.2)",
+          ],
+        } : undefined}
+        transition={isHighlighted ? { repeat: Infinity, duration: 1.5 } : { type: "spring", stiffness: 400, damping: 30 }}
+        layout
       >
-        {lane.laneId}
-      </div>
-      <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center shrink-0"
-        style={{ background: "rgba(255,255,255,0.9)", border: "1px solid var(--divider)" }}
-      >
-        {target ? <img src={target.image} alt="" className="w-full h-full object-contain" /> : <Target className="w-3 h-3 text-muted-foreground/30" />}
-      </div>
-      <div className="flex-1 min-w-0 text-left">
-        <p className="text-[8px] font-semibold text-foreground truncate">{activeTrainee?.name || "Empty"}</p>
-      </div>
-      {isPinned ? (
-        <Pin className="w-2.5 h-2.5 text-primary shrink-0" />
-      ) : (
-        <PinOff className="w-2.5 h-2.5 text-muted-foreground/30 group-hover:text-primary shrink-0 transition-colors" />
-      )}
-    </motion.button>
+        <div className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold text-primary-foreground shrink-0"
+          style={{ background: "var(--gradient-primary)" }}
+        >
+          {lane.laneId}
+        </div>
+        <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center shrink-0"
+          style={{ background: "rgba(255,255,255,0.9)", border: "1px solid var(--divider)" }}
+        >
+          {target ? <img src={target.image} alt="" className="w-full h-full object-contain" /> : <Target className="w-3 h-3 text-muted-foreground/30" />}
+        </div>
+        <div className="flex-1 min-w-0 text-left">
+          <p className="text-[8px] font-semibold text-foreground truncate">{activeTrainee?.name || "Empty"}</p>
+        </div>
+        {isPinned ? (
+          <Pin className="w-2.5 h-2.5 text-primary shrink-0" />
+        ) : (
+          <PinOff className="w-2.5 h-2.5 text-muted-foreground/30 group-hover:text-primary shrink-0 transition-colors" />
+        )}
+      </motion.button>
+    </div>
   );
 }
 
@@ -220,6 +345,7 @@ function DrawerThumbnail({
 export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
   const [sessionState, setSessionState] = useState<"idle" | "running" | "paused">("idle");
   const [pinnedLanes, setPinnedLanes] = useState<Set<number>>(new Set());
+  const [hoveredPinnedLane, setHoveredPinnedLane] = useState<number | null>(null);
 
   const togglePin = useCallback((laneId: number) => {
     setPinnedLanes((prev) => {
@@ -231,7 +357,6 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
   }, []);
 
   const pinnedList = lanes.filter((l) => pinnedLanes.has(l.laneId)).sort((a, b) => a.laneId - b.laneId);
-  const unpinnedList = lanes.filter((l) => !pinnedLanes.has(l.laneId)).sort((a, b) => a.laneId - b.laneId);
 
   const btnBase = "h-9 px-4 rounded-xl font-semibold text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-300 disabled:opacity-25 disabled:pointer-events-none";
 
@@ -275,9 +400,9 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
         </div>
       </div>
 
-      {/* Main area: pinned cards on top, all lanes strip at bottom */}
+      {/* Main area */}
       <div className="flex-1 flex flex-col gap-2 min-h-0">
-        {/* Pinned cards — big, side by side */}
+        {/* Pinned cards */}
         <div className="flex-1 min-h-0">
           <AnimatePresence mode="popLayout">
             {pinnedList.length === 0 ? (
@@ -299,7 +424,9 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
                       exercise={exercises.find((e) => e.laneId === lane.laneId)}
                       onUnpin={() => togglePin(lane.laneId)}
                       sessionState={sessionState}
-                      cardCount={pinnedList.length}
+                      isHovered={hoveredPinnedLane === lane.laneId}
+                      onHoverStart={() => setHoveredPinnedLane(lane.laneId)}
+                      onHoverEnd={() => setHoveredPinnedLane(null)}
                     />
                   </div>
                 ))}
@@ -308,7 +435,7 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
           </AnimatePresence>
         </div>
 
-        {/* All lanes strip — always visible */}
+        {/* All lanes strip */}
         <div className="shrink-0 rounded-xl p-1.5"
           style={{
             background: "var(--surface-glass)",
@@ -320,7 +447,7 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
             {lanes.map((lane) => {
               const isPinned = pinnedLanes.has(lane.laneId);
               return (
-                <DrawerThumbnail
+                <StripThumbnail
                   key={lane.laneId}
                   lane={lane}
                   exercise={exercises.find((e) => e.laneId === lane.laneId)}
@@ -328,6 +455,7 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
                   canPin={isPinned || pinnedLanes.size < MAX_PINS}
                   sessionState={sessionState}
                   isPinned={isPinned}
+                  isHighlighted={hoveredPinnedLane === lane.laneId}
                 />
               );
             })}
