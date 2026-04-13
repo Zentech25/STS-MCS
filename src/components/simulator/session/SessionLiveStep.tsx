@@ -3,6 +3,7 @@ import { Play, Pause, Square, ChevronLeft, Pin, PinOff, Target, Crosshair, Zap, 
 import { motion, AnimatePresence } from "framer-motion";
 import { LaneAssignment, ExerciseConfig } from "./types";
 import { getTargetById } from "@/contexts/TargetsContext";
+import { ConnectionStatusRow } from "./ConnectionStatus";
 
 const MAX_PINS = 4;
 
@@ -94,6 +95,7 @@ function PinnedCard({
           <p className="text-[10px] font-semibold text-foreground truncate leading-tight">{activeTrainee?.name || "—"}</p>
           <p className="text-[7px] text-muted-foreground font-mono truncate">{activeTrainee?.id} · {activeTrainee?.rank}</p>
         </div>
+        <ConnectionStatusRow laneId={lane.laneId} />
         <motion.span
           className={`w-2 h-2 rounded-full shrink-0 ${sessionState === "running" ? "bg-success" : sessionState === "paused" ? "bg-warning" : "bg-muted-foreground/30"}`}
           animate={sessionState === "running" ? { scale: [1, 1.4, 1] } : undefined}
@@ -331,6 +333,7 @@ function StripThumbnail({
         <div className="flex-1 min-w-0 text-left">
           <p className="text-[8px] font-semibold text-foreground truncate">{activeTrainee?.name || "Empty"}</p>
         </div>
+        <ConnectionStatusRow laneId={lane.laneId} compact />
         {isPinned ? (
           <Pin className="w-2.5 h-2.5 text-primary shrink-0" />
         ) : (
