@@ -440,7 +440,7 @@ export function SessionLiveStep({ lanes, exercises, onBack, isFirer = false }: P
             <Gamepad2 className="w-3.5 h-3.5 text-accent" />
             <span>Control with FPE</span>
           </div>
-        )
+        )}
         {sessionState === "running" ? (
           <button onClick={() => setSessionState("paused")} className={`${btnBase} glass-btn text-warning`}>
             <Pause className="w-3 h-3" /> Pause
