@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useEffect, useState, useRef } from "react";
-import { LogOut, Bell, Search, Sun, Moon, ChevronDown, Monitor, Gamepad2 } from "lucide-react";
+import { LogOut, Sun, Moon, ChevronDown, Monitor, Gamepad2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 export type SessionMode = "master" | "firer";
@@ -103,23 +103,6 @@ export function HeaderBar({ sessionMode, onSessionModeChange, showModeToggle }: 
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Search */}
-        <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl glass-btn text-muted-foreground cursor-pointer min-w-[180px]">
-          <Search className="w-3.5 h-3.5" />
-          <span className="text-[11px]">Search...</span>
-          <span className="ml-auto text-[9px] font-mono px-1.5 py-0.5 rounded-md" style={{
-            background: "var(--surface-inset)",
-          }}>⌘K</span>
-        </div>
-
-        {/* Notification */}
-        <button className="relative w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground glass-btn">
-          <Bell className="w-4 h-4" />
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white" style={{
-            background: "var(--gradient-warm)",
-            boxShadow: "0 2px 8px hsl(340 75% 58% / 0.4)",
-          }}>3</span>
-        </button>
 
         {/* Clock */}
         <div className="font-mono text-[12px] text-muted-foreground tabular-nums px-3 py-1.5 rounded-lg" style={{
