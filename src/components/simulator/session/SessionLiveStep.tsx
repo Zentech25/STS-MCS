@@ -436,9 +436,18 @@ export function SessionLiveStep({ lanes, exercises, onBack, isFirer = false }: P
             <ChevronLeft className="w-3 h-3" /> Back
           </button>
         ) : (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase tracking-wider text-muted-foreground" style={{ background: "var(--surface-inset)", border: "1px solid var(--divider)" }}>
-            <Gamepad2 className="w-3.5 h-3.5 text-accent" />
+          <div className="flex items-center gap-2.5 px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-widest text-accent" style={{
+            background: "linear-gradient(135deg, hsl(var(--accent) / 0.15), hsl(var(--primary) / 0.1))",
+            border: "1px solid hsl(var(--accent) / 0.3)",
+            boxShadow: "0 0 20px hsl(var(--accent) / 0.15), inset 0 1px 0 hsl(var(--accent) / 0.1)",
+          }}>
+            <Gamepad2 className="w-4 h-4" />
             <span>Control with FPE</span>
+            <motion.span
+              className="w-2 h-2 rounded-full bg-accent"
+              animate={{ opacity: [1, 0.3, 1], boxShadow: ["0 0 4px hsl(var(--accent) / 0.5)", "0 0 12px hsl(var(--accent) / 0.8)", "0 0 4px hsl(var(--accent) / 0.5)"] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+            />
           </div>
         )}
         {sessionState === "running" ? (
