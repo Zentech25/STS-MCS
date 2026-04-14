@@ -353,13 +353,16 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         </div>
                         <div>
                           <label className={labelClass}>Range (meters)</label>
-                          <Input
-                            type="number"
-                            value={exercise.range}
-                            onChange={(e) => updateExercise(selectedLaneId, { range: Number(e.target.value), distance: Number(e.target.value) })}
-                            className="h-9 text-sm px-3 rounded-xl"
-                            min={5}
-                          />
+                          <Select value={String(exercise.range)} onValueChange={(v) => updateExercise(selectedLaneId, { range: Number(v), distance: Number(v) })}>
+                            <SelectTrigger className="h-9 text-sm px-3 rounded-xl">
+                              <SelectValue placeholder="Select range" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[10, 25, 50, 100, 200, 300, 400].map((r) => (
+                                <SelectItem key={r} value={String(r)}>{r} m</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                         <div>
                           <label className={labelClass}>Rounds</label>
