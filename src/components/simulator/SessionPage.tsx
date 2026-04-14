@@ -53,6 +53,13 @@ export function SessionPage({ mode, onModeChange, onLiveChange }: SessionPagePro
   const [exerciseMode, setExerciseMode] = useState<"custom" | "arc">("custom");
   const [arcConfigs, setArcConfigs] = useState<Record<number, ARCConfig>>({});
 
+  // Sync step when mode changes
+  useEffect(() => {
+    if (mode === "firer") {
+      setStep("live");
+    }
+  }, [mode]);
+
   const isFirer = mode === "firer";
   const stepIndex = STEPS.findIndex((s) => s.key === step);
   const isLive = step === "live";
