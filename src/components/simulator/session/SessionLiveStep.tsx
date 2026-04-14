@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import { Play, Pause, Square, ChevronLeft, Pin, PinOff, Target, Crosshair, Zap, Shield, Eye, CheckCircle2, Loader2 } from "lucide-react";
+import { Play, Pause, Square, ChevronLeft, Pin, PinOff, Target, Crosshair, Zap, Shield, Eye, CheckCircle2, Loader2, Gamepad2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LaneAssignment, ExerciseConfig } from "./types";
 import { getTargetById } from "@/contexts/TargetsContext";
@@ -11,6 +11,7 @@ interface Props {
   lanes: LaneAssignment[];
   exercises: ExerciseConfig[];
   onBack: () => void;
+  isFirer?: boolean;
 }
 
 /* ── Mock shot data (stable per lane) ── */
@@ -402,7 +403,7 @@ function HoverOverlayCard({
 }
 
 /* ── Main ── */
-export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
+export function SessionLiveStep({ lanes, exercises, onBack, isFirer = false }: Props) {
   const [sessionState, setSessionState] = useState<"idle" | "running" | "paused">("idle");
   const [pinnedLanes, setPinnedLanes] = useState<Set<number>>(new Set());
   const [hoveredPinnedLane, setHoveredPinnedLane] = useState<number | null>(null);
@@ -430,9 +431,16 @@ export function SessionLiveStep({ lanes, exercises, onBack }: Props) {
     <div className="flex flex-col h-full gap-2">
       {/* Top controls */}
       <div className="flex items-center gap-2 shrink-0 flex-wrap">
-        <button onClick={onBack} disabled={sessionState !== "idle"} className={`${btnBase} glass-btn text-muted-foreground hover:text-foreground`}>
-          <ChevronLeft className="w-3 h-3" /> Back
-        </button>
+        {!isFirer ? (
+          <button onClick={onBack} disabled={sessionState !== "idle"} className={`${btnBase} glass-btn text-muted-foreground hover:text-foreground`}>
+            <ChevronLeft className="w-3 h-3" /> Back
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase tracking-wider text-muted-foreground" style={{ background: "var(--surface-inset)", border: "1px solid var(--divider)" }}>
+            <Gamepad2 className="w-3.5 h-3.5 text-accent" />
+            <span>Control with FPE</span>
+          </div>
+        )}
         {sessionState === "running" ? (
           <button onClick={() => setSessionState("paused")} className={`${btnBase} glass-btn text-warning`}>
             <Pause className="w-3 h-3" /> Pause

@@ -156,6 +156,7 @@ export function SessionPage({ mode, onModeChange, onLiveChange }: SessionPagePro
             lanes={lanes}
             exercises={exercises}
             onBack={() => setStep("exercise")}
+            isFirer={isFirer}
           />
         )}
       </div>
