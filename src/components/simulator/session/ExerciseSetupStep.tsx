@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Crosshair, Copy, Sun, Moon, Eye, Check, Aler
 import { motion, AnimatePresence } from "framer-motion";
 import { LaneAssignment, ExerciseConfig, PracticeType } from "./types";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
 import { TARGETS } from "@/contexts/TargetsContext";
@@ -353,13 +354,16 @@ export function ExerciseSetupStep({ lanes, exercises, onExercisesChange, onBack,
                         </div>
                         <div>
                           <label className={labelClass}>Range (meters)</label>
-                          <Input
-                            type="number"
-                            value={exercise.range}
-                            onChange={(e) => updateExercise(selectedLaneId, { range: Number(e.target.value), distance: Number(e.target.value) })}
-                            className="h-9 text-sm px-3 rounded-xl"
-                            min={5}
-                          />
+                          <Select value={String(exercise.range)} onValueChange={(v) => updateExercise(selectedLaneId, { range: Number(v), distance: Number(v) })}>
+                            <SelectTrigger className="h-9 text-sm px-3 rounded-xl">
+                              <SelectValue placeholder="Select range" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[10, 25, 50, 100, 200, 300, 400].map((r) => (
+                                <SelectItem key={r} value={String(r)}>{r} m</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                         <div>
                           <label className={labelClass}>Rounds</label>

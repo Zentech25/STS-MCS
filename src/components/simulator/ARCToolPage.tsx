@@ -228,28 +228,16 @@ export function ARCToolPage() {
           {addingField === "weapon" ? (
             renderInlineField("e.g. M16A4")
           ) : (
-            <div className="flex items-center gap-2">
-              <Select value={config.weapon} onValueChange={(v) => { patch({ weapon: v, typeOfFire: "", nameOfPractice: "" }); cancelInlineAdd(); }}>
-                <SelectTrigger className="h-9 rounded-xl text-sm max-w-xs">
-                  <SelectValue placeholder="Select weapon" />
-                </SelectTrigger>
-                <SelectContent>
-                  {weapons.map((w) => (
-                    <SelectItem key={w.id} value={w.id}>{w.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-9 w-9 p-0 rounded-xl shrink-0"
-                style={{ borderColor: `hsl(${ACCENT} / 0.4)`, color: `hsl(${ACCENT})` }}
-                onClick={() => startInlineAdd("weapon")}
-                title="Add new weapon"
-              >
-                <PlusCircle className="w-4 h-4" />
-              </Button>
-            </div>
+            <Select value={config.weapon} onValueChange={(v) => { patch({ weapon: v, typeOfFire: "", nameOfPractice: "" }); cancelInlineAdd(); }}>
+              <SelectTrigger className="h-9 rounded-xl text-sm max-w-xs">
+                <SelectValue placeholder="Select weapon" />
+              </SelectTrigger>
+              <SelectContent>
+                {weapons.map((w) => (
+                  <SelectItem key={w.id} value={w.id}>{w.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         </FieldRow>
 
@@ -339,13 +327,16 @@ export function ARCToolPage() {
         </FieldRow>
 
         <FieldRow label="Firing Range">
-          <Input
-            type="number"
-            value={config.firingRange}
-            onChange={(e) => patch({ firingRange: Number(e.target.value) })}
-            className="h-9 rounded-xl text-sm w-24"
-            min={1}
-          />
+          <Select value={String(config.firingRange)} onValueChange={(v) => patch({ firingRange: Number(v) })}>
+            <SelectTrigger className="h-9 rounded-xl text-sm w-32">
+              <SelectValue placeholder="Select range" />
+            </SelectTrigger>
+            <SelectContent>
+              {[10, 25, 50, 100, 200, 300, 400].map((r) => (
+                <SelectItem key={r} value={String(r)}>{r} m</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </FieldRow>
 
         <FieldRow label="Type of Target">
