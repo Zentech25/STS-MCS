@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Crosshair, Copy, Sun, Moon, Eye, Check, Aler
 import { motion, AnimatePresence } from "framer-motion";
 import { LaneAssignment, ExerciseConfig, PracticeType } from "./types";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { useTrainingAssets } from "@/contexts/TrainingAssetsContext";
 import { TARGETS } from "@/contexts/TargetsContext";
