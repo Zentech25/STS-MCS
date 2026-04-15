@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import { Play, Pause, Square, ChevronLeft, Target, Crosshair, Zap, Shield, Percent, Gamepad2, X } from "lucide-react";
+import { Play, Pause, Square, ChevronLeft, Target, Crosshair, XCircle, Circle, Gamepad2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LaneAssignment, ExerciseConfig } from "./types";
 import { getTargetById } from "@/contexts/TargetsContext";
@@ -94,23 +94,29 @@ function ThumbnailCard({
         )}
       </div>
 
-      {/* Stats row */}
-      <div className="px-2.5 py-2 flex items-center justify-between"
+      {/* Stats row - enlarged icons and text */}
+      <div className="px-2.5 py-2.5 flex items-center justify-between"
         style={{ borderTop: "1px solid var(--divider)", background: "var(--surface-inset)" }}
       >
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md" style={{ background: "hsl(var(--success) / 0.15)" }}>
-            <Zap className="w-3 h-3 text-success" />
-            <span className="text-xs font-mono font-bold text-foreground">{shots.hits}</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md" style={{ background: "hsl(var(--success) / 0.2)" }}>
+            <Target className="w-4 h-4 text-success" strokeWidth={2.5} />
+            <span className="text-sm font-mono font-bold text-foreground">{shots.hits}</span>
           </div>
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md" style={{ background: "hsl(var(--destructive) / 0.15)" }}>
-            <Target className="w-3 h-3 text-destructive" />
-            <span className="text-xs font-mono font-bold text-foreground">{shots.misses}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md" style={{ background: "hsl(var(--destructive) / 0.2)" }}>
+            <XCircle className="w-4 h-4 text-destructive" strokeWidth={2.5} />
+            <span className="text-sm font-mono font-bold text-foreground">{shots.misses}</span>
           </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <Percent className="w-3 h-3 text-muted-foreground" />
-          <span className="text-xs font-mono font-bold text-foreground">{shots.accuracy}%</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md" style={{ background: "hsl(var(--primary) / 0.2)" }}>
+            <Crosshair className="w-4 h-4 text-primary" strokeWidth={2.5} />
+            <span className="text-sm font-mono font-bold text-foreground">{shots.accuracy}%</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md" style={{ background: "hsl(var(--muted) / 0.6)" }}>
+            <Circle className="w-4 h-4 text-muted-foreground" strokeWidth={2.5} />
+            <span className="text-sm font-mono font-bold text-foreground">{shots.total}/{exercise?.rounds || 0}</span>
+          </div>
         </div>
       </div>
     </motion.button>
@@ -213,17 +219,17 @@ function DetailPopup({
             style={{ borderLeft: "1px solid var(--divider)", background: "var(--surface-inset)" }}
           >
             {[
-              { label: "Hits", value: String(shots.hits), color: "text-foreground", bg: "hsl(var(--success) / 0.15)", icon: Zap, iconColor: "text-success" },
-              { label: "Miss", value: String(shots.misses), color: "text-foreground", bg: "hsl(var(--destructive) / 0.15)", icon: Target, iconColor: "text-destructive" },
-              { label: "Acc", value: `${shots.accuracy}%`, color: "text-foreground", bg: "hsl(var(--primary) / 0.15)", icon: Percent, iconColor: "text-primary" },
-              { label: "Rds", value: `${shots.total}/${exercise?.rounds || 0}`, color: "text-foreground", bg: "hsl(var(--muted) / 0.5)", icon: Shield, iconColor: "text-muted-foreground" },
+              { label: "Hits", value: String(shots.hits), color: "text-foreground", bg: "hsl(var(--success) / 0.2)", icon: Target, iconColor: "text-success" },
+              { label: "Miss", value: String(shots.misses), color: "text-foreground", bg: "hsl(var(--destructive) / 0.2)", icon: XCircle, iconColor: "text-destructive" },
+              { label: "Acc", value: `${shots.accuracy}%`, color: "text-foreground", bg: "hsl(var(--primary) / 0.2)", icon: Crosshair, iconColor: "text-primary" },
+              { label: "Rds", value: `${shots.total}/${exercise?.rounds || 0}`, color: "text-foreground", bg: "hsl(var(--muted) / 0.6)", icon: Circle, iconColor: "text-muted-foreground" },
             ].map((item) => (
               <div key={item.label} className="rounded-xl p-3 text-center"
                 style={{ background: item.bg, border: "1px solid var(--divider)" }}
               >
-                <item.icon className={`w-5 h-5 mx-auto ${item.iconColor} mb-1`} />
-                <p className={`text-base font-mono font-bold leading-tight ${item.color}`}>{item.value}</p>
-                <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-semibold mt-0.5">{item.label}</p>
+                <item.icon className={`w-6 h-6 mx-auto ${item.iconColor} mb-1.5`} strokeWidth={2.5} />
+                <p className={`text-lg font-mono font-bold leading-tight ${item.color}`}>{item.value}</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mt-1">{item.label}</p>
               </div>
             ))}
           </div>
