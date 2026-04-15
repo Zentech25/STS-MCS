@@ -43,6 +43,21 @@ const DEFAULT_GROUPS: SavedGroup[] = [
       { laneId: 4, queue: [TRAINEE_POOL[11]] },
     ],
   },
+  {
+    id: "g3", name: "Charlie Platoon - Full Range", createdAt: "2026-04-10",
+    lanes: [
+      { laneId: 1, queue: [TRAINEE_POOL[2]] },
+      { laneId: 2, queue: [TRAINEE_POOL[1]] },
+      { laneId: 3, queue: [TRAINEE_POOL[5]] },
+      { laneId: 4, queue: [TRAINEE_POOL[6]] },
+      { laneId: 5, queue: [TRAINEE_POOL[8]] },
+      { laneId: 6, queue: [TRAINEE_POOL[12]] },
+      { laneId: 7, queue: [TRAINEE_POOL[14]] },
+      { laneId: 8, queue: [TRAINEE_POOL[16]] },
+      { laneId: 9, queue: [TRAINEE_POOL[18]] },
+      { laneId: 10, queue: [TRAINEE_POOL[20]] },
+    ],
+  },
 ];
 
 function loadGroups(): SavedGroup[] {
