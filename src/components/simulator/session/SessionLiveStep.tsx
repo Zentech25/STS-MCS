@@ -95,20 +95,21 @@ function ThumbnailCard({
       </div>
 
       {/* Stats row */}
-      <div className="px-2.5 py-1.5 flex items-center gap-3"
+      <div className="px-2.5 py-2 flex items-center justify-between"
         style={{ borderTop: "1px solid var(--divider)", background: "var(--surface-inset)" }}
       >
-        <div className="flex items-center gap-1">
-          <Zap className="w-2.5 h-2.5 text-success opacity-70" />
-          <span className="text-[10px] font-mono font-bold text-success">{shots.hits}</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md" style={{ background: "hsl(var(--success) / 0.15)" }}>
+            <Zap className="w-3 h-3 text-success" />
+            <span className="text-xs font-mono font-bold text-success">{shots.hits}</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md" style={{ background: "hsl(var(--destructive) / 0.15)" }}>
+            <Target className="w-3 h-3 text-destructive" />
+            <span className="text-xs font-mono font-bold text-destructive">{shots.misses}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <Target className="w-2.5 h-2.5 text-destructive opacity-70" />
-          <span className="text-[10px] font-mono font-bold text-destructive">{shots.misses}</span>
-        </div>
-        <div className="ml-auto flex items-center gap-1">
-          <Eye className="w-2.5 h-2.5 text-primary opacity-60" />
-          <span className="text-[10px] font-mono font-bold text-primary">{shots.accuracy}%</span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-mono font-bold text-foreground">{shots.accuracy}%</span>
         </div>
       </div>
     </motion.button>
@@ -144,7 +145,7 @@ function DetailPopup({
 
       {/* Card */}
       <motion.div
-        className="relative z-10 w-[520px] max-w-[90vw] max-h-[80vh] rounded-2xl overflow-hidden flex flex-col"
+        className="relative z-10 w-[680px] max-w-[92vw] max-h-[85vh] rounded-2xl overflow-hidden flex flex-col"
         style={{
           background: "var(--surface-glass)",
           border: "2px solid hsl(var(--primary) / 0.4)",
@@ -189,11 +190,11 @@ function DetailPopup({
 
         {/* Body: target + stats */}
         <div className="flex-1 flex min-h-0">
-          <div className="flex-1 flex items-center justify-center p-6 relative overflow-hidden"
+          <div className="flex-1 flex items-center justify-center p-8 relative overflow-hidden"
             style={{ background: "rgba(255,255,255,0.92)" }}
           >
             {target ? (
-              <img src={target.image} alt={target.label} className="max-w-full max-h-[260px] object-contain" />
+              <img src={target.image} alt={target.label} className="max-w-full max-h-[340px] object-contain" />
             ) : (
               <Crosshair className="w-16 h-16 text-muted-foreground/20" />
             )}
@@ -207,21 +208,21 @@ function DetailPopup({
             )}
           </div>
 
-          <div className="w-[100px] shrink-0 flex flex-col gap-2 p-2.5 justify-center"
+          <div className="w-[140px] shrink-0 flex flex-col gap-3 p-4 justify-center"
             style={{ borderLeft: "1px solid var(--divider)", background: "var(--surface-inset)" }}
           >
             {[
-              { label: "Hits", value: String(shots.hits), color: "text-success", icon: Zap },
-              { label: "Miss", value: String(shots.misses), color: "text-destructive", icon: Target },
-              { label: "Acc", value: `${shots.accuracy}%`, color: "text-primary", icon: Eye },
-              { label: "Rds", value: `${shots.total}/${exercise?.rounds || 0}`, color: "text-foreground", icon: Shield },
+              { label: "Hits", value: String(shots.hits), color: "text-success", bg: "hsl(var(--success) / 0.15)", icon: Zap },
+              { label: "Miss", value: String(shots.misses), color: "text-destructive", bg: "hsl(var(--destructive) / 0.15)", icon: Target },
+              { label: "Acc", value: `${shots.accuracy}%`, color: "text-primary", bg: "hsl(var(--primary) / 0.15)", icon: Eye },
+              { label: "Rds", value: `${shots.total}/${exercise?.rounds || 0}`, color: "text-foreground", bg: "hsl(var(--muted) / 0.5)", icon: Shield },
             ].map((item) => (
-              <div key={item.label} className="rounded-lg p-2 text-center"
-                style={{ background: "var(--surface-elevated)", border: "1px solid var(--divider)" }}
+              <div key={item.label} className="rounded-xl p-3 text-center"
+                style={{ background: item.bg, border: "1px solid var(--divider)" }}
               >
-                <item.icon className={`w-3.5 h-3.5 mx-auto ${item.color} mb-0.5 opacity-60`} />
-                <p className={`text-sm font-mono font-bold leading-tight ${item.color}`}>{item.value}</p>
-                <p className="text-[7px] uppercase tracking-widest text-muted-foreground font-semibold">{item.label}</p>
+                <item.icon className={`w-5 h-5 mx-auto ${item.color} mb-1`} />
+                <p className={`text-base font-mono font-bold leading-tight ${item.color}`}>{item.value}</p>
+                <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-semibold mt-0.5">{item.label}</p>
               </div>
             ))}
           </div>
