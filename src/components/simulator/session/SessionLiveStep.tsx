@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import { Play, Pause, Square, ChevronLeft, Target, Crosshair, XCircle, Circle, Gamepad2, X } from "lucide-react";
+import { Play, Pause, Square, ChevronLeft, Target, Crosshair, X, Circle, Gamepad2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LaneAssignment, ExerciseConfig } from "./types";
 import { getTargetById } from "@/contexts/TargetsContext";
@@ -94,28 +94,39 @@ function ThumbnailCard({
         )}
       </div>
 
-      {/* Stats row - enlarged icons and text */}
-      <div className="px-2.5 py-2.5 flex items-center justify-between"
+      {/* Stats row - redesigned with better visual hierarchy */}
+      <div className="px-2 py-2 flex items-center justify-between gap-1"
         style={{ borderTop: "1px solid var(--divider)", background: "var(--surface-inset)" }}
       >
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md" style={{ background: "hsl(var(--success) / 0.2)" }}>
-            <Target className="w-4 h-4 text-success" strokeWidth={2.5} />
-            <span className="text-sm font-mono font-bold text-foreground">{shots.hits}</span>
+        <div className="flex items-center gap-1">
+          {/* Hits - bullet hole in target */}
+          <div className="flex items-center gap-1 px-2 py-1 rounded-lg" 
+               style={{ background: "hsl(var(--success) / 0.25)", border: "1px solid hsl(var(--success) / 0.35)" }}>
+            <Target className="w-3.5 h-3.5 text-success" strokeWidth={2.5} />
+            <span className="text-xs font-mono font-bold text-foreground min-w-[1ch]">{shots.hits}</span>
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md" style={{ background: "hsl(var(--destructive) / 0.2)" }}>
-            <XCircle className="w-4 h-4 text-destructive" strokeWidth={2.5} />
-            <span className="text-sm font-mono font-bold text-foreground">{shots.misses}</span>
+          
+          {/* Miss - cross mark */}
+          <div className="flex items-center gap-1 px-2 py-1 rounded-lg" 
+               style={{ background: "hsl(var(--destructive) / 0.25)", border: "1px solid hsl(var(--destructive) / 0.35)" }}>
+            <X className="w-3.5 h-3.5 text-destructive" strokeWidth={3} />
+            <span className="text-xs font-mono font-bold text-foreground min-w-[1ch]">{shots.misses}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md" style={{ background: "hsl(var(--primary) / 0.2)" }}>
-            <Crosshair className="w-4 h-4 text-primary" strokeWidth={2.5} />
-            <span className="text-sm font-mono font-bold text-foreground">{shots.accuracy}%</span>
+        
+        <div className="flex items-center gap-1">
+          {/* Accuracy - crosshair/bullseye */}
+          <div className="flex items-center gap-1 px-2 py-1 rounded-lg" 
+               style={{ background: "hsl(var(--primary) / 0.25)", border: "1px solid hsl(var(--primary) / 0.35)" }}>
+            <Crosshair className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
+            <span className="text-xs font-mono font-bold text-foreground">{shots.accuracy}%</span>
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md" style={{ background: "hsl(var(--muted) / 0.6)" }}>
-            <Circle className="w-4 h-4 text-muted-foreground" strokeWidth={2.5} />
-            <span className="text-sm font-mono font-bold text-foreground">{shots.total}/{exercise?.rounds || 0}</span>
+          
+          {/* RDS - bullet/circle */}
+          <div className="flex items-center gap-1 px-2 py-1 rounded-lg" 
+               style={{ background: "hsl(var(--muted) / 0.4)", border: "1px solid hsl(var(--muted) / 0.5)" }}>
+            <Circle className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2.5} fill="currentColor" />
+            <span className="text-xs font-mono font-bold text-foreground">{shots.total}</span>
           </div>
         </div>
       </div>
@@ -219,16 +230,16 @@ function DetailPopup({
             style={{ borderLeft: "1px solid var(--divider)", background: "var(--surface-inset)" }}
           >
             {[
-              { label: "Hits", value: String(shots.hits), color: "text-foreground", bg: "hsl(var(--success) / 0.2)", icon: Target, iconColor: "text-success" },
-              { label: "Miss", value: String(shots.misses), color: "text-foreground", bg: "hsl(var(--destructive) / 0.2)", icon: XCircle, iconColor: "text-destructive" },
-              { label: "Acc", value: `${shots.accuracy}%`, color: "text-foreground", bg: "hsl(var(--primary) / 0.2)", icon: Crosshair, iconColor: "text-primary" },
-              { label: "Rds", value: `${shots.total}/${exercise?.rounds || 0}`, color: "text-foreground", bg: "hsl(var(--muted) / 0.6)", icon: Circle, iconColor: "text-muted-foreground" },
+              { label: "Hits", value: String(shots.hits), bg: "hsl(var(--success) / 0.25)", border: "hsl(var(--success) / 0.4)", icon: Target, iconColor: "text-success" },
+              { label: "Miss", value: String(shots.misses), bg: "hsl(var(--destructive) / 0.25)", border: "hsl(var(--destructive) / 0.4)", icon: X, iconColor: "text-destructive" },
+              { label: "Acc", value: `${shots.accuracy}%`, bg: "hsl(var(--primary) / 0.25)", border: "hsl(var(--primary) / 0.4)", icon: Crosshair, iconColor: "text-primary" },
+              { label: "Rds", value: `${shots.total}/${exercise?.rounds || 0}`, bg: "hsl(var(--muted) / 0.4)", border: "hsl(var(--muted) / 0.5)", icon: Circle, iconColor: "text-muted-foreground", fillIcon: true },
             ].map((item) => (
               <div key={item.label} className="rounded-xl p-3 text-center"
-                style={{ background: item.bg, border: "1px solid var(--divider)" }}
+                style={{ background: item.bg, border: `1px solid ${item.border}` }}
               >
-                <item.icon className={`w-6 h-6 mx-auto ${item.iconColor} mb-1.5`} strokeWidth={2.5} />
-                <p className={`text-lg font-mono font-bold leading-tight ${item.color}`}>{item.value}</p>
+                <item.icon className={`w-6 h-6 mx-auto ${item.iconColor} mb-1.5`} strokeWidth={item.label === "Miss" ? 3 : 2.5} fill={item.fillIcon ? "currentColor" : undefined} />
+                <p className="text-lg font-mono font-bold leading-tight text-foreground">{item.value}</p>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mt-1">{item.label}</p>
               </div>
             ))}
