@@ -1,16 +1,32 @@
 
 
-## Fix Build Errors in chart.tsx
+## Plan: Dynamic Lane Grid Layout
 
-The `recharts` package was updated and its TypeScript types changed, breaking `chart.tsx`. The errors are about missing properties (`payload`, `label`) and incompatible `Pick` types on the Legend component.
+### Problem
+The grid is hardcoded to `grid-cols-5`, which only works well for exactly 10 lanes. Fewer lanes leave empty space; more lanes don't align properly.
 
-### Plan
+### Solution
+Dynamically compute the optimal column count based on the number of lanes so thumbnails always fill the available space proportionally.
 
-**File: `src/components/ui/chart.tsx`**
+### Logic
+- 1-2 lanes → 1-2 columns
+- 3-4 lanes → 2 columns  
+- 5-6 lanes → 3 columns
+- 7-9 lanes → 3 columns (3 rows)
+- 10-12 lanes → 4 columns (or 5 for 10)
+- 13-16 lanes → 4 columns
+- 17-20 lanes → 5 columns
+- 21+ lanes → 6 columns
 
-1. **Fix ChartTooltipContent props** (lines ~96-117): Extract `active`, `payload`, `label` from the component props by casting or using `any` type workaround, since recharts v2.13+ changed its tooltip prop types. Add explicit type declarations for these destructured props.
+A simple approach: use `Math.ceil(Math.sqrt(n))` capped at 6 to get a balanced grid that fills the space.
 
-2. **Fix ChartLegendContent props** (line ~233): Replace `Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign">` with inline prop types since `payload` is no longer a valid key in the updated Legend SVG props. Define `payload` and `verticalAlign` as explicit optional props.
+### Changes
 
-These are type-only fixes — no behavioral changes.
+**`src/components/simulator/session/SessionLiveStep.tsx`**
+- Add a `useMemo` that computes optimal columns from `lanes.length`
+- Replace hardcoded `grid-cols-5` with dynamic `gridTemplateColumns` style
+- Keep `auto-rows-fr` and `h-full` so cards stretch to fill vertical space
+
+### Updated Prompt Section
+The prompt will note: "The grid adapts dynamically — column count is computed from lane count (roughly `ceil(sqrt(n))`, max 6) so cards always fill the screen whether there are 2 lanes or 20+."
 
