@@ -44,7 +44,7 @@ function ThumbnailCard({
   return (
     <motion.button
       onClick={onSelect}
-      className="rounded-xl flex flex-col overflow-hidden text-left relative group"
+      className="rounded-xl flex flex-col overflow-hidden text-left relative group h-full"
       style={{
         background: isSelected ? "hsl(var(--primary) / 0.1)" : "var(--surface-glass)",
         border: isSelected ? "1px solid hsl(var(--primary) / 0.5)" : "1px solid var(--divider)",
@@ -55,10 +55,10 @@ function ThumbnailCard({
         transition: "border-color 0.3s, box-shadow 0.3s, background 0.3s",
       }}
       whileHover={{
-        scale: 1.03,
+        scale: 1.02,
         boxShadow: "0 0 20px hsl(var(--primary) / 0.15), 0 4px 16px rgba(0,0,0,0.1)",
       }}
-      whileTap={{ scale: 0.97 }}
+      whileTap={{ scale: 0.98 }}
     >
       {/* Lane badge + trainee */}
       <div className="px-2.5 py-2 flex items-center gap-2"
@@ -83,14 +83,14 @@ function ThumbnailCard({
         />
       </div>
 
-      {/* Target thumbnail */}
-      <div className="flex-1 flex items-center justify-center p-2 min-h-[60px] relative"
-        style={{ background: "rgba(255,255,255,0.9)" }}
+      {/* Target thumbnail - expanded to fill most of the card */}
+      <div className="flex-1 flex items-center justify-center p-1 min-h-[120px] relative"
+        style={{ background: "rgba(255,255,255,0.95)" }}
       >
         {target ? (
-          <img src={target.image} alt={target.label} className="max-w-full max-h-[56px] object-contain" />
+          <img src={target.image} alt={target.label} className="w-full h-full object-contain" />
         ) : (
-          <Crosshair className="w-8 h-8 text-muted-foreground/15" />
+          <Crosshair className="w-12 h-12 text-muted-foreground/15" />
         )}
       </div>
 
