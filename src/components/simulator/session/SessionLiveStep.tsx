@@ -272,6 +272,19 @@ export function SessionLiveStep({ lanes, exercises, onBack, isFirer = false }: P
 
   const selectedLaneData = selectedLane !== null ? lanes.find((l) => l.laneId === selectedLane) : null;
 
+  const gridCols = useMemo(() => {
+    const n = lanes.length;
+    if (n <= 1) return 1;
+    if (n <= 2) return 2;
+    if (n <= 6) return 3;
+    if (n <= 9) return 3;
+    if (n === 10) return 5;
+    if (n <= 12) return 4;
+    if (n <= 16) return 4;
+    if (n <= 20) return 5;
+    return 6;
+  }, [lanes.length]);
+
   const btnBase = "h-9 px-4 rounded-xl font-semibold text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all duration-300 disabled:opacity-25 disabled:pointer-events-none";
 
   return (
@@ -323,7 +336,7 @@ export function SessionLiveStep({ lanes, exercises, onBack, isFirer = false }: P
 
       {/* 10-lane thumbnail grid */}
       <div className="flex-1 min-h-0 overflow-auto">
-        <div className="grid grid-cols-5 gap-3 h-full auto-rows-fr">
+        <div className="grid gap-3 h-full auto-rows-fr" style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}>
           {lanes.map((lane) => (
             <ThumbnailCard
               key={lane.laneId}
