@@ -336,7 +336,7 @@ export function SessionLiveStep({ lanes, exercises, onBack, isFirer = false }: P
 
       {/* 10-lane thumbnail grid */}
       <div className="flex-1 min-h-0 overflow-auto">
-        <div className="grid grid-cols-5 gap-3 h-full auto-rows-fr">
+        <div className="grid gap-3 h-full auto-rows-fr" style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}>
           {lanes.map((lane) => (
             <ThumbnailCard
               key={lane.laneId}
