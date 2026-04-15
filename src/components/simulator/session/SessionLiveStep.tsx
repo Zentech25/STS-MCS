@@ -114,20 +114,11 @@ function ThumbnailCard({
           </div>
         </div>
         
-        <div className="flex items-center gap-1">
-          {/* Accuracy - crosshair/bullseye */}
-          <div className="flex items-center gap-1 px-2 py-1 rounded-lg" 
-               style={{ background: "hsl(var(--primary) / 0.25)", border: "1px solid hsl(var(--primary) / 0.35)" }}>
-            <Crosshair className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
-            <span className="text-xs font-mono font-bold text-foreground">{shots.accuracy}%</span>
-          </div>
-          
-          {/* RDS - bullet/circle */}
-          <div className="flex items-center gap-1 px-2 py-1 rounded-lg" 
-               style={{ background: "hsl(var(--muted) / 0.4)", border: "1px solid hsl(var(--muted) / 0.5)" }}>
-            <Circle className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2.5} fill="currentColor" />
-            <span className="text-xs font-mono font-bold text-foreground">{shots.total}</span>
-          </div>
+        {/* Accuracy - crosshair/bullseye */}
+        <div className="flex items-center gap-1 px-2 py-1 rounded-lg" 
+             style={{ background: "hsl(var(--primary) / 0.25)", border: "1px solid hsl(var(--primary) / 0.35)" }}>
+          <Crosshair className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
+          <span className="text-xs font-mono font-bold text-foreground">{shots.accuracy}%</span>
         </div>
       </div>
     </motion.button>
