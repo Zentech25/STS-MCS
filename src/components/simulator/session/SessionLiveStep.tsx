@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import { Play, Pause, Square, ChevronLeft, Target, Crosshair, Zap, Shield, Eye, Gamepad2, X } from "lucide-react";
+import { Play, Pause, Square, ChevronLeft, Target, Crosshair, Zap, Shield, Percent, Gamepad2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LaneAssignment, ExerciseConfig } from "./types";
 import { getTargetById } from "@/contexts/TargetsContext";
@@ -101,14 +101,15 @@ function ThumbnailCard({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 px-2 py-1 rounded-md" style={{ background: "hsl(var(--success) / 0.15)" }}>
             <Zap className="w-3 h-3 text-success" />
-            <span className="text-xs font-mono font-bold text-success">{shots.hits}</span>
+            <span className="text-xs font-mono font-bold text-foreground">{shots.hits}</span>
           </div>
           <div className="flex items-center gap-1.5 px-2 py-1 rounded-md" style={{ background: "hsl(var(--destructive) / 0.15)" }}>
             <Target className="w-3 h-3 text-destructive" />
-            <span className="text-xs font-mono font-bold text-destructive">{shots.misses}</span>
+            <span className="text-xs font-mono font-bold text-foreground">{shots.misses}</span>
           </div>
         </div>
         <div className="flex items-center gap-1.5">
+          <Percent className="w-3 h-3 text-muted-foreground" />
           <span className="text-xs font-mono font-bold text-foreground">{shots.accuracy}%</span>
         </div>
       </div>
@@ -212,15 +213,15 @@ function DetailPopup({
             style={{ borderLeft: "1px solid var(--divider)", background: "var(--surface-inset)" }}
           >
             {[
-              { label: "Hits", value: String(shots.hits), color: "text-success", bg: "hsl(var(--success) / 0.15)", icon: Zap },
-              { label: "Miss", value: String(shots.misses), color: "text-destructive", bg: "hsl(var(--destructive) / 0.15)", icon: Target },
-              { label: "Acc", value: `${shots.accuracy}%`, color: "text-primary", bg: "hsl(var(--primary) / 0.15)", icon: Eye },
-              { label: "Rds", value: `${shots.total}/${exercise?.rounds || 0}`, color: "text-foreground", bg: "hsl(var(--muted) / 0.5)", icon: Shield },
+              { label: "Hits", value: String(shots.hits), color: "text-foreground", bg: "hsl(var(--success) / 0.15)", icon: Zap, iconColor: "text-success" },
+              { label: "Miss", value: String(shots.misses), color: "text-foreground", bg: "hsl(var(--destructive) / 0.15)", icon: Target, iconColor: "text-destructive" },
+              { label: "Acc", value: `${shots.accuracy}%`, color: "text-foreground", bg: "hsl(var(--primary) / 0.15)", icon: Percent, iconColor: "text-primary" },
+              { label: "Rds", value: `${shots.total}/${exercise?.rounds || 0}`, color: "text-foreground", bg: "hsl(var(--muted) / 0.5)", icon: Shield, iconColor: "text-muted-foreground" },
             ].map((item) => (
               <div key={item.label} className="rounded-xl p-3 text-center"
                 style={{ background: item.bg, border: "1px solid var(--divider)" }}
               >
-                <item.icon className={`w-5 h-5 mx-auto ${item.color} mb-1`} />
+                <item.icon className={`w-5 h-5 mx-auto ${item.iconColor} mb-1`} />
                 <p className={`text-base font-mono font-bold leading-tight ${item.color}`}>{item.value}</p>
                 <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-semibold mt-0.5">{item.label}</p>
               </div>
